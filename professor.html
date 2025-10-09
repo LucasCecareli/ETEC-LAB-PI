@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Dashboard do Professor — ETEC-LAB</title>
+
+    <!-- Fonte -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/professor.css">
+</head>
+
+<body>
+    <!-- Header principal -->
+    <header class="site-header">
+        <!-- Linha superior: logo Governo SP -->
+        <div class="header-top">
+            <img src="img/sp-logo.png" alt="Governo do Estado de São Paulo" class="logo-sp">
+        </div>
+
+        <!-- Linha central: logos ETEC + CPS + campo de busca -->
+        <div class="header-middle">
+            <div class="left-logos">
+                <img src="img/etec-logo.png" alt="Logo ETEC" class="logo-etec">
+                <img src="img/cps-logo.png" alt="Logo CPS" class="logo-cps">
+            </div>
+
+            <div class="right-search">
+                <div class="search-wrap">
+                    <input type="search" placeholder="O que deseja localizar?" aria-label="Pesquisar">
+                    <button class="search-btn" aria-label="Buscar">🔍</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="thin-sep"></div>
+    </header>
+
+
+
+
+    <!-- Aba de navegação (pills) -->
+    <nav class="tabs container">
+        <button class="tab active">📊 Dashboard</button>
+        <button class="tab">🔬 Kits Criados</button>
+        <button class="tab">📅 Agendamentos Criados</button>
+    </nav>
+
+    <!-- Conteúdo principal -->
+    <main class="container main-content">
+        <section class="dashboard">
+            <h1 class="page-title">Dashboard do Professor</h1>
+            <p class="subtitle">Bem-vindo ao ETEC-LAB. Gerencie seus agendamentos e kits de forma eficiente.</p>
+
+            <!-- Indicadores principais -->
+            <div class="stats-grid">
+                <div class="stat card">
+                    <div class="stat-number text-green">3</div>
+                    <div class="stat-label">Aulas Confirmadas</div>
+                </div>
+
+                <div class="stat card">
+                    <div class="stat-number text-amber">2</div>
+                    <div class="stat-label">Aulas a serem confirmadas</div>
+                </div>
+
+                <div class="stat card">
+                    <div class="stat-number text-blue">12</div>
+                    <div class="stat-label">Meus Kits Criados</div>
+                </div>
+            </div>
+
+            <!-- Ações rápidas -->
+            <h2 class="section-title">Ações Rápidas</h2>
+            <div class="actions-row">
+                <button class="btn btn-primary large">＋ Novo Agendamento</button>
+                <button class="btn btn-outline">🧪 Criar Kit</button>
+                <button class="btn btn-outline">📅 Ver Calendário</button>
+            </div>
+
+            <!-- Área de cards (exemplo simplificado) -->
+            <section class="cards-section">
+                <h3 class="section-title">Meus Kits Criados</h3>
+
+                <div class="mini-stats-grid">
+                    <div class="mini-stat card">
+                        <div class="mini-number">4</div>
+                        <div class="mini-label">Total de Kits</div>
+                    </div>
+                    <div class="mini-stat card">
+                        <div class="mini-number">17</div>
+                        <div class="mini-label">Usos Totais</div>
+                    </div>
+                    <div class="mini-stat card">
+                        <div class="mini-number">3</div>
+                        <div class="mini-label">Kits Ativos</div>
+                    </div>
+                    <div class="mini-stat card">
+                        <div class="mini-number">10</div>
+                        <div class="mini-label">Itens por Kit (média)</div>
+                    </div>
+                </div>
+
+                <!-- Exemplo de cards de kit -->
+                <div class="kit-grid">
+                    <article class="kit-card card">
+                        <div class="kit-card-head">
+                            <div class="kit-icon">🧪</div>
+                            <div>
+                                <h4>Kit Titulação Básica</h4>
+                                <div class="kit-sub">8 itens</div>
+                            </div>
+                            <div class="kit-uses">5 usos</div>
+                        </div>
+                        <p class="kit-desc">Kit completo para aulas de titulação ácido-base com indicadores.</p>
+
+                        <div class="kit-meta">
+                            <div><strong>Criado em:</strong> 10/01/2025</div>
+                            <div><strong>Último uso:</strong> 15/01/2025</div>
+                        </div>
+
+                        <div class="kit-actions">
+                            <button class="btn btn-light">👁️ Ver</button>
+                            <button class="btn btn-light">✏️ Editar</button>
+                            <button class="btn btn-light">📄 Duplicar</button>
+                            <button class="btn btn-danger">🗑️</button>
+                        </div>
+                    </article>
+
+                    <article class="kit-card card">
+                        <div class="kit-card-head">
+                            <div class="kit-icon">🧪</div>
+                            <div>
+                                <h4>Kit Síntese Orgânica</h4>
+                                <div class="kit-sub">12 itens</div>
+                            </div>
+                            <div class="kit-uses">3 usos</div>
+                        </div>
+                        <p class="kit-desc">Materiais para síntese de compostos orgânicos simples.</p>
+
+                        <div class="kit-meta">
+                            <div><strong>Criado em:</strong> 08/01/2025</div>
+                            <div><strong>Último uso:</strong> 12/01/2025</div>
+                        </div>
+
+                        <div class="kit-actions">
+                            <button class="btn btn-light">👁️ Ver</button>
+                            <button class="btn btn-light">✏️ Editar</button>
+                            <button class="btn btn-light">📄 Duplicar</button>
+                            <button class="btn btn-danger">🗑️</button>
+                        </div>
+                    </article>
+                </div>
+
+            </section>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">&copy; 2025 ETEC Júlio de Mesquita - Centro Paula Souza</div>
+    </footer>
+</body>
+
+</html>
