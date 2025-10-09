@@ -1,0 +1,134 @@
+/* Estilos Gerais */
+:root {
+    --primary-color: #B11116; /* Vermelho escuro para cabeçalhos e botões */
+    --text-dark: #333;
+    --text-light: #666;
+    --background-color: #f5f5f5; /* Fundo levemente cinza */
+    --input-bg: #EAEAEA;
+    --border-radius: 4px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-dark);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh; /* Garante que o body ocupe toda a altura da tela */
+}
+
+/* --- Cabeçalho (Logo e Títulos) --- */
+.header {
+    text-align: center;
+    padding: 40px 20px 20px;
+    margin-bottom: 20px;
+}
+
+.header__title {
+    color: var(--primary-color);
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.header__subtitle {
+    color: var(--text-light);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* --- Container Principal do Login --- */
+.login-container {
+    width: 100%;
+    max-width: 380px; /* Limita a largura do formulário, centralizando */
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+    overflow: hidden; /* Importante para o header vermelho */
+}
+
+/* --- Cabeçalho Vermelho "Acesso ao Sistema" --- */
+.login-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 15px 20px;
+    text-align: center;
+    font-size: 18px;
+}
+
+.login-header h2 {
+    font-size: 18px;
+    font-weight: normal;
+}
+
+/* --- Formulário --- */
+.login-form {
+    padding: 25px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    color: var(--text-dark);
+    margin-bottom: 5px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="password"] {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius);
+    background-color: var(--input-bg);
+    outline: none; /* Remove a borda azul padrão do foco */
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+    border-color: var(--primary-color);
+}
+
+/* --- Botão Conectar --- */
+.btn-conectar {
+    width: 100%;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 10px;
+}
+
+.btn-conectar:hover {
+    background-color: #7a2828; /* Cor mais escura ao passar o mouse */
+}
+
+/* --- Rodapé --- */
+.footer {
+    width: 100%;
+    text-align: center;
+    padding: 15px 20px;
+    margin-top: auto; /* Empurra o rodapé para o final da página */
+}
+
+.footer p {
+    font-size: 12px;
+    color: var(--text-light);
+}
