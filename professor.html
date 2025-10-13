@@ -3,13 +3,15 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard do Professor — ETEC-LAB</title>
 
     <!-- Fonte -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/professor.css">
-    <script src="js/professor.js"></script>
+
+    <!-- Mantenho a referência aqui, mas o script está no item 3 -->
+    <script src="js/professor.js" defer></script> 
 </head>
 
 <body>
@@ -39,18 +41,20 @@
     </header>
 
 
-
-
     <!-- Aba de navegação (pills) -->
     <nav class="tabs container">
-        <button class="tab active">📊 Dashboard</button>
-        <button class="tab">🔬 Kits Criados</button>
-        <button class="tab">📅 Agendamentos Criados</button>
+        <!-- Adicionando o atributo data-tab para vincular o botão à seção de conteúdo -->
+        <button class="tab active" data-tab="dashboard-content">📊 Dashboard</button>
+        <button class="tab" data-tab="kits-content">🔬 Kits Criados</button>
+        <button class="tab" data-tab="agendamentos-content">📅 Agendamentos Criados</button>
     </nav>
 
     <!-- Conteúdo principal -->
     <main class="container main-content">
-        <section class="dashboard">
+        
+        <!-- ======================================================= -->
+        <!-- 1. CONTEÚDO DA ABA: DASHBOARD (Ativo por Padrão) -->
+        <section class="tab-content active" id="dashboard-content">
             <h1 class="page-title">Dashboard do Professor</h1>
             <p class="subtitle">Bem-vindo ao ETEC-LAB. Gerencie seus agendamentos e kits de forma eficiente.</p>
 
@@ -156,6 +160,181 @@
 
             </section>
         </section>
+
+        <!-- ======================================================= -->
+        <!-- 2. CONTEÚDO DA ABA: KITS CRIADOS -->
+        <section class="tab-content" id="kits-content">
+            <h1 class="page-title">Meus Kits de Materiais Criados</h1>
+            <p class="subtitle">Visão detalhada de todos os kits que você montou para suas aulas.</p>
+            
+            <div class="kits-header">
+                <div class="kits-stats">
+                    <span class="stat-small">Total de Kits: <strong>12</strong></span>
+                    <span class="stat-small">Kits Ativos: <strong class="text-green">9</strong></span>
+                    <span class="stat-small">Total de Usos: <strong>45</strong></span>
+                </div>
+                <button class="btn btn-primary large">＋ Criar Novo Kit</button>
+            </div>
+
+            <div class="kit-table-container card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome do Kit</th>
+                            <th>Itens</th>
+                            <th>Usos</th>
+                            <th>Status</th>
+                            <th>Criado em</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td data-label="Nome do Kit">Kit Titulação Básica</td>
+                            <td data-label="Itens">8</td>
+                            <td data-label="Usos">5</td>
+                            <td data-label="Status"><span class="badge status-active">Ativo</span></td>
+                            <td data-label="Criado em">10/01/2025</td>
+                            <td data-label="Ações" class="kit-actions-compact">
+                                <button class="btn btn-light">👁️ Ver</button>
+                                <button class="btn btn-light">✏️ Editar</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td data-label="Nome do Kit">Kit Síntese Orgânica</td>
+                            <td data-label="Itens">12</td>
+                            <td data-label="Usos">3</td>
+                            <td data-label="Status"><span class="badge status-active">Ativo</span></td>
+                            <td data-label="Criado em">08/01/2025</td>
+                            <td data-label="Ações" class="kit-actions-compact">
+                                <button class="btn btn-light">👁️ Ver</button>
+                                <button class="btn btn-light">✏️ Editar</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td data-label="Nome do Kit">Kit Medidas Elétricas</td>
+                            <td data-label="Itens">15</td>
+                            <td data-label="Usos">15</td>
+                            <td data-label="Status"><span class="badge status-active">Ativo</span></td>
+                            <td data-label="Criado em">20/12/2024</td>
+                            <td data-label="Ações" class="kit-actions-compact">
+                                <button class="btn btn-light">👁️ Ver</button>
+                                <button class="btn btn-light">✏️ Editar</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td data-label="Nome do Kit">Kit Desmontagem PC</td>
+                            <td data-label="Itens">5</td>
+                            <td data-label="Usos">0</td>
+                            <td data-label="Status"><span class="badge status-draft">Rascunho</span></td>
+                            <td data-label="Criado em">01/03/2025</td>
+                            <td data-label="Ações" class="kit-actions-compact">
+                                <button class="btn btn-light">👁️ Ver</button>
+                                <button class="btn btn-light">✏️ Editar</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td data-label="Nome do Kit">Kit Introdução à Biologia</td>
+                            <td data-label="Itens">22</td>
+                            <td data-label="Usos">22</td>
+                            <td data-label="Status"><span class="badge status-disabled">Arquivado</span></td>
+                            <td data-label="Criado em">01/10/2024</td>
+                            <td data-label="Ações" class="kit-actions-compact">
+                                <button class="btn btn-light">👁️ Ver</button>
+                                <button class="btn btn-light">✏️ Editar</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+        </section>
+
+        <!-- ======================================================= -->
+        <!-- 3. CONTEÚDO DA ABA: AGENDAMENTOS CRIADOS (Atualizado) -->
+        <section class="tab-content" id="agendamentos-content">
+            <h1 class="page-title">Agendamentos de Aulas Criados</h1>
+            <p class="subtitle">Acompanhe o status e o histórico dos seus agendamentos de laboratório.</p>
+            
+            <div class="kits-header">
+                <div class="kits-stats">
+                    <span class="stat-small">Total de Agendamentos: <strong>8</strong></span>
+                    <span class="stat-small">Confirmados: <strong class="text-green">3</strong></span>
+                    <span class="stat-small">Pendentes: <strong class="text-amber">2</strong></span>
+                </div>
+                <button class="btn btn-primary large">📅 Agendar Nova Aula</button>
+            </div>
+            
+            <div class="kit-table-container card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data e Hora</th>
+                            <th>Laboratório</th>
+                            <th>Kit/Material Solicitado</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Agendamento Confirmado -->
+                        <tr>
+                            <td data-label="Data e Hora">20/05/2025 (10:00 - 11:30)</td>
+                            <td data-label="Laboratório">Lab. de Química 2</td>
+                            <td data-label="Kit/Material Solicitado">Kit Titulação Básica</td>
+                            <td data-label="Status"><span class="badge status-active">Confirmado</span></td>
+                            <td data-label="Ações" class="kit-actions-compact">
+                                <button class="btn btn-light">👁️ Detalhes</button>
+                            </td>
+                        </tr>
+                        <!-- Agendamento Pendente -->
+                        <tr>
+                            <td data-label="Data e Hora">21/05/2025 (14:00 - 15:30)</td>
+                            <td data-label="Laboratório">Lab. de Informática 1</td>
+                            <td data-label="Kit/Material Solicitado">15x Kit Desmontagem PC</td>
+                            <td data-label="Status"><span class="badge status-draft">Pendente</span></td>
+                            <td data-label="Ações" class="kit-actions-compact">
+                                <button class="btn btn-light">✏️ Editar</button>
+                                <button class="btn btn-danger">❌ Cancelar</button>
+                            </td>
+                        </tr>
+                        <!-- Agendamento Negado -->
+                        <tr>
+                            <td data-label="Data e Hora">15/05/2025 (08:00 - 09:30)</td>
+                            <td data-label="Laboratório">Lab. de Biologia</td>
+                            <td data-label="Kit/Material Solicitado">Kit Introdução à Biologia</td>
+                            <td data-label="Status"><span class="badge status-denied">Negado</span></td>
+                            <td data-label="Ações" class="kit-actions-compact">
+                                <button class="btn btn-light">❓ Motivo</button>
+                            </td>
+                        </tr>
+                         <!-- Agendamento Confirmado -->
+                        <tr>
+                            <td data-label="Data e Hora">27/05/2025 (16:00 - 17:30)</td>
+                            <td data-label="Laboratório">Lab. de Eletrotécnica</td>
+                            <td data-label="Kit/Material Solicitado">Kit Medidas Elétricas</td>
+                            <td data-label="Status"><span class="badge status-active">Confirmado</span></td>
+                            <td data-label="Ações" class="kit-actions-compact">
+                                <button class="btn btn-light">👁️ Detalhes</button>
+                            </td>
+                        </tr>
+                        <!-- Agendamento Pendente -->
+                        <tr>
+                            <td data-label="Data e Hora">28/05/2025 (19:00 - 20:30)</td>
+                            <td data-label="Laboratório">Lab. de Física</td>
+                            <td data-label="Kit/Material Solicitado">Kit Síntese Orgânica</td>
+                            <td data-label="Status"><span class="badge status-draft">Pendente</span></td>
+                            <td data-label="Ações" class="kit-actions-compact">
+                                <button class="btn btn-light">✏️ Editar</button>
+                                <button class="btn btn-danger">❌ Cancelar</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+        
     </main>
 
     <footer class="site-footer">

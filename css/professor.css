@@ -7,12 +7,14 @@ html,
 body {
     height: 100%;
     margin: 0;
+    /* Usando a fonte Inter que você especificou */
     font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     color: #333;
     background: #fafafa;
 }
 
 .container {
+    /* Mantenho o max-width para o conteúdo centralizado */
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
@@ -20,7 +22,7 @@ body {
 
 /* Variáveis */
 :root {
-    --red: #b9080f;
+    --red: #b9080f; /* Cor principal (vermelho ETEC) */
     --muted: #8b8b8b;
     --card-bg: #fff;
     --border: #e9e9ea;
@@ -97,18 +99,10 @@ body {
     background: transparent;
     font-size: 18px;
     cursor: pointer;
-    color: #9b59b6;
+    color: var(--muted); /* Usando a cor muted para o ícone de busca */
 }
 
 /* Linha vermelha */
-.thin-sep {
-    height: 3px;
-    background: var(--red);
-    margin-top: 5px;
-}
-
-
-/* separador fino */
 .thin-sep {
     height: 3px;
     background: linear-gradient(to right, var(--red), #c14444);
@@ -121,7 +115,7 @@ body {
     gap: 12px;
     padding: 18px 20px;
     align-items: center;
-    justify-content: center; /* ← CENTRALIZA AS ABAS */
+    justify-content: center; /* CENTRALIZA AS ABAS */
     background: #fff;
     border-bottom: 1px solid #e0e0e0;
 }
@@ -133,6 +127,11 @@ body {
     border-radius: 999px;
     cursor: pointer;
     font-weight: 600;
+    transition: all 0.2s; /* Adicionado transição para suavizar */
+}
+
+.tab:hover:not(.active) {
+    background: #e9e9ea;
 }
 
 .tab.active {
@@ -141,10 +140,36 @@ body {
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 }
 
-/* Main */
+/* Main Content */
 .main-content {
     padding-top: 10px;
+    flex-grow: 1; /* Ocupa o espaço restante */
 }
+
+/* --- Lógica de Abas --- */
+.tab-content {
+    display: none; /* Por padrão, esconde todas as seções de conteúdo */
+}
+
+.tab-content.active {
+    display: block; /* Apenas a seção com a classe 'active' é exibida */
+}
+
+.placeholder-content {
+    background: var(--card-bg);
+    border: 1px dashed var(--border);
+    padding: 30px;
+    text-align: center;
+    border-radius: var(--radius);
+    color: var(--muted);
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+/* --- FIM Lógica de Abas --- */
+
 
 .page-title {
     color: var(--red);
@@ -217,6 +242,7 @@ body {
     border: 1px solid var(--border);
     background: transparent;
     cursor: pointer;
+    transition: background-color 0.2s, box-shadow 0.2s;
 }
 
 .btn-primary {
@@ -226,13 +252,19 @@ body {
     box-shadow: 0 2px 0 rgba(0, 0, 0, 0.03);
 }
 
+.btn-primary:hover {
+    background: #a3070d;
+}
+
 .btn-outline {
     background: #fff;
     color: var(--red);
     border: 2px solid rgba(185, 8, 15, 0.12);
 }
+.btn-outline:hover {
+    background: #fef4f4;
+}
 
-.btn.large,
 .btn.large {
     padding: 18px 28px;
     font-weight: 700;
@@ -243,6 +275,10 @@ body {
     border: 1px solid var(--border);
     padding: 8px 12px;
     border-radius: 8px;
+    transition: background-color 0.2s;
+}
+.btn-light:hover {
+    background: #f8f8f8;
 }
 
 .btn-danger {
@@ -251,6 +287,10 @@ body {
     color: #b9080f;
     padding: 8px 10px;
     border-radius: 8px;
+    transition: background-color 0.2s;
+}
+.btn-danger:hover {
+    background: #fdf5f5;
 }
 
 /* Mini stats */
@@ -277,7 +317,7 @@ body {
     font-size: 14px;
 }
 
-/* Kit cards */
+/* Kit cards (usados no Dashboard) */
 .kit-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -329,28 +369,200 @@ body {
     margin-top: 6px;
 }
 
+
+/* --- ESTILOS PARA ABAS DE LISTAGEM (Kits e Agendamentos) --- */
+
+/* Header com estatísticas e botão de ação */
+.kits-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px 0;
+}
+
+.kits-stats {
+    display: flex;
+    gap: 30px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.kits-stats strong {
+    font-weight: 700;
+    color: #333; /* Cor mais escura para o valor */
+}
+
+/* Estilos de Tabela Responsiva */
+.kit-table-container {
+    padding: 0; /* O padding é aplicado dentro do card no HTML */
+    overflow-x: auto; /* Permite rolagem horizontal em telas pequenas */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 15px;
+}
+
+thead {
+    background: #f7f7f8;
+}
+
+th, td {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+th {
+    font-weight: 600;
+    color: #555;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+tbody tr:hover {
+    background-color: #fefefe;
+}
+
+/* Badges de Status (cores) */
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12px;
+    text-align: center;
+}
+
+.status-active { /* Usado para Status: Confirmado (Green) */
+    background-color: #d1f7d6;
+    color: #1b9b46;
+}
+
+.status-draft { /* Usado para Status: Pendente (Amber/Yellow) */
+    background-color: #fff3cc;
+    color: #db8a00;
+}
+
+.status-disabled { /* Usado para Kits: Arquivado (Muted) */
+    background-color: #eee;
+    color: var(--muted);
+}
+
+.status-denied { /* NOVO: Usado para Agendamentos: Negado (Red) */
+    background-color: #fcebeb; 
+    color: var(--red);
+    border: 1px solid #f6d1d1;
+}
+
+
+.kit-actions-compact {
+    white-space: nowrap; /* Impede que os botões quebrem linha */
+}
+
+/* --- FIM ESTILOS PARA ABAS DE LISTAGEM --- */
+
+
 /* Footer */
 .site-footer {
     padding: 12px;
     text-align: center;
-    color: var(--text-light);
+    color: var(--muted); /* Ajustado para usar a cor muted, que é visível */
     margin-top: 30px;
-    font-size: 12px
+    font-size: 12px;
+    background: #fff;
+    border-top: 1px solid #e0e0e0;
 }
 
 /* Responsividade */
 @media (max-width: 960px) {
-  .header-middle {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
+    .header-middle {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
 
-  .right-search {
-    width: 100%;
-  }
+    .right-search {
+        width: 100%;
+    }
 
-  .search-wrap {
-    width: 100%;
-  }
+    .search-wrap {
+        width: 100%;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .mini-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .kit-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Responsividade da Tabela (Mobile) */
+    .kits-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .kits-stats {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .btn.large {
+        width: 100%; /* Botão em largura total no mobile */
+        padding: 14px 28px;
+    }
+    
+    /* Configuração para transformar a tabela em 'cards' no mobile */
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+    
+    thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+    
+    tr {
+        border: 1px solid var(--border);
+        margin-bottom: 10px;
+        border-radius: var(--radius);
+        background: var(--card-bg);
+    }
+    
+    td {
+        border: none;
+        position: relative;
+        padding-left: 50%; /* Espaço para o label */
+        text-align: right;
+    }
+    
+    td:before {
+        /* Cria o label da coluna */
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        width: 45%;
+        padding-left: 20px;
+        white-space: nowrap;
+        font-weight: 600;
+        text-align: left;
+        color: var(--red);
+    }
+
+    .kit-actions-compact {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+    }
 }
