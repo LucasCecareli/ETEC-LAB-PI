@@ -27,6 +27,7 @@ body {
     --card-bg: #fff;
     --border: #e9e9ea;
     --radius: 12px;
+    --light-red: #fcebeb;
 }
 
 /* Header */
@@ -451,8 +452,8 @@ tbody tr:hover {
     color: var(--muted);
 }
 
-.status-denied { /* NOVO: Usado para Agendamentos: Negado (Red) */
-    background-color: #fcebeb; 
+.status-denied { /* Usado para Agendamentos: Negado (Red) */
+    background-color: var(--light-red); 
     color: var(--red);
     border: 1px solid #f6d1d1;
 }
@@ -476,8 +477,437 @@ tbody tr:hover {
     border-top: 1px solid #e0e0e0;
 }
 
+/* ======================================================= */
+/* --- ESTILOS DO MODAL GERAL --- */
+
+.modal-overlay {
+    /* Escondido por padrão */
+    display: none; 
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Fundo semi-transparente */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    overflow-y: auto; /* Permite rolagem se o conteúdo for muito grande */
+    padding: 20px;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 900px; /* Largura máxima para desktop */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    margin: auto; /* Centraliza verticalmente e horizontalmente */
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: var(--red);
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--muted);
+    padding: 5px;
+}
+.close-btn:hover {
+    color: #333;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-subtitle {
+    color: var(--muted);
+    margin-top: -10px;
+    margin-bottom: 25px;
+    font-size: 15px;
+}
+
+.form-section {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f2f2f3;
+}
+
+.form-section h3 {
+    margin: 0 0 15px;
+    color: #444;
+    font-size: 18px;
+}
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.input-group input[type="text"], 
+.input-group textarea,
+.input-group select {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 16px;
+    background: #fff;
+}
+.input-group textarea {
+    resize: vertical;
+}
+
+
+.input-group select {
+    cursor: pointer;
+    appearance: none; /* Remove seta padrão em alguns browsers */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23666' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+}
+.input-group select:disabled {
+    background-color: #f7f7f8;
+    color: var(--muted);
+}
+
+.modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+
+/* --- Estilos do Calendário Dinâmico --- */
+.calendar-container {
+    display: grid;
+    /* Grid de 7 colunas (dias da semana) */
+    grid-template-columns: repeat(7, 1fr); 
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.calendar-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    height: 70px; /* Altura fixa para todos os dias */
+    justify-content: space-around;
+    user-select: none;
+}
+
+.calendar-day:hover:not(.day-selected):not(.disabled) {
+    background-color: #fcf4f4;
+    border-color: var(--red);
+}
+
+.day-number {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.day-name {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+/* Estados do dia */
+.calendar-day.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #f7f7f8;
+}
+.calendar-day.weekend {
+    background-color: #fefefe;
+}
+
+.calendar-day.day-selected {
+    background-color: var(--red);
+    color: #fff;
+    border-color: var(--red);
+    box-shadow: 0 4px 8px rgba(185, 8, 15, 0.2);
+}
+.calendar-day.day-selected .day-name {
+    color: #ffeaea;
+}
+
+.current-month-label {
+    grid-column: 1 / -1; /* Ocupa todas as 7 colunas */
+    text-align: center;
+    font-weight: 700;
+    color: var(--red);
+    margin: 10px 0 5px;
+    font-size: 16px;
+    border-bottom: 2px solid var(--light-red);
+    padding-bottom: 5px;
+}
+
+/* --- ESTILOS PARA SELEÇÃO MÚLTIPLA DE HORÁRIOS --- */
+
+.time-select-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+    background: #fdfdfd;
+    padding: 15px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    min-height: 50px;
+}
+
+.placeholder-msg {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--muted);
+    font-style: italic;
+    margin: 0;
+    padding: 10px 0;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+.checkbox-item input[type="checkbox"] {
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    accent-color: var(--red); /* Cor do checkbox */
+}
+
+.checkbox-item:hover {
+    border-color: var(--red);
+    background-color: #fef5f5;
+}
+
+/* Estado selecionado */
+.checkbox-item.selected {
+    border-color: var(--red);
+    background-color: var(--light-red);
+    color: var(--red);
+}
+
+/* Estado desabilitado (por limite) */
+.checkbox-item.disabled-limit {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #f5f5f5;
+}
+.checkbox-item.disabled-limit .checkbox-label {
+    color: #666;
+}
+
+.limit-message {
+    color: var(--red);
+    background-color: var(--light-red);
+    border: 1px solid var(--red);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    text-align: center;
+}
+.limit-message.hidden {
+    display: none;
+}
+/* --- FIM ESTILOS PARA SELEÇÃO MÚLTIPLA DE HORÁRIOS --- */
+
+
+/* --- ESTILOS PARA CRIAÇÃO DE KIT (Lista Dinâmica) --- */
+
+.kit-items-header {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1.5fr 40px; /* Alinhado com kit-item-row */
+    gap: 10px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #666;
+    font-size: 14px;
+    padding: 0 10px;
+}
+.kit-items-header span:nth-child(2) {
+    text-align: center; /* Alinha Qtd. */
+}
+.kit-items-header span:last-child {
+    visibility: hidden; /* Esconde o cabeçalho para o botão de lixeira */
+}
+
+.kit-item-row {
+    display: grid;
+    /* Colunas: Nome, Quantidade, Unidade, Botão de exclusão */
+    grid-template-columns: 3fr 1fr 1.5fr 40px; 
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: center;
+    border: 1px solid #f0f0f0;
+    padding: 10px;
+    border-radius: 8px;
+    background: #fff;
+    transition: background 0.2s;
+}
+
+.kit-item-row:hover {
+    background: #fcfcfc;
+}
+
+.kit-item-row input[type="text"],
+.kit-item-row input[type="number"],
+.kit-item-row select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 14px;
+    box-shadow: none;
+}
+
+.kit-item-row input[type="number"] {
+    text-align: center;
+}
+
+.btn-delete-item {
+    padding: 8px;
+    height: 40px;
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    border-radius: 6px;
+}
+
+.input-helper {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.small-inline {
+    padding: 8px 15px;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+/* --- FIM ESTILOS PARA CRIAÇÃO DE KIT --- */
+
+/* --- ESTILOS PARA ADIÇÃO MANUAL DE MATERIAIS (Seção 4) --- */
+
+.hidden {
+    display: none !important;
+}
+
+.manual-materials-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.manual-item-row {
+    display: grid;
+    grid-template-columns: 3fr 1fr 40px;
+    gap: 10px;
+    align-items: center;
+    background: #fff;
+    border: 1px solid var(--border);
+    padding: 10px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.manual-item-row:hover {
+    background: #fcfcfc;
+}
+
+.manual-item-row input[type="text"],
+.manual-item-row input[type="number"] {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.manual-item-row input[type="number"] {
+    text-align: center;
+}
+
+.btn-remove-material {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.btn-remove-material:hover {
+    background: #fef4f4;
+}
+
+.btn.small-inline {
+    padding: 8px 14px;
+    font-size: 14px;
+}
+
+.input-helper {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+/* --- FIM ESTILOS PARA ADIÇÃO MANUAL DE MATERIAIS --- */
+
+
 /* Responsividade */
 @media (max-width: 960px) {
+    /* ... (Estilos já existentes) ... */
+    
     .header-middle {
         flex-direction: column;
         align-items: flex-start;
@@ -564,5 +994,54 @@ tbody tr:hover {
         display: flex;
         justify-content: flex-end;
         gap: 8px;
+    }
+
+    /* Responsividade do Modal no Mobile */
+    .modal-content {
+        margin: 0;
+        min-height: 100vh; /* Ocupa a tela inteira */
+        border-radius: 0;
+    }
+    .calendar-day {
+        height: 60px;
+        font-size: 12px;
+    }
+    .day-number {
+        font-size: 16px;
+    }
+    .time-select-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Responsividade do Kit Item Row */
+    .kit-items-header {
+        display: none; /* Esconde cabeçalho em telas pequenas */
+    }
+    
+    .kit-item-row {
+        grid-template-columns: 1fr; /* Muda para uma única coluna */
+        grid-template-areas: 
+            "name delete"
+            "qty unit";
+        gap: 8px;
+    }
+
+    .kit-item-name {
+        grid-area: name;
+    }
+    .kit-item-qty {
+        grid-area: qty;
+    }
+    .kit-item-unit {
+        grid-area: unit;
+    }
+    .btn-delete-item {
+        grid-area: delete;
+        justify-self: end;
+        width: auto;
+    }
+    
+    .kit-item-row input[type="number"] {
+        text-align: left;
     }
 }

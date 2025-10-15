@@ -9,9 +9,7 @@
     <!-- Fonte -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/professor.css">
-
-    <!-- Mantenho a referência aqui, mas o script está no item 3 -->
-    <script src="js/professor.js" defer></script> 
+    <script src="js/professor.js" defer></script>
 </head>
 
 <body>
@@ -51,7 +49,7 @@
 
     <!-- Conteúdo principal -->
     <main class="container main-content">
-        
+
         <!-- ======================================================= -->
         <!-- 1. CONTEÚDO DA ABA: DASHBOARD (Ativo por Padrão) -->
         <section class="tab-content active" id="dashboard-content">
@@ -79,9 +77,11 @@
             <!-- Ações rápidas -->
             <h2 class="section-title">Ações Rápidas</h2>
             <div class="actions-row">
-                <button class="btn btn-primary large">＋ Novo Agendamento</button>
-                <button class="btn btn-outline">🧪 Criar Kit</button>
-                <button class="btn btn-outline">📅 Ver Calendário</button>
+                <!-- ID para o JS abrir o modal de agendamento -->
+                <button id="btn-novo-agendamento" class="btn btn-primary large">＋ Novo Agendamento</button>
+                <!-- ID para o JS abrir o modal de criação de kit -->
+                <button id="btn-create-kit-dashboard" class="btn btn-outline">🧪 Criar Kit</button>
+
             </div>
 
             <!-- Área de cards (exemplo simplificado) -->
@@ -166,14 +166,13 @@
         <section class="tab-content" id="kits-content">
             <h1 class="page-title">Meus Kits de Materiais Criados</h1>
             <p class="subtitle">Visão detalhada de todos os kits que você montou para suas aulas.</p>
-            
+
             <div class="kits-header">
                 <div class="kits-stats">
                     <span class="stat-small">Total de Kits: <strong>12</strong></span>
                     <span class="stat-small">Kits Ativos: <strong class="text-green">9</strong></span>
                     <span class="stat-small">Total de Usos: <strong>45</strong></span>
                 </div>
-                <button class="btn btn-primary large">＋ Criar Novo Kit</button>
             </div>
 
             <div class="kit-table-container card">
@@ -247,24 +246,23 @@
                     </tbody>
                 </table>
             </div>
-            
+
         </section>
 
         <!-- ======================================================= -->
-        <!-- 3. CONTEÚDO DA ABA: AGENDAMENTOS CRIADOS (Atualizado) -->
+        <!-- 3. CONTEÚDO DA ABA: AGENDAMENTOS CRIADOS -->
         <section class="tab-content" id="agendamentos-content">
             <h1 class="page-title">Agendamentos de Aulas Criados</h1>
             <p class="subtitle">Acompanhe o status e o histórico dos seus agendamentos de laboratório.</p>
-            
+
             <div class="kits-header">
                 <div class="kits-stats">
                     <span class="stat-small">Total de Agendamentos: <strong>8</strong></span>
                     <span class="stat-small">Confirmados: <strong class="text-green">3</strong></span>
                     <span class="stat-small">Pendentes: <strong class="text-amber">2</strong></span>
                 </div>
-                <button class="btn btn-primary large">📅 Agendar Nova Aula</button>
             </div>
-            
+
             <div class="kit-table-container card">
                 <table>
                     <thead>
@@ -308,7 +306,7 @@
                                 <button class="btn btn-light">❓ Motivo</button>
                             </td>
                         </tr>
-                         <!-- Agendamento Confirmado -->
+                        <!-- Agendamento Confirmado -->
                         <tr>
                             <td data-label="Data e Hora">27/05/2025 (16:00 - 17:30)</td>
                             <td data-label="Laboratório">Lab. de Eletrotécnica</td>
@@ -334,12 +332,161 @@
             </div>
 
         </section>
-        
+
     </main>
 
     <footer class="site-footer">
         <div class="container">&copy; 2025 ETEC Júlio de Mesquita - Centro Paula Souza</div>
     </footer>
+
+
+    <!-- ======================================================= -->
+    <!-- MODAL DE CRIAÇÃO DE KIT -->
+    <div id="new-kit-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🧪 Criar Novo Kit de Materiais</h2>
+                <button id="close-kit-modal-btn" class="close-btn" aria-label="Fechar Modal">❌</button>
+            </div>
+
+            <div class="modal-body">
+                <p class="modal-subtitle">Defina o nome, a descrição e liste os materiais que compõem o seu kit. Este
+                    kit ficará disponível para agendamento.</p>
+
+                <form id="kit-form">
+                    <!-- 1. DETALHES DO KIT -->
+                    <div class="form-section">
+                        <h3>1. Informações Básicas</h3>
+                        <div class="input-group">
+                            <label for="kit-name">Nome do Kit:</label>
+                            <input type="text" id="kit-name"
+                                placeholder="Ex: Kit Titulação Básica, Kit Arduino Avançado" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="kit-description">Descrição (máx. 200 caracteres):</label>
+                            <textarea id="kit-description" rows="3" maxlength="200"
+                                placeholder="Breve descrição sobre o propósito do kit." required></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 2. LISTA DE MATERIAIS DO KIT (Dinâmico) -->
+                    <div class="form-section">
+                        <h3>2. Lista de Materiais</h3>
+                        <p class="input-helper">Adicione os materiais, suas quantidades e unidades de medida. Você deve
+                            adicionar pelo menos 1 item.</p>
+
+                        <!-- Cabeçalho da Lista (apenas para desktop) -->
+                        <div class="kit-items-header">
+                            <span>Material</span>
+                            <span>Qtd.</span>
+                            <span>Unidade</span>
+                        </div>
+
+                        <!-- Contêiner Dinâmico para Itens -->
+                        <div id="kit-items-container">
+                            <!-- Itens serão injetados pelo JS aqui -->
+                        </div>
+
+                        <button type="button" id="add-kit-item-btn" class="btn btn-outline small-inline">＋ Adicionar
+                            Material</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button id="kit-modal-cancel-btn" class="btn btn-light">Cancelar</button>
+                <button type="submit" form="kit-form" id="kit-modal-save-btn" class="btn btn-primary" disabled>Salvar
+                    Kit</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ======================================================= -->
+    <!-- MODAL DE NOVO AGENDAMENTO (Estrutura Inicial) -->
+    <div id="new-appointment-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🗓️ Agendar Nova Aula / Laboratório</h2>
+                <button id="close-modal-btn" class="close-btn" aria-label="Fechar Modal">❌</button>
+            </div>
+
+            <div class="modal-body">
+                <p class="modal-subtitle">Selecione a data, laboratório e horário para a sua aula. Os agendamentos são
+                    abertos para os próximos 30 dias.</p>
+
+                <!-- 1. SELEÇÃO DE DATA (CALENDÁRIO DINÂMICO) -->
+                <div class="form-section">
+                    <h3>1. Escolha a Data da Aula</h3>
+                    <div id="calendar-container" class="calendar-container">
+                        <!-- O calendário dinâmico será injetado aqui pelo JavaScript -->
+                    </div>
+                </div>
+
+                <!-- 2. SELEÇÃO DE LABORATÓRIO E HORÁRIO -->
+                <div class="form-section">
+                    <h3>2. Escolha o Laboratório e Horário (Máx. 4)</h3>
+                    <div class="input-group">
+                        <label for="lab-select">Laboratório:</label>
+                        <select id="lab-select">
+                            <option value="" disabled selected>Selecione um laboratório</option>
+                            <option value="quimica-1">Laboratório de Química 1</option>
+                            <option value="quimica-2">Laboratório de Química 2</option>
+                            <option value="informatica-1">Laboratório de Informática 1</option>
+                            <option value="informatica-2">Laboratório de Informática 2</option>
+                            <option value="biologia">Laboratório de Biologia</option>
+                        </select>
+                    </div>
+
+                    <!-- MUDANÇA AQUI: Div para os Checkboxes -->
+                    <div class="input-group">
+                        <label>Horários Disponíveis (Início - Fim):</label>
+                        <!-- Mensagem de erro/limite -->
+                        <div id="time-limit-message" class="limit-message hidden">
+                            Você pode selecionar no máximo 4 horários.
+                        </div>
+                        <div id="time-select-container" class="time-select-grid">
+                            <!-- Horários serão preenchidos dinamicamente como checkboxes -->
+                            <p class="placeholder-msg">Selecione uma data e um laboratório.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. SELEÇÃO DE KIT -->
+                <div class="form-section">
+                    <h3>3. Selecione o Kit (Obrigatório)</h3>
+                    <div class="input-group">
+                        <label for="kit-select">Kit de Materiais:</label>
+                        <select id="kit-select">
+                            <option value="kit-titulacao">Kit Titulação Básica</option>
+                            <option value="kit-sintese">Kit Síntese Orgânica</option>
+                            <option value="kit-eletrica">Kit Medidas Elétricas</option>
+                            <option value="Nenhum" selected>Nenhum kit (adicionar materiais manualmente)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 4. Adicionar materiais manualmente -->
+                <div id="manual-materials-section" class="hidden form-section">
+                    <h3>Adicionar Materiais Manualmente</h3>
+                    <p class="input-helper">Digite o nome e a quantidade de cada material necessário.</p>
+
+                    <div id="manual-materials-container" class="manual-materials-container">
+                        <!-- Itens aparecerão aqui dinamicamente -->
+                    </div>
+
+                    <button type="button" id="add-material-btn" class="btn small-inline">＋ Adicionar Material</button>
+                </div>
+
+
+            </div>
+
+            <div class="modal-footer">
+                <button id="modal-cancel-btn" class="btn btn-light">Cancelar</button>
+                <button id="modal-schedule-btn" class="btn btn-primary" disabled>Agendar Aula</button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
