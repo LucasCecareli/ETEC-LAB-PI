@@ -10,32 +10,132 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/professor.css">
     <script src="js/professor.js" defer></script>
+    
 </head>
 
 <body>
-    <!-- Header principal -->
-    <header class="site-header">
-        <!-- Linha superior: logo Governo SP -->
-        <div class="header-top">
-            <img src="img/sp-logo.png" alt="Governo do Estado de São Paulo" class="logo-sp">
-        </div>
-
-        <!-- Linha central: logos ETEC + CPS + campo de busca -->
-        <div class="header-middle">
-            <div class="left-logos">
-                <img src="img/etec-logo.png" alt="Logo ETEC" class="logo-etec">
-                <img src="img/cps-logo.png" alt="Logo CPS" class="logo-cps">
-            </div>
-
-            <div class="right-search">
-                <div class="search-wrap">
-                    <input type="search" placeholder="O que deseja localizar?" aria-label="Pesquisar">
-                    <button class="search-btn" aria-label="Buscar">🔍</button>
+    <section class="govsp-topo"> 
+        <link rel="stylesheet" type="text/css" href="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/css/sao-paulo/topo-padrao-govsp.min.css">
+        <link rel="stylesheet" type="text/css" href="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/css/sao-paulo/barra-contraste-govsp.min.css">  
+        <div id="govsp-topbarGlobal" class="blu-e">
+            <div id="topbarGlobal">
+                <div id="topbarLink" class="govsp-black">
+                    <div class="govsp-portal">
+                        <a href="http://www.saopaulo.sp.gov.br/" target="_blank">
+                            <img src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/logo-governo-do-estado-sp.png" alt="Governo do Estado de São Paulo" height="38" class="logo">
+                        </a>
+                    </div>
                 </div>
+                
+                <nav class="govsp-navbar govsp-navbar-expand-lg">
+                    
+                    <a class="govsp-social" href="https://www.flickr.com/governosp/" target="_blank">
+                        <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-flickr.png" alt="Flickr Governo de São Paulo">
+                    </a>
+                    <a class="govsp-social" href="https://www.linkedin.com/company/governosp/" target="_blank">
+                        <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-linkedin.png" alt="Linkedin Governo de São Paulo">
+                    </a>
+                    <a class="govsp-social" href="https://www.tiktok.com/@governosp" target="_blank">
+                        <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-tiktok.png" alt="TikTok Governo de São Paulo">
+                    </a>
+                    <a class="govsp-social" href="https://www.youtube.com/governosp/" target="_blank">
+                        <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-youtube.png" alt="Youtube Governo de São Paulo">
+                    </a>
+                    <a class="govsp-social" href="https://www.twitter.com/governosp/" target="_blank">
+                        <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-twitter.png" alt="Facebook Governo de São Paulo">
+                    </a>
+                    <a class="govsp-social" href="https://www.instagram.com/governosp/" target="_blank">
+                        <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-insta.png" alt="Instagram Governo de São Paulo">
+                    </a>
+                    <a class="govsp-social" href="https://www.facebook.com/governosp/" target="_blank">
+                        <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-facebook.png" alt="Facebook Governo de São Paulo">
+                    </a>
+                    <p class="govsp-social" style="min-height:auto;">/governosp</p>
+                    <div id="separador-nav"></div>
+                    <a class="govsp-acessibilidade" href="javascript:mudaTamanho('body', 1);">
+                        <img class="govsp-acessibilidade" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-big-font.png" alt="Aumentar Fonte">
+                    </a>
+                    <a class="govsp-acessibilidade" href="javascript:mudaTamanho('body', -1);">
+                        <img class="govsp-acessibilidade" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-small-font.png" alt="Diminuir Fonte">
+                    </a>
+                    <a class="govsp-acessibilidade" href="#" id="altocontraste" accesskey="3" onclick="window.toggleContrast()" onkeydown="window.toggleContrast()">
+                        <img class="govsp-acessibilidade" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-contrast.png" alt="Contraste">
+                    </a>
+                    <a class="govsp-acessibilidade" href="http://www.saopaulo.sp.gov.br/fale-conosco/comunicar-erros/" title="Comunicar Erros" target="_blank">
+                        <img class="govsp-acessibilidade" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-error-report.png">
+                    </a>
+                </nav>
+            </div>
+            <div class="govsp-kebab">
+                <figure></figure>
+                <figure class="govsp-middle"></figure>
+                <p class="govsp-cross"></p>
+                <figure></figure>
+                <ul class="govsp-dropdown" id="govsp-kebab">
+                    <li>
+                        
+                    </li>
+                    <li>
+                        <a class="govsp-social" href="https://www.flickr.com/governosp/" target="_blank">
+                            <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-flickr.png" alt="Flickr Governo de São Paulo">
+                        </a>
+                    </li>
+                    <li>
+                        <a class="govsp-social" href="https://www.linkedin.com/company/governosp/" target="_blank">
+                            <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-linkedin.png" alt="Linkedin Governo de São Paulo">
+                        </a>
+                    </li>
+                    <li>
+                        <a class="govsp-social" href="https://www.tiktok.com/@governosp" target="_blank">
+                            <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-tiktok.png" alt="TikTok Governo de São Paulo">
+                        </a>
+                    </li>
+                    <li>
+                        <a class="govsp-social" href="https://www.twitter.com/governosp/" target="_blank">
+                            <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-twitter.png" alt="Twitter Governo de São Paulo">
+                        </a>
+                    </li>
+                    <li>
+                        <a class="govsp-social" href="https://www.youtube.com/governosp/" target="_blank">
+                            <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-youtube.png" alt="Youtube Governo de São Paulo">
+                        </a>
+                    </li>
+                    <li>
+                        <a class="govsp-social" href="https://www.instagram.com/governosp/" target="_blank">
+                            <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-insta.png" alt="Instagram Governo de São Paulo">
+                        </a>
+                    </li>
+                    <li>
+                        <a class="govsp-social" href="https://www.facebook.com/governosp/" target="_blank">
+                            <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-facebook.png" alt="Facebook Governo de São Paulo">
+                        </a>
+                    </li>
+                    <li>
+                        <p class="govsp-social">/governosp</p>
+                    </li>
+                </ul>
             </div>
         </div>
-
-        <div class="thin-sep"></div>
+        <script src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/js/sao-paulo/script-topo.js"></script>
+        <script src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/js/sao-paulo/script-contrast.js"></script>
+        <script src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/js/sao-paulo/script-tamanho-fonte.js"></script>
+        <script src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/js/sao-paulo/script-scroll.js"></script>
+    </section>
+    <!-- Header principal -->
+    <header id="cps-header">
+        <div class="cps-header__container">
+            <div class="cps-header__logo">
+                <a href="https://etecjuliodemesquita.cps.sp.gov.br/" rel="home" title="Etec Júlio de Mesquita">
+                    </a><a href="https://etecjuliodemesquita.cps.sp.gov.br/" class="custom-logo-link" rel="home" aria-current="page"><img width="272.38" height="79" src="https://bkpsitecpsnew.blob.core.windows.net/uploadsitecps/sites/143/2024/04/etec_santo_andre.png" class="custom-logo" alt="Etec Júlio de Mesquita" decoding="async" fetchpriority="high"></a>                    
+            </div>
+            
+            <div id="search-mobile__btn" style="display:none;">
+                <i class="fas fa-search"></i>
+            </div>
+            <div id="menu-mobile__btn">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
     </header>
 
 
@@ -487,6 +587,17 @@
             </div>
         </div>
     </div>
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+          <div class="vw-plugin-top-wrapper"></div>
+        </div>
+      </div>
+    
+      <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+      <script>
+        new window.VLibras.Widget('https://vlibras.gov.br/app');
+      </script>
 </body>
 
 </html>

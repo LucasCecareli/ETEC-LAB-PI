@@ -1,4 +1,41 @@
-/* Reset e base */
+#cps-header {
+    display: flex
+;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    padding: 1.6rem;
+    border-top: 1px solid #dadada;
+}
+#cps-header, #tabela-contratos tr:nth-child(2n), .caixa__codigo, .panel {
+    background-color: #fff;
+}
+
+#cps-header .cps-header__container .cps-header__logo
+ {
+    display: flex;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+
+.cps-header__logo img {
+    display: block; /* Garante que a imagem se comporta como um bloco, se necessário */
+    max-width: 100%; /* Garante que não exceda a largura do contêiner */
+    height: auto;
+}
+
+/* Pode ser necessário ajustar a altura do cabeçalho */
+#cps-header {
+    /* ... estilos existentes ... */
+    min-height: 100px; /* Exemplo: ajuste a altura para acomodar os logos */
+}
 * {
     box-sizing: border-box;
 }
@@ -30,46 +67,8 @@ body {
     --light-red: #fcebeb;
 }
 
-/* Header */
-.site-header {
-    background: #fff;
-}
 
-/* Linha superior - Governo SP */
-.header-top {
-    padding: 10px 30px;
-    display: flex;
-    align-items: center;
-}
 
-.logo-sp {
-    height: 80px;
-    object-fit: contain;
-}
-
-/* Linha central - ETEC + CPS + busca */
-.header-middle {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 30px 15px 30px;
-}
-
-.left-logos {
-    display: flex;
-    align-items: center;
-    gap: 40px;
-}
-
-.logo-etec {
-    height: 65px;
-    object-fit: contain;
-}
-
-.logo-cps {
-    height: 65px;
-    object-fit: contain;
-}
 
 /* Campo de busca à direita */
 .right-search {
