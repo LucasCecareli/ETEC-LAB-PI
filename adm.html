@@ -1,141 +1,692 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Painel do Administrador — ETEC-LAB</title>
+
+    <!-- sua folha de estilos específica do admin -->
     <link rel="stylesheet" href="css/adm.css">
+
+    <!-- script do admin (defer para carregar depois do DOM) -->
+    <script src="js/adm.js" defer></script>
 </head>
+
 <body>
-    <section class="govsp-topo"> 
-        <link rel="stylesheet" type="text/css" href="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/css/sao-paulo/topo-padrao-govsp.min.css">
-        <link rel="stylesheet" type="text/css" href="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/css/sao-paulo/barra-contraste-govsp.min.css">  
+    <!-- ================= TOP BAR GOV SP (mantido do seu início) ================= -->
+    <section class="govsp-topo">
+        <link rel="stylesheet" type="text/css"
+            href="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/css/sao-paulo/topo-padrao-govsp.min.css">
+        <link rel="stylesheet" type="text/css"
+            href="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/css/sao-paulo/barra-contraste-govsp.min.css">
         <div id="govsp-topbarGlobal" class="blu-e">
+            <!-- (conteúdo do topo que você já tem) -->
             <div id="topbarGlobal">
                 <div id="topbarLink" class="govsp-black">
                     <div class="govsp-portal">
                         <a href="http://www.saopaulo.sp.gov.br/" target="_blank">
-                            <img src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/logo-governo-do-estado-sp.png" alt="Governo do Estado de São Paulo" height="38" class="logo">
+                            <img src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/logo-governo-do-estado-sp.png"
+                                alt="Governo do Estado de São Paulo" height="38" class="logo">
                         </a>
                     </div>
                 </div>
-                
                 <nav class="govsp-navbar govsp-navbar-expand-lg">
-                    
+                    <!-- ícones sociais e controles de acessibilidade ... -->
                     <a class="govsp-social" href="https://www.flickr.com/governosp/" target="_blank">
-                        <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-flickr.png" alt="Flickr Governo de São Paulo">
+                        <img class="govsp-icon-social"
+                            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-flickr.png"
+                            alt="Flickr Governo de São Paulo">
                     </a>
                     <a class="govsp-social" href="https://www.linkedin.com/company/governosp/" target="_blank">
-                        <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-linkedin.png" alt="Linkedin Governo de São Paulo">
+                        <img class="govsp-icon-social"
+                            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-linkedin.png"
+                            alt="Linkedin Governo de São Paulo">
                     </a>
                     <a class="govsp-social" href="https://www.tiktok.com/@governosp" target="_blank">
-                        <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-tiktok.png" alt="TikTok Governo de São Paulo">
+                        <img class="govsp-icon-social"
+                            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-tiktok.png"
+                            alt="TikTok Governo de São Paulo">
                     </a>
                     <a class="govsp-social" href="https://www.youtube.com/governosp/" target="_blank">
-                        <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-youtube.png" alt="Youtube Governo de São Paulo">
+                        <img class="govsp-icon-social"
+                            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-youtube.png"
+                            alt="Youtube Governo de São Paulo">
                     </a>
                     <a class="govsp-social" href="https://www.twitter.com/governosp/" target="_blank">
-                        <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-twitter.png" alt="Facebook Governo de São Paulo">
+                        <img class="govsp-icon-social"
+                            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-twitter.png"
+                            alt="Twitter Governo de São Paulo">
                     </a>
                     <a class="govsp-social" href="https://www.instagram.com/governosp/" target="_blank">
-                        <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-insta.png" alt="Instagram Governo de São Paulo">
+                        <img class="govsp-icon-social"
+                            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-insta.png"
+                            alt="Instagram Governo de São Paulo">
                     </a>
                     <a class="govsp-social" href="https://www.facebook.com/governosp/" target="_blank">
-                        <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-facebook.png" alt="Facebook Governo de São Paulo">
+                        <img class="govsp-icon-social"
+                            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-facebook.png"
+                            alt="Facebook Governo de São Paulo">
                     </a>
                     <p class="govsp-social" style="min-height:auto;">/governosp</p>
                     <div id="separador-nav"></div>
                     <a class="govsp-acessibilidade" href="javascript:mudaTamanho('body', 1);">
-                        <img class="govsp-acessibilidade" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-big-font.png" alt="Aumentar Fonte">
+                        <img class="govsp-acessibilidade"
+                            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-big-font.png"
+                            alt="Aumentar Fonte">
                     </a>
                     <a class="govsp-acessibilidade" href="javascript:mudaTamanho('body', -1);">
-                        <img class="govsp-acessibilidade" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-small-font.png" alt="Diminuir Fonte">
+                        <img class="govsp-acessibilidade"
+                            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-small-font.png"
+                            alt="Diminuir Fonte">
                     </a>
-                    <a class="govsp-acessibilidade" href="#" id="altocontraste" accesskey="3" onclick="window.toggleContrast()" onkeydown="window.toggleContrast()">
-                        <img class="govsp-acessibilidade" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-contrast.png" alt="Contraste">
+                    <a class="govsp-acessibilidade" href="#" id="altocontraste" accesskey="3"
+                        onclick="window.toggleContrast()" onkeydown="window.toggleContrast()">
+                        <img class="govsp-acessibilidade"
+                            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-contrast.png"
+                            alt="Contraste">
                     </a>
-                    <a class="govsp-acessibilidade" href="http://www.saopaulo.sp.gov.br/fale-conosco/comunicar-erros/" title="Comunicar Erros" target="_blank">
-                        <img class="govsp-acessibilidade" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-error-report.png">
+                    <a class="govsp-acessibilidade" href="http://www.saopaulo.sp.gov.br/fale-conosco/comunicar-erros/"
+                        title="Comunicar Erros" target="_blank">
+                        <img class="govsp-acessibilidade"
+                            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-error-report.png">
                     </a>
                 </nav>
             </div>
             <div class="govsp-kebab">
-                <figure></figure>
-                <figure class="govsp-middle"></figure>
-                <p class="govsp-cross"></p>
-                <figure></figure>
-                <ul class="govsp-dropdown" id="govsp-kebab">
-                    <li>
-                        
-                    </li>
-                    <li>
-                        <a class="govsp-social" href="https://www.flickr.com/governosp/" target="_blank">
-                            <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-flickr.png" alt="Flickr Governo de São Paulo">
-                        </a>
-                    </li>
-                    <li>
-                        <a class="govsp-social" href="https://www.linkedin.com/company/governosp/" target="_blank">
-                            <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-linkedin.png" alt="Linkedin Governo de São Paulo">
-                        </a>
-                    </li>
-                    <li>
-                        <a class="govsp-social" href="https://www.tiktok.com/@governosp" target="_blank">
-                            <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-tiktok.png" alt="TikTok Governo de São Paulo">
-                        </a>
-                    </li>
-                    <li>
-                        <a class="govsp-social" href="https://www.twitter.com/governosp/" target="_blank">
-                            <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-twitter.png" alt="Twitter Governo de São Paulo">
-                        </a>
-                    </li>
-                    <li>
-                        <a class="govsp-social" href="https://www.youtube.com/governosp/" target="_blank">
-                            <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-youtube.png" alt="Youtube Governo de São Paulo">
-                        </a>
-                    </li>
-                    <li>
-                        <a class="govsp-social" href="https://www.instagram.com/governosp/" target="_blank">
-                            <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-insta.png" alt="Instagram Governo de São Paulo">
-                        </a>
-                    </li>
-                    <li>
-                        <a class="govsp-social" href="https://www.facebook.com/governosp/" target="_blank">
-                            <img class="govsp-icon-social" src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-facebook.png" alt="Facebook Governo de São Paulo">
-                        </a>
-                    </li>
-                    <li>
-                        <p class="govsp-social">/governosp</p>
-                    </li>
-                </ul>
+                <!-- dropdown mobile (mantido) -->
             </div>
         </div>
-        <script src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/js/sao-paulo/script-topo.js"></script>
-        <script src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/js/sao-paulo/script-contrast.js"></script>
-        <script src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/js/sao-paulo/script-tamanho-fonte.js"></script>
-        <script src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/js/sao-paulo/script-scroll.js"></script>
+
+        <script
+            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/js/sao-paulo/script-topo.js"></script>
+        <script
+            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/js/sao-paulo/script-contrast.js"></script>
+        <script
+            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/js/sao-paulo/script-tamanho-fonte.js"></script>
+        <script
+            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/js/sao-paulo/script-scroll.js"></script>
     </section>
+
+    <!-- ================= HEADER CPS (logo da escola) ================= -->
     <header id="cps-header">
         <div class="cps-header__container">
             <div class="cps-header__logo">
                 <a href="https://etecjuliodemesquita.cps.sp.gov.br/" rel="home" title="Etec Júlio de Mesquita">
-                    </a><a href="https://etecjuliodemesquita.cps.sp.gov.br/" class="custom-logo-link" rel="home" aria-current="page"><img width="272.38" height="79" src="https://bkpsitecpsnew.blob.core.windows.net/uploadsitecps/sites/143/2024/04/etec_santo_andre.png" class="custom-logo" alt="Etec Júlio de Mesquita" decoding="async" fetchpriority="high"></a>                    
+                    <img width="272" height="79"
+                        src="https://bkpsitecpsnew.blob.core.windows.net/uploadsitecps/sites/143/2024/04/etec_santo_andre.png"
+                        class="custom-logo" alt="Etec Júlio de Mesquita">
+                </a>
             </div>
-            
-            <div id="search-mobile__btn" style="display:none;">
-                <i class="fas fa-search"></i>
-            </div>
-            <div id="menu-mobile__btn">
-                <i class="fas fa-bars"></i>
-            </div>
+
         </div>
     </header>
 
+    <!-- ================= NAV TABS (Admin) ================= -->
+    <nav class="tabs container">
+        <button class="tab active" data-tab="visao-geral">📊 Dashboard</button>
+        <button class="tab" data-tab="usuarios">👥 Usuários</button>
+        <button class="tab" data-tab="materiais">🧪 Materiais</button>
+        <button class="tab" data-tab="relatorios">📈 Relatórios</button>
+        <button class="tab" data-tab="configuracoes">⚙️ Configurações</button>
+    </nav>
+
+    <!-- ================= CONTEÚDO PRINCIPAL ================= -->
+    <main class="container main-content">
+
+        <!-- --- VISÃO GERAL --- -->
+        <section class="tab-content active" id="visao-geral">
+            <h1 class="page-title">Dashboard do Administrador</h1>
+            <p class="subtitle">Bem-vindo ao painel administrativo. Acompanhe usuários, materiais e agendamentos.</p>
+
+            <div class="stats-grid">
+                <div class="stat card">
+                    <div class="stat-number text-green">20</div>
+                    <div class="stat-label">Usuários Cadastrados</div>
+                </div>
+
+                <div class="stat card">
+                    <div class="stat-number text-amber">156</div>
+                    <div class="stat-label">Materiais Disponíveis</div>
+                </div>
+
+                <div class="stat card">
+                    <div class="stat-number text-blue">47</div>
+                    <div class="stat-label">Agendamentos este Mês</div>
+                </div>
+            </div>
+
+            <h2 class="section-title">Ações Rápidas</h2>
+            <div class="actions-row">
+                <button id="btn-new-user" class="btn btn-primary large">＋ Novo Usuário</button>
+                <button id="btn-add-material" class="btn btn-outline">🧪 Adicionar Material</button>
+                <button id="btn-view-reports" class="btn btn-outline">📄 Ver Relatórios</button>
+            </div>
+
+            <!-- exemplos rápidos (cards) -->
+            <section class="cards-section">
+                <h3 class="section-title">Atividades Recentes</h3>
+                <div class="mini-stats-grid">
+                    <div class="mini-stat card">
+                        <div class="mini-number">5</div>
+                        <div class="mini-label">Novos cadastros (7d)</div>
+                    </div>
+                    <div class="mini-stat card">
+                        <div class="mini-number">12</div>
+                        <div class="mini-label">Kits alterados (7d)</div>
+                    </div>
+                    <div class="mini-stat card">
+                        <div class="mini-number">3</div>
+                        <div class="mini-label">Agendamentos pendentes</div>
+                    </div>
+                    <div class="mini-stat card">
+                        <div class="mini-number">8</div>
+                        <div class="mini-label">Relatórios gerados</div>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <!-- --- USUÁRIOS --- -->
+        <section class="tab-content" id="usuarios">
+            <h1 class="page-title">Usuários</h1>
+            <p class="subtitle">Gerencie professores, técnicos e administradores.</p>
+
+            <div class="kits-header">
+                <div class="kits-stats">
+                    <span>Total: <strong>20</strong></span>
+                    <span>Professores: <strong>12</strong></span>
+                    <span>Técnicos: <strong>3</strong></span>
+                </div>
+            </div>
+
+            <div class="kit-table-container card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Perfil</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-body">
+                        <!-- EXEMPLO: linha de usuário com id 'u1' -->
+                        <tr data-user-id="u1">
+                            <td data-label="Nome" class="user-name">Mariana Silva</td>
+                            <td data-label="Perfil" class="user-profile">Professora</td>
+                            <td data-label="Email" class="user-email">mariana@etec.edu.br</td>
+                            <td data-label="Status">
+                                <span class="badge user-status status-active">Ativo</span>
+                            </td>
+                            <td data-label="Ações" class="kit-actions-compact actions-cell">
+                                <!-- NOTE: os botões precisam dessas classes e do atributo data-user-id -->
+                                <button class="btn btn-light btn-edit-user" data-user-id="u1">✏️ Editar</button>
+                                <button class="btn btn-danger btn-remove-user" data-user-id="u1">❌ Desativar</button>
+                            </td>
+                        </tr>
+
+                        <!-- Repita o padrão acima para cada usuário (use ids u2, u3 ...) -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- --- MATERIAIS --- -->
+        <section class="tab-content" id="materiais">
+            <h1 class="page-title">Materiais</h1>
+            <p class="subtitle">Cadastro e inventário de materiais e kits.</p>
+
+            <div class="kits-header">
+                <div class="kits-stats">
+                    <span>Total de Itens: <strong>156</strong></span>
+                    <span>Itens críticos: <strong class="text-amber">7</strong></span>
+                </div>
+            </div>
+
+            <div class="kit-table-container card">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Quantidade</th>
+                            <th>Unidade</th>
+                            <th>Laboratório</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <!-- ID CRÍTICO: O JS usa este ID para adicionar o listener de clique -->
+                    <tbody id="material-table-body">
+
+                        <!-- LINHA DE DADOS 1: Béquer 50ml (ID m1) -->
+                        <tr data-material-id="m1">
+                            <!-- Classes para atualização após Edição -->
+                            <td data-label="Item" class="material-item-name">Béquer 50ml</td>
+                            <td data-label="Quantidade" class="material-quantity">24</td>
+                            <td data-label="Unidade" class="material-unit">unidade</td>
+                            <td data-label="Laboratorio">Depósito Química</td>
+                            <td data-label="Ações" class="kit-actions-compact actions-cell">
+                                <!-- CLASSES E DATA-ID CRÍTICOS para o adm.js -->
+                                <button class="btn-action btn-edit-material" data-material-id="m1">
+                                    <span class="edit-icon">✏️ Editar</span>
+                                </button>
+                                <button class="btn-action btn-remove-material" data-material-id="m1">
+                                    <span class="remove-icon">🗑️ Remover</span>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- LINHA DE DADOS 2: Ácido Sulfúrico (ID m2) -->
+                        <tr data-material-id="m2">
+                            <td data-label="Item" class="material-item-name">Ácido Sulfúrico</td>
+                            <td data-label="Quantidade" class="material-quantity">5</td>
+                            <td data-label="Unidade" class="material-unit">litro</td>
+                            <td data-label="Laboratorio">Depósito Química</td>
+                            <td data-label="Ações" class="kit-actions-compact actions-cell">
+                                <button class="btn-action btn-edit-material" data-material-id="m2">
+                                    <span class="edit-icon">✏️ Editar</span>
+                                </button>
+                                <button class="btn-action btn-remove-material" data-material-id="m2">
+                                    <span class="remove-icon">🗑️ Remover</span>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- LINHA DE DADOS 3: Pipeta Graduada (ID m3) -->
+                        <tr data-material-id="m3">
+                            <td data-label="Item" class="material-item-name">Pipeta Graduada</td>
+                            <td data-label="Quantidade" class="material-quantity">10</td>
+                            <td data-label="Unidade" class="material-unit">unidade</td>
+                            <td data-label="Laboratorio">Laboratório 1</td>
+                            <td data-label="Ações" class="kit-actions-compact actions-cell">
+                                <button class="btn-action btn-edit-material" data-material-id="m3">
+                                    <span class="edit-icon">✏️ Editar</span>
+                                </button>
+                                <button class="btn-action btn-remove-material" data-material-id="m3">
+                                    <span class="remove-icon">🗑️ Remover</span>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- ... Adicione mais linhas de materiais aqui seguindo o padrão data-material-id="mX" ... -->
+
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        <!-- --- FIM MATERIAIS --- -->
 
 
+        <!-- --- RELATÓRIOS --- -->
+        <section class="tab-content" id="relatorios">
+            <h1 class="page-title">Relatórios</h1>
+            <p class="subtitle">Gere relatórios de uso, consumo e agendamentos.</p>
+
+            <div class="placeholder-content">
+                <p>Selecione um relatório para gerar (consumo mensal, uso por kit, agendamentos por laboratório).</p>
+                <div style="margin-top:16px;">
+                    <button class="btn btn-outline">Relatório: Consumo Mensal</button>
+                    <button class="btn btn-outline">Relatório: Agendamentos</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- --- CONFIGURAÇÕES --- -->
+        <section class="tab-content" id="configuracoes">
+            <h1 class="page-title">Configurações do Sistema</h1>
+            <p class="subtitle">Gerencie laboratórios e configurações gerais</p>
+
+            <div class="configs-grid">
+                <div class="card">
+                    <h3>Laboratórios</h3>
+
+                    <div class="lab-item">
+                        <div class="lab-info">
+                            <h4>Laboratório 1</h4>
+                            <p>Química Geral - Capacidade: 20 alunos</p>
+                        </div>
+                        <button class="btn-link" data-open="modal-edit-lab" data-lab-id="1">Editar</button>
+                    </div>
+
+                    <div class="lab-item">
+                        <div class="lab-info">
+                            <h4>Laboratório 2</h4>
+                            <p>Química Orgânica - Capacidade: 18 alunos</p>
+                        </div>
+                        <button class="btn-link" data-open="modal-edit-lab" data-lab-id="2">Editar</button>
+                    </div>
+
+                    <div class="lab-item">
+                        <div class="lab-info">
+                            <h4>Laboratório 3</h4>
+                            <p>Análise Quantitativa - Capacidade: 16 alunos</p>
+                        </div>
+                        <button class="btn-link" data-open="modal-edit-lab" data-lab-id="3">Editar</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Configurações Gerais</h3>
+
+                    <div class="input-group">
+                        <label>Horário de Funcionamento</label>
+                        <div class="time-inputs">
+                            <input type="time" value="07:00">
+                            <span class="time-separator">às</span>
+                            <input type="time" value="22:00">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="antecedencia-minima">Antecedência Mínima para Agendamento</label>
+                        <select id="antecedencia-minima">
+                            <option value="24">24 horas</option>
+                            <option value="48">48 horas</option>
+                        </select>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="notificar-tecnicos" checked>
+                        <label for="notificar-tecnicos">Notificar técnicos sobre novos agendamentos</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="alerta-estoque" checked>
+                        <label for="alerta-estoque">Alertar sobre estoque baixo</label>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">&copy; 2025 ETEC Júlio de Mesquita - Centro Paula Souza</div>
+    </footer>
+
+    <!-- ================= MODAL: Novo Usuário (exemplo básico) ================= -->
+    <div id="modal-new-user" class="modal-overlay" aria-hidden="true" style="display: none;">
+        <div class="modal-content small-modal">
+            <div class="modal-header">
+                <h2 class="modal-title-red">Cadastrar Novo Usuário</h2>
+                <button class="close-btn" data-close="modal-new-user">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <p class="modal-subtitle-text">Preencha os dados do novo usuário do sistema</p>
+
+                <form id="form-new-user">
+                    <div class="input-group">
+                        <label for="new-user-name">Nome Completo</label>
+                        <input id="new-user-name" type="text" placeholder="Ex: João Silva" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="new-user-email">Email Institucional</label>
+                        <input id="new-user-email" type="email" placeholder="usuario@etecsp.gov.br" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="new-user-role">Perfil de Acesso</label>
+                        <select id="new-user-role" required>
+                            <option value="" disabled selected>Selecione o perfil</option>
+                            <option value="professor">Professor</option>
+                            <option value="tecnico">Técnico</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="new-user-password">Senha Inicial</label>
+                        <input id="new-user-password" type="password" placeholder="Digite uma senha inicial" required>
+                        <small class="input-helper">O usuário deverá alterar a senha no primeiro acesso</small>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer modal-footer-cadastro">
+                <button type="button" class="btn btn-light btn-cancelar" data-close="modal-new-user">Cancelar</button>
+                <button type="submit" form="form-new-user" class="btn btn-primary btn-red">Cadastrar Usuário</button>
+            </div>
+        </div>
+    </div>
+
+            <div vw class="enabled">
+        <!-- ================= VLibras (mantido) ================= -->
+        <div vw class="enabled">
+            <div vw-access-button class="active"></div>
+            <div vw-plugin-wrapper>
+                <div class="vw-plugin-top-wrapper"></div>
+            </div>
+        </div>
+
+        <div id="modal-new-material" class="modal-overlay" aria-hidden="true" style="display: none;">
+            <div class="modal-content large-modal">
+                <div class="modal-header">
+                    <h2 class="modal-title-red">Cadastrar Novo Material</h2>
+                    <button class="close-btn" data-close="modal-new-material">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <p class="modal-subtitle-text">Adicione um novo material ao banco de dados do laboratório</p>
+
+                    <form id="form-new-material">
+                        <div class="input-group">
+                            <label for="material-name">Nome do Material</label>
+                            <input id="material-name" type="text" placeholder="Ex: Ácido Sulfúrico" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="material-description">Descrição/Especificação</label>
+                            <input id="material-description" type="text" placeholder="Ex: H₂SO₄ 98% P.A.">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="material-category">Categoria</label>
+                            <select id="material-category" required>
+                                <option value="" disabled selected>Selecione a categoria</option>
+                                <option value="reagente">Reagente</option>
+                                <option value="vidraria">Vidraria</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group-row">
+                            <div class="input-group">
+                                <label for="material-quantity">Quantidade Inicial</label>
+                                <input id="material-quantity" type="number" value="0" min="0" required>
+                            </div>
+                            <div class="input-group">
+                                <label for="material-unit">Unidade</label>
+                                <select id="material-unit" required>
+                                    <option value="un">Un(unidade)</option>
+                                    <option value="ml">ml(mililitros)</option>
+                                    <option value="g">g(gramas)</option>
+                                    <option value="cm">cm(centimetros)</option>
+                                    <option value="mm">mm(milimetros)</option>
+                                    <option value="cx">cx(caixa)</option>
+                                    <option value="outro">outro</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group" id="custom-unit-group" style="display: none; margin-top: -10px;">
+                            <label for="custom-unit-text">Especifique a Unidade</label>
+                            <input id="custom-unit-text" type="text" placeholder="Ex: Pacote, Rolo, Placa">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="material-min-quantity">Quantidade Mínima (Estoque Baixo)</label>
+                            <input id="material-min-quantity" type="number" value="0" min="0" required>
+                            <small class="input-helper">Sistema alertará quando o estoque atingir esta
+                                quantidade</small>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer modal-footer-cadastro">
+                    <button type="button" class="btn btn-light btn-cancelar"
+                        data-close="modal-new-material">Cancelar</button>
+                    <button type="submit" form="form-new-material" class="btn btn-primary btn-red">Cadastrar
+                        Material</button>
+                </div>
 
 
+            </div>
+        </div>
+        <!-- ================= MODAL: Editar Laboratório (Deve estar no corpo principal do HTML) ================= -->
+        <div id="modal-edit-lab" class="modal-overlay" aria-hidden="true" style="display: none;">
+            <div class="modal-content small-modal">
+                <div class="modal-header">
+                    <h2 class="modal-title-red" id="edit-lab-title">Editar Laboratório</h2>
+                    <button class="close-btn" data-close="modal-edit-lab">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <form id="form-edit-lab">
+                        <input type="hidden" id="edit-lab-id" name="labId">
+
+                        <div class="input-group">
+                            <label for="edit-lab-name">Nome do Laboratório</label>
+                            <input type="text" id="edit-lab-name" value="" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="edit-lab-desc">Descrição/Finalidade</label>
+                            <input type="text" id="edit-lab-desc" value="" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="edit-lab-capacity">Capacidade (Nº de Alunos)</label>
+                            <input type="number" id="edit-lab-capacity" value="" min="1" required>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer modal-footer-cadastro">
+                    <button type="button" class="btn btn-light btn-cancelar"
+                        data-close="modal-edit-lab">Cancelar</button>
+                    <button type="submit" form="form-edit-lab" class="btn btn-primary btn-red">Salvar
+                        Alterações</button>
+                </div>
+            </div>
+        </div>
+        <!-- ==================================================================== -->
+        <!-- MODAL: EDITAR MATERIAL -->
+        <!-- ==================================================================== -->
+        <div id="modal-edit-material" class="modal-overlay" aria-hidden="true" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="edit-material-title">Editar Material</h3>
+                    <!-- Botão de Fechar no canto superior direito -->
+                    <button class="close-modal" data-close="modal-edit-material">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="form-edit-material" class="modal-form">
+                    <input type="hidden" id="edit-material-id">
+
+                    <div class="input-group">
+                        <label for="edit-material-name">Nome do Material</label>
+                        <input type="text" id="edit-material-name" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label for="edit-material-quantity">Quantidade Atual</label>
+                            <input type="number" id="edit-material-quantity" required min="0">
+                        </div>
+                        <div class="input-group">
+                            <label for="edit-material-unit">Unidade</label>
+                            <select id="edit-material-unit" required>
+                                <option value="unidade">Un(unidade)</option>
+                                <option value="ml">ml(mililitros)</option>
+                                <option value="l">l(litros)</option>
+                                <option value="g">g(gramas)</option>
+                                <option value="kg">kg(quilogramas)</option>
+                                <option value="caixa">cx(caixa)</option>
+                                <option value="outro">Outro...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Campo de Unidade Personalizada (Exemplo de visibilidade JS) -->
+                    <div class="input-group" id="custom-edit-unit-group" style="display: none;">
+                        <label for="custom-edit-unit-text">Especifique a Unidade</label>
+                        <input type="text" id="custom-edit-unit-text" placeholder="Ex: Pacote, Metro, Kit">
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary"
+                            data-close="modal-edit-material">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ==================================================================== -->
+        <!-- MODAL: CONFIRMAÇÃO GENÉRICA (Remoção) -->
+        <!-- ==================================================================== -->
+        <!-- Modal de confirmação (apenas 1) -->
+        <div id="modal-confirm" class="modal-overlay" aria-hidden="true" style="display: none;">
+            <div class="modal-content modal-small">
+                <div class="modal-header">
+                    <h3>Confirmação</h3>
+                    <button class="close-modal" data-close="modal-confirm"><span>&times;</span></button>
+                </div>
+                <p id="confirm-message" class="text-center mb-4">Tem certeza que deseja realizar esta ação?</p>
+                <div class="modal-actions justify-center">
+                    <button id="btn-confirm-no" class="btn btn-secondary">Não</button>
+                    <button id="btn-confirm-yes" class="btn btn-danger">Sim, Remover</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL: Editar Usuário (cole perto dos outros modais) -->
+        <div id="modal-edit-user" class="modal-overlay" aria-hidden="true" style="display: none;">
+            <div class="modal-content small-modal">
+                <div class="modal-header">
+                    <h2 id="edit-user-title" class="modal-title-red">Editar Usuário</h2>
+                    <button class="close-modal" data-close="modal-edit-user"><span>&times;</span></button>
+                </div>
+
+                <div class="modal-body">
+                    <form id="form-edit-user">
+                        <input type="hidden" id="edit-user-id" name="userId" />
+
+                        <div class="input-group">
+                            <label for="edit-user-name">Nome Completo</label>
+                            <input id="edit-user-name" type="text" required />
+                        </div>
+
+                        <div class="input-group">
+                            <label for="edit-user-email">Email</label>
+                            <input id="edit-user-email" type="email" required />
+                        </div>
+
+                        <div class="input-group">
+                            <label for="edit-user-profile">Perfil</label>
+                            <select id="edit-user-profile" required>
+                                <option value="professor">Professor(a)</option>
+                                <option value="tecnico">Técnico</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+
+                        <div class="modal-footer modal-footer-cadastro">
+                            <button type="button" class="btn btn-light btn-cancelar"
+                                data-close="modal-edit-user">Cancelar</button>
+                            <button type="submit" class="btn btn-primary btn-red">Salvar Alterações</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= FIM DO MODAL: CONFIRMAR REMOÇÃO ================= -->
 
 
-    
+        <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+        <script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
 </body>
+
 </html>
