@@ -225,8 +225,8 @@
 
             <div class="kits-header">
                 <div class="kits-stats">
-                    <span>Total de Itens: <strong>156</strong></span>
-                    <span>Itens críticos: <strong class="text-amber">7</strong></span>
+                    <span>Total de Itens: <strong id="total-materiais">0</strong></span>
+                    <span>Itens críticos: <strong class="text-amber" id="itens-criticos">0</strong></span>
                 </div>
             </div>
 
@@ -241,61 +241,9 @@
                             <th>Ações</th>
                         </tr>
                     </thead>
-                    <!-- ID CRÍTICO: O JS usa este ID para adicionar o listener de clique -->
+                    <!-- TABELA VAZIA - JavaScript vai preencher -->
                     <tbody id="material-table-body">
-
-                        <!-- LINHA DE DADOS 1: Béquer 50ml (ID m1) -->
-                        <tr data-material-id="m1">
-                            <!-- Classes para atualização após Edição -->
-                            <td data-label="Item" class="material-item-name">Béquer 50ml</td>
-                            <td data-label="Quantidade" class="material-quantity">24</td>
-                            <td data-label="Unidade" class="material-unit">unidade</td>
-                            <td data-label="Laboratorio">Depósito Química</td>
-                            <td data-label="Ações" class="kit-actions-compact actions-cell">
-                                <!-- CLASSES E DATA-ID CRÍTICOS para o adm.js -->
-                                <button class="btn-action btn-edit-material" data-material-id="m1">
-                                    <span class="edit-icon">✏️ Editar</span>
-                                </button>
-                                <button class="btn-action btn-remove-material" data-material-id="m1">
-                                    <span class="remove-icon">🗑️ Remover</span>
-                                </button>
-                            </td>
-                        </tr>
-
-                        <!-- LINHA DE DADOS 2: Ácido Sulfúrico (ID m2) -->
-                        <tr data-material-id="m2">
-                            <td data-label="Item" class="material-item-name">Ácido Sulfúrico</td>
-                            <td data-label="Quantidade" class="material-quantity">5</td>
-                            <td data-label="Unidade" class="material-unit">litro</td>
-                            <td data-label="Laboratorio">Depósito Química</td>
-                            <td data-label="Ações" class="kit-actions-compact actions-cell">
-                                <button class="btn-action btn-edit-material" data-material-id="m2">
-                                    <span class="edit-icon">✏️ Editar</span>
-                                </button>
-                                <button class="btn-action btn-remove-material" data-material-id="m2">
-                                    <span class="remove-icon">🗑️ Remover</span>
-                                </button>
-                            </td>
-                        </tr>
-
-                        <!-- LINHA DE DADOS 3: Pipeta Graduada (ID m3) -->
-                        <tr data-material-id="m3">
-                            <td data-label="Item" class="material-item-name">Pipeta Graduada</td>
-                            <td data-label="Quantidade" class="material-quantity">10</td>
-                            <td data-label="Unidade" class="material-unit">unidade</td>
-                            <td data-label="Laboratorio">Laboratório 1</td>
-                            <td data-label="Ações" class="kit-actions-compact actions-cell">
-                                <button class="btn-action btn-edit-material" data-material-id="m3">
-                                    <span class="edit-icon">✏️ Editar</span>
-                                </button>
-                                <button class="btn-action btn-remove-material" data-material-id="m3">
-                                    <span class="remove-icon">🗑️ Remover</span>
-                                </button>
-                            </td>
-                        </tr>
-
-                        <!-- ... Adicione mais linhas de materiais aqui seguindo o padrão data-material-id="mX" ... -->
-
+                        <!-- Os materiais serão carregados dinamicamente via JavaScript -->
                     </tbody>
                 </table>
             </div>
@@ -510,7 +458,7 @@
                 <div class="modal-footer modal-footer-cadastro">
                     <button type="button" class="btn btn-light btn-cancelar"
                         data-close="modal-new-material">Cancelar</button>
-                    <button type="submit" form="form-new-material" class="btn btn-primary btn-red">Cadastrar
+                    <button type="button" form="form-new-material" class="btn btn-primary btn-red" onclick="cadastrarMaterial()">Cadastrar
                         Material</button>
                 </div>
 
@@ -672,8 +620,8 @@
 
         <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
         <script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
-        <script src="js/adm.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script src="js/adm.js"></script>
 </body>
 
 </html>
