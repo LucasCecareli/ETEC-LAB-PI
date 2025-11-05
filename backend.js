@@ -28,9 +28,11 @@ const Usuario = mongoose.model("Usuario", usuarioSchema);
 
 const materialSchema = new mongoose.Schema({
   item: { type: String, required: true },
+  descricao: { type: String, default: "" },
+  categoria: { type: String, required: true },
   quantidade: { type: Number, required: true },
   unidade: { type: String, required: true },
-  laboratorio: { type: String, required: true }
+  quantidadeMinima: { type: Number, default: 0 }
 });
 const Material = mongoose.model("Material", materialSchema);
 
@@ -54,7 +56,7 @@ async function conectarAoMongoDB() {
   }
 }
 
-// ======= ROTAS =======
+// ======= Usuarios =======
 
 // Listar usuários
 app.get("/usuarios", async (req, res) => {
@@ -90,7 +92,51 @@ app.post("/usuarios", async (req, res) => {
   }
 });
 
-// ======= INICIALIZAÇÃO =======
 conectarAoMongoDB().then(() => {
-  app.listen(PORTA, () => console.log(`🚀 Servidor rodando na porta ${PORTA}`));
+  app.listen(PORTA, () => console.log(`Servidor rodando na porta ${PORTA}`));
+});
+
+
+// ======= ROTAS PARA MATERIAIS =======
+
+// lista todos os materiais
+app.get("/materiais", async (req, res) => {
+  try {
+    console.log(" Recebida requisição para /materiais");
+    const materiais = await Material.find();
+    console.log(` Enviando ${materiais.length} materiais`);
+    res.json(materiais);
+  } catch (error) {
+    console.error("Erro ao buscar materiais:", error);
+    res.status(500).json({ error: "Erro interno ao buscar materiais" });
+  }
+});
+
+// cadastra novo material
+app.post("/materiais", async (req, res) => {
+  try {
+    const { item, descricao, categoria, quantidade, unidade, quantidadeMinima } = req.body;
+
+    console.log(" Dados recebidos para material:", req.body);
+
+    if (!item || !categoria || quantidade === undefined) {
+      return res.status(400).json({ error: "Campos obrigatórios faltando" });
+    }
+
+    const novoMaterial = new Material({
+      item,
+      descricao: descricao || "",
+      categoria,
+      quantidade: quantidade || 0,
+      unidade: unidade || "unidade",
+      quantidadeMinima: quantidadeMinima || 0
+    });
+
+    await novoMaterial.save();
+    res.status(201).json({ message: "Material cadastrado com sucesso!", material: novoMaterial });
+
+  } catch (error) {
+    console.error("Erro ao cadastrar material:", error);
+    res.status(500).json({ error: "Erro interno ao cadastrar material" });
+  }
 });
