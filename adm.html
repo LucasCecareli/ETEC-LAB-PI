@@ -8,9 +8,6 @@
 
     <!-- sua folha de estilos específica do admin -->
     <link rel="stylesheet" href="css/adm.css">
-
-    <!-- script do admin (defer para carregar depois do DOM) -->
-    <script src="js/adm.js" defer></script>
 </head>
 
 <body>
@@ -102,8 +99,8 @@
             src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/js/sao-paulo/script-topo.js"></script>
         <script
             src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/js/sao-paulo/script-contrast.js"></script>
-        <script
-            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/js/sao-paulo/script-tamanho-fonte.js"></script>
+        <!-- <script
+            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/js/sao-paulo/script-tamanho-fonte.js"></script> -->
         <script
             src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/js/sao-paulo/script-scroll.js"></script>
     </section>
@@ -141,25 +138,27 @@
 
             <div class="stats-grid">
                 <div class="stat card">
-                    <div class="stat-number text-green">20</div>
+                    <div class="stat-number text-green" id="stat-total-usuarios">0</div>
                     <div class="stat-label">Usuários Cadastrados</div>
                 </div>
 
                 <div class="stat card">
-                    <div class="stat-number text-amber">156</div>
+                    <div class="stat-number text-amber" id="stat-total-materiais">0</div>
                     <div class="stat-label">Materiais Disponíveis</div>
                 </div>
 
                 <div class="stat card">
-                    <div class="stat-number text-blue">47</div>
+                    <div class="stat-number text-blue" id="stat-total-agendamentos">0</div>
                     <div class="stat-label">Agendamentos este Mês</div>
                 </div>
             </div>
 
             <h2 class="section-title">Ações Rápidas</h2>
             <div class="actions-row">
-                <button id="btn-new-user" class="btn btn-primary large">＋ Novo Usuário</button>
-                <button id="btn-add-material" class="btn btn-outline">🧪 Adicionar Material</button>
+                <button onclick="abrirModal('modal-new-user')" id="btn-new-user" class="btn btn-primary large">＋ Novo
+                    Usuário</button>
+                <button onclick="abrirModal('modal-new-material')" id="btn-add-material" class="btn btn-outline">🧪
+                    Adicionar Material</button>
                 <button id="btn-view-reports" class="btn btn-outline">📄 Ver Relatórios</button>
             </div>
 
@@ -194,9 +193,10 @@
 
             <div class="kits-header">
                 <div class="kits-stats">
-                    <span>Total: <strong>20</strong></span>
-                    <span>Professores: <strong>12</strong></span>
-                    <span>Técnicos: <strong>3</strong></span>
+                    <span>Total: <strong id="total-usuarios">0</strong></span>
+                    <span>Professores: <strong id="total-professores">0</strong></span>
+                    <span>Técnicos: <strong id="total-tecnicos">0</strong></span>
+                    <span>Administradores: <strong id="total-administradores">0</strong></span>
                 </div>
             </div>
 
@@ -212,22 +212,7 @@
                         </tr>
                     </thead>
                     <tbody id="users-table-body">
-                        <!-- EXEMPLO: linha de usuário com id 'u1' -->
-                        <tr data-user-id="u1">
-                            <td data-label="Nome" class="user-name">Mariana Silva</td>
-                            <td data-label="Perfil" class="user-profile">Professora</td>
-                            <td data-label="Email" class="user-email">mariana@etec.edu.br</td>
-                            <td data-label="Status">
-                                <span class="badge user-status status-active">Ativo</span>
-                            </td>
-                            <td data-label="Ações" class="kit-actions-compact actions-cell">
-                                <!-- NOTE: os botões precisam dessas classes e do atributo data-user-id -->
-                                <button class="btn btn-light btn-edit-user" data-user-id="u1">✏️ Editar</button>
-                                <button class="btn btn-danger btn-remove-user" data-user-id="u1">❌ Desativar</button>
-                            </td>
-                        </tr>
 
-                        <!-- Repita o padrão acima para cada usuário (use ids u2, u3 ...) -->
                     </tbody>
                 </table>
             </div>
@@ -430,23 +415,23 @@
                         <label for="new-user-role">Perfil de Acesso</label>
                         <select id="new-user-role" required>
                             <option value="" disabled selected>Selecione o perfil</option>
-                            <option value="professor">Professor</option>
-                            <option value="tecnico">Técnico</option>
-                            <option value="admin">Administrador</option>
+                            <option value="Professor">Professor</option>
+                            <option value="Técnico">Técnico</option>
+                            <option value="Administrador">Administrador</option>
                         </select>
                     </div>
 
                     <div class="input-group">
                         <label for="new-user-password">Senha Inicial</label>
                         <input id="new-user-password" type="password" placeholder="Digite uma senha inicial" required>
-                        <small class="input-helper">O usuário deverá alterar a senha no primeiro acesso</small>
                     </div>
                 </form>
             </div>
 
             <div class="modal-footer modal-footer-cadastro">
                 <button type="button" class="btn btn-light btn-cancelar" data-close="modal-new-user">Cancelar</button>
-                <button type="submit" form="form-new-user" class="btn btn-primary btn-red">Cadastrar Usuário</button>
+                <button type="button" form="form-new-user" class="btn btn-primary btn-red"
+                    onclick="cadastrarUsuario()">Cadastrar Usuário</button>
             </div>
         </div>
     </div>
@@ -666,9 +651,9 @@
                         <div class="input-group">
                             <label for="edit-user-profile">Perfil</label>
                             <select id="edit-user-profile" required>
-                                <option value="professor">Professor(a)</option>
-                                <option value="tecnico">Técnico</option>
-                                <option value="admin">Administrador</option>
+                                <option value="Professor">Professor(a)</option>
+                                <option value="Técnico">Técnico</option>
+                                <option value="Administrador">Administrador</option>
                             </select>
                         </div>
 
@@ -687,6 +672,8 @@
 
         <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
         <script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
+        <script src="js/adm.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </body>
 
 </html>
