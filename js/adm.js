@@ -1,498 +1,522 @@
-// --- DADOS DE SIMULAÇÃO (Substituir pela integração com Firestore ou API) ---
+const protocolo = "http://";
+const baseURL = "127.0.0.1:3000";
+const usuariosEndpoint = "/usuarios";
 
-// Mapeamento de dados de laboratório (SIMULAÇÃO)
+async function cadastrarUsuario() {
+    const nome = document.getElementById("new-user-name").value;
+    const email = document.getElementById("new-user-email").value;
+    const perfilSelect = document.getElementById("new-user-role");
+    const perfil = perfilSelect.options[perfilSelect.selectedIndex].value;
+    const password = document.getElementById("new-user-password").value;
+
+    if (!nome || !email || !perfil || !password) {
+        alert("Por favor, preencha todos os campos.");
+        return;
+    }
+
+    if (!email.includes('@')) {
+        alert("Por favor, insira um email válido.");
+        return;
+    }
+
+    try {
+        console.log("📤 Enviando dados:", { nome, email, perfil, password: "***" })
+
+        const resposta = await axios.post("http://localhost:3000/usuarios", {
+            nome,
+            email,
+            perfil,
+            password
+        });
+
+        console.log("✅ Usuário cadastrado:", resposta.data)
+        alert("Usuário cadastrado com sucesso!")
+
+        // Recarregar a lista de usuários
+        await carregarUsuarios()
+        await carregarDashboard()
+        
+        document.getElementById("form-new-user").reset()
+        fecharModal("modal-new-user")
+        
+    } catch (erro) {
+        console.error("❌ Erro ao cadastrar usuário:", erro)
+        
+        let mensagemErro = "Erro ao cadastrar usuário."
+    
+        if (erro.response) {
+            console.error("📊 Status:", erro.response.status)
+            console.error("📋 Dados:", erro.response.data)
+            
+            switch (erro.response.status) {
+                case 400:
+                    mensagemErro = "Dados inválidos. Verifique as informações.";
+                    break;
+                case 409:
+                    mensagemErro = "Email já cadastrado.";
+                    break;
+                case 500:
+                    mensagemErro = "Erro interno do servidor. Tente novamente.";
+                    break;
+                default:
+                    mensagemErro = `Erro ${erro.response.status}: ${erro.response.data?.message || 'Erro no servidor'}`;
+            }
+        } else if (erro.request) {
+            mensagemErro = "Erro de conexão. Verifique se o servidor está rodando.";
+        } else {
+            mensagemErro = "Erro de configuração: " + erro.message;
+        }
+        
+        alert(mensagemErro);
+    }
+}
+//carregar usuários
+let usuarios = {}
+async function carregarUsuarios() {
+    try {
+        const resposta = await axios.get("http://localhost:3000/usuarios");
+        console.log("✅ Usuários carregados:", resposta.data);
+        
+        // Converter array para objeto com IDs
+        usuarios = {};
+        resposta.data.forEach(usuario => {
+            usuarios[usuario._id] = usuario;
+        });
+        
+        // Atualizar a tabela
+        atualizarTabelaUsuarios();
+        atualizarEstatisticas();
+        
+        return usuarios;
+    } catch (erro) {
+        console.error("❌ Erro ao carregar usuários:", erro);
+        alert("Erro ao carregar usuários do servidor.");
+        return {};
+    }
+}
+
+//atualiza a tabela de usuários
+function atualizarTabelaUsuarios() {
+    const tbody = document.getElementById('users-table-body');
+    if (!tbody) return;
+    
+    tbody.innerHTML = ''; // Limpar tabela
+    
+    Object.keys(usuarios).forEach(usuarioId => {
+        const usuario = usuarios[usuarioId];
+        const linha = criarLinhaUsuario(usuarioId, usuario);
+        tbody.appendChild(linha);
+    });
+}
+
+//cria uma linha de usuário
+function criarLinhaUsuario(usuarioId, usuario) {
+    const tr = document.createElement('tr');
+    tr.setAttribute('data-user-id', usuarioId);
+    
+    // determina classe do status
+    const statusClass = usuario.status === 'Ativo' ? 'status-active' : 'status-disabled';
+    const textoBotao = usuario.status === 'Ativo' ? '❌ Desativar' : '✅ Reativar';
+    
+    tr.innerHTML = `
+        <td data-label="Nome" class="user-name">${usuario.nome}</td>
+        <td data-label="Perfil" class="user-profile">${usuario.perfil}</td>
+        <td data-label="Email" class="user-email">${usuario.email}</td>
+        <td data-label="Status">
+            <span class="badge user-status ${statusClass}">${usuario.status}</span>
+        </td>
+        <td data-label="Ações" class="kit-actions-compact actions-cell">
+            <button class="btn btn-light btn-edit-user" data-user-id="${usuarioId}">✏️ Editar</button>
+            <button class="btn ${usuario.status === 'Ativo' ? 'btn-danger' : 'btn-success'} btn-remove-user" data-user-id="${usuarioId}">
+                ${textoBotao}
+            </button>
+        </td>
+    `;
+    
+    return tr;
+}
+
+//atualiza estatísticas
+// Função para atualizar todas as estatísticas
+function atualizarEstatisticas() {
+    const totalUsuarios = Object.keys(usuarios).length;
+    const professores = Object.values(usuarios).filter(u => u.perfil === 'Professor').length;
+    const tecnicos = Object.values(usuarios).filter(u => u.perfil === 'Técnico').length;
+    const administradores = Object.values(usuarios).filter(u => u.perfil === 'Administrador').length;
+    
+    // Atualizar o stats-grid (Dashboard)
+    const statTotalUsuarios = document.getElementById('stat-total-usuarios');
+    if (statTotalUsuarios) {
+        statTotalUsuarios.textContent = totalUsuarios;
+    }
+    
+    // Atualizar as estatísticas na seção de usuários
+    const statsElement = document.querySelector('.kits-stats');
+    if (statsElement) {
+        statsElement.innerHTML = `
+            <span>Total: <strong>${totalUsuarios}</strong></span>
+            <span>Professores: <strong>${professores}</strong></span>
+            <span>Técnicos: <strong>${tecnicos}</strong></span>
+            <span>Administradores: <strong>${administradores}</strong></span>
+        `;
+    }
+    
+    // Atualizar elementos individuais (se existirem)
+    const totalUsuariosElement = document.getElementById('total-usuarios');
+    const totalProfessoresElement = document.getElementById('total-professores');
+    const totalTecnicosElement = document.getElementById('total-tecnicos');
+    const totalAdministradoresElement = document.getElementById('total-administradores');
+    
+    if (totalUsuariosElement) totalUsuariosElement.textContent = totalUsuarios;
+    if (totalProfessoresElement) totalProfessoresElement.textContent = professores;
+    if (totalTecnicosElement) totalTecnicosElement.textContent = tecnicos;
+    if (totalAdministradoresElement) totalAdministradoresElement.textContent = administradores;
+}
+
+// Função para carregar e atualizar estatísticas de materiais
+async function carregarEstatisticasMateriais() {
+    try {
+        const resposta = await axios.get("http://localhost:3000/materiais");
+        const totalMateriais = resposta.data.length;
+        
+        const statTotalMateriais = document.getElementById('stat-total-materiais');
+        if (statTotalMateriais) {
+            statTotalMateriais.textContent = totalMateriais;
+        }
+        
+        return totalMateriais;
+    } catch (erro) {
+        console.error("❌ Erro ao carregar materiais:", erro);
+        return 0;
+    }
+}
+
+// Função para carregar e atualizar estatísticas de agendamentos
+async function carregarEstatisticasAgendamentos() {
+    try {
+        // Supondo que você tenha uma rota para agendamentos
+        // const resposta = await axios.get("http://localhost:3000/agendamentos");
+        // const agendamentosMes = resposta.data.length;
+        
+        // Por enquanto, vamos manter o valor mockado ou calcular baseado em alguma lógica
+        const agendamentosMes = 47; // Valor temporário
+        
+        const statTotalAgendamentos = document.getElementById('stat-total-agendamentos');
+        if (statTotalAgendamentos) {
+            statTotalAgendamentos.textContent = agendamentosMes;
+        }
+        
+        return agendamentosMes;
+    } catch (erro) {
+        console.error("❌ Erro ao carregar agendamentos:", erro);
+        return 0;
+    }
+}
+// Função para carregar todos os dados do dashboard
+async function carregarDashboard() {
+    try {
+        await Promise.all([
+            carregarUsuarios(),
+            carregarEstatisticasMateriais(),
+            carregarEstatisticasAgendamentos()
+        ]);
+        console.log("✅ Dashboard carregado com sucesso!");
+    } catch (erro) {
+        console.error("❌ Erro ao carregar dashboard:", erro);
+    }
+}
+
+// ======================= DADOS SIMULADOS =======================
 const laboratorios = {
     '1': { nome: 'Laboratório 1', descricao: 'Química Geral', capacidade: 20 },
     '2': { nome: 'Laboratório 2', descricao: 'Química Orgânica', capacidade: 18 },
     '3': { nome: 'Laboratório 3', descricao: 'Análise Quantitativa', capacidade: 16 }
 };
 
-// Mapeamento de dados de materiais (SIMULAÇÃO)
 const materiais = {
     'm1': { id: 'm1', item: 'Béquer 50ml', quantidade: 24, unidade: 'unidade', laboratorio: 'Depósito Química' },
     'm2': { id: 'm2', item: 'Ácido Sulfúrico', quantidade: 5, unidade: 'litro', laboratorio: 'Depósito Química' },
     'm3': { id: 'm3', item: 'Pipeta Graduada', quantidade: 10, unidade: 'unidade', laboratorio: 'Laboratório 1' },
 };
 
-// Mapeamento de dados de usuários (SIMULAÇÃO)
-const usuarios = {
-    'u1': { id: 'u1', nome: 'Mariana Silva', perfil: 'Professora', email: 'mariana@etec.edu.br', status: 'Ativo' },
-    'u2': { id: 'u2', nome: 'João Ferreira', perfil: 'Técnico', email: 'joao.f@etec.edu.br', status: 'Ativo' },
-    'u3': { id: 'u3', nome: 'Ana Costa', perfil: 'Administradora', email: 'ana.c@etec.edu.br', status: 'Desativado' },
+// ======================= FUNÇÕES GERAIS =======================
+
+// Abrir modal genérico
+const abrirModal = (modalId) => {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
 };
 
+// Fechar modal genérico
+const fecharModal = (modalId) => {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    }
+};
 
-// ---------------------------------------------------------------------------------
-
-// Lógica principal de Tabs (fora do DOMContentLoaded)
-const tabs = document.querySelectorAll(".tab");
-const tabContents = document.querySelectorAll(".tab-content");
-
-tabs.forEach((tab) => {
+// ======================= TABS =======================
+document.querySelectorAll(".tab").forEach(tab => {
     tab.addEventListener("click", () => {
-        tabs.forEach((t) => t.classList.remove("active"));
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
         tab.classList.add("active");
 
-        tabContents.forEach((content) => {
-            content.classList.remove("active");
-        });
-
-        const target = tab.getAttribute("data-tab");
-        const targetContent = document.getElementById(target);
-
-        if (targetContent) {
-            targetContent.classList.add("active");
-        }
+        document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+        const target = document.getElementById(tab.dataset.tab);
+        if (target) target.classList.add("active");
     });
 });
 
-
-document.addEventListener('DOMContentLoaded', () => {
-
-    // Função genérica para fechar modal (recebe o ID do modal como string)
-    const fecharModalGenerico = (modalId) => {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.style.display = 'none'; // Oculta o modal
-            modal.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = ''; // Restaura o scroll da página
-        }
-    };
-
-    // Função genérica para abrir modal (recebe o ID do modal como string)
-    const abrirModalGenerico = (modalId) => {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.style.display = 'flex'; // Torna visível
-            modal.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden'; // Evita scroll da página principal
-        }
-    };
-
-    // ====================================================================
-    // 1. LÓGICA GERAL DE MODAIS (Novo Usuário, Novo Material, Editar Lab)
-    // ====================================================================
-
-    // A. Modal "Novo Usuário"
-    const btnAbrirUser = document.getElementById('btn-new-user');
-    const modalUser = document.getElementById('modal-new-user');
-    const btnsFecharUser = document.querySelectorAll('[data-close="modal-new-user"]');
-    const formNewUser = document.getElementById('form-new-user');
-
-    if (btnAbrirUser) {
-        btnAbrirUser.addEventListener('click', () => abrirModalGenerico('modal-new-user'));
-    }
-    btnsFecharUser.forEach(button => {
-        button.addEventListener('click', () => fecharModalGenerico('modal-new-user'));
+// ======================= MODAIS =======================
+document.addEventListener('DOMContentLoaded', async () => {
+    await carregarUsuarios()
+    // ===== Modais simples =====
+    const modais = document.querySelectorAll('.modal-overlay');
+    modais.forEach(modal => {
+        // Fechar ao clicar fora
+        modal.addEventListener('click', (e) => { if (e.target === modal) fecharModal(modal.id); });
+        // Fechar botões
+        modal.querySelectorAll('[data-close]').forEach(btn => {
+            btn.addEventListener('click', () => fecharModal(btn.dataset.close));
+        });
+    setupFormEditUsuario();
     });
-    if (modalUser) {
-        modalUser.addEventListener('click', (event) => {
-            if (event.target === modalUser) {
-                fecharModalGenerico('modal-new-user');
-            }
-        });
-    }
 
-    if (formNewUser) {
-        formNewUser.addEventListener('submit', (event) => {
-            event.preventDefault();
-            // ... (Lógica de envio de Novo Usuário) ...
-            console.log(`Usuário cadastrado com sucesso!`);
-            formNewUser.reset();
-            fecharModalGenerico('modal-new-user');
-        });
-    }
+    // Fechar todos modais com ESC
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay[aria-hidden="false"]').forEach(m => fecharModal(m.id));
+        }
+    });
 
-    // B. Modal "Novo Material"
-    const btnAbrirMaterial = document.getElementById('btn-add-material');
-    const modalMaterial = document.getElementById('modal-new-material');
-    const btnsFecharMaterial = document.querySelectorAll('[data-close="modal-new-material"]');
+    // ===== Seleção de unidade "Outro" =====
+    const setupUnitSelect = (selectId, customGroupId, customInputId) => {
+        const select = document.getElementById(selectId);
+        const customGroup = document.getElementById(customGroupId);
+        const customInput = document.getElementById(customInputId);
+
+        if (select && customGroup && customInput) {
+            select.addEventListener('change', () => {
+                if (select.value === 'outro') {
+                    customGroup.style.display = 'block';
+                    customInput.setAttribute('required', 'required');
+                } else {
+                    customGroup.style.display = 'none';
+                    customInput.removeAttribute('required');
+                    customInput.value = '';
+                }
+            });
+        }
+    };
+    setupUnitSelect('material-unit', 'custom-unit-group', 'custom-unit-text');
+    setupUnitSelect('edit-material-unit', 'custom-edit-unit-group', 'custom-edit-unit-text');
+
+    // ================== FORMULÁRIOS ==================
+
+    // --- Novo Material ---
     const formNewMaterial = document.getElementById('form-new-material');
-
-    if (btnAbrirMaterial) {
-        btnAbrirMaterial.addEventListener('click', () => abrirModalGenerico('modal-new-material'));
-    }
-    btnsFecharMaterial.forEach(button => {
-        button.addEventListener('click', () => fecharModalGenerico('modal-new-material'));
-    });
-    if (modalMaterial) {
-        modalMaterial.addEventListener('click', (event) => {
-            if (event.target === modalMaterial) {
-                fecharModalGenerico('modal-new-material');
-            }
-        });
-    }
-
-    // Lógica para Unidade Personalizada ("Outro") no Modal Novo Material
-    const selectUnit = document.getElementById('material-unit');
-    const customUnitGroup = document.getElementById('custom-unit-group');
-    const customUnitText = document.getElementById('custom-unit-text');
-
-    if (selectUnit && customUnitGroup && customUnitText) {
-        selectUnit.addEventListener('change', () => {
-            if (selectUnit.value === 'outro') {
-                customUnitGroup.style.display = 'block';
-                customUnitText.setAttribute('required', 'required');
-            } else {
-                customUnitGroup.style.display = 'none';
-                customUnitText.removeAttribute('required');
-                customUnitText.value = '';
-            }
-        });
-    }
-
-    if (formNewMaterial && selectUnit && customUnitText) {
-        formNewMaterial.addEventListener('submit', (event) => {
-            event.preventDefault();
-            // ... (Lógica de envio de Novo Material com unidade) ...
-            console.log(`Novo Material cadastrado com sucesso!`);
+    if (formNewMaterial) {
+        formNewMaterial.addEventListener('submit', e => {
+            e.preventDefault();
+            console.log("Novo Material cadastrado com sucesso!");
             formNewMaterial.reset();
-            fecharModalGenerico('modal-new-material');
+            fecharModal('modal-new-material');
         });
     }
 
-    // C. Modal "Editar Laboratório"
-    const modalEditLab = document.getElementById('modal-edit-lab');
-    const btnsAbrirEditLab = document.querySelectorAll('[data-open="modal-edit-lab"]');
-    const btnsFecharEditLab = document.querySelectorAll('[data-close="modal-edit-lab"]');
+    // --- Editar Laboratório ---
     const formEditLab = document.getElementById('form-edit-lab');
+    if (formEditLab) {
+        formEditLab.addEventListener('submit', e => {
+            e.preventDefault();
+            console.log("Laboratório atualizado.");
+            fecharModal('modal-edit-lab');
+        });
+    }
+
+    // ================== MODAIS DE EDIÇÃO DADOS ==================
 
     const abrirModalEdicaoLab = (labId) => {
-        if (modalEditLab) {
-            const labData = laboratorios[labId];
-            if (labData) {
-                document.getElementById('edit-lab-title').textContent = `Editar ${labData.nome}`;
-                document.getElementById('edit-lab-id').value = labId;
-                document.getElementById('edit-lab-name').value = labData.nome;
-                document.getElementById('edit-lab-desc').value = labData.descricao;
-                document.getElementById('edit-lab-capacity').value = labData.capacidade;
-                abrirModalGenerico('modal-edit-lab');
-            }
+        const lab = laboratorios[labId];
+        if (!lab) return;
+        document.getElementById('edit-lab-title').textContent = `Editar ${lab.nome}`;
+        document.getElementById('edit-lab-id').value = labId;
+        document.getElementById('edit-lab-name').value = lab.nome;
+        document.getElementById('edit-lab-desc').value = lab.descricao;
+        document.getElementById('edit-lab-capacity').value = lab.capacidade;
+        abrirModal('modal-edit-lab');
+    };
+
+    const abrirModalEdicaoMaterial = (id) => {
+        const m = materiais[id];
+        if (!m) return;
+        document.getElementById('edit-material-id').value = id;
+        document.getElementById('edit-material-name').value = m.item;
+        document.getElementById('edit-material-quantity').value = m.quantidade;
+
+        const select = document.getElementById('edit-material-unit');
+        const customGroup = document.getElementById('custom-edit-unit-group');
+        const customInput = document.getElementById('custom-edit-unit-text');
+
+        if (select.querySelector(`option[value="${m.unidade}"]`)) {
+            select.value = m.unidade;
+            customGroup.style.display = 'none';
+            customInput.removeAttribute('required');
+        } else {
+            select.value = 'outro';
+            customInput.value = m.unidade;
+            customGroup.style.display = 'block';
+            customInput.setAttribute('required', 'required');
         }
+        abrirModal('modal-edit-material');
     };
 
-    btnsAbrirEditLab.forEach(button => {
-        button.addEventListener('click', (event) => {
-            const labId = event.currentTarget.getAttribute('data-lab-id');
-            abrirModalEdicaoLab(labId);
-        });
-    });
-
-    btnsFecharEditLab.forEach(button => {
-        button.addEventListener('click', () => fecharModalGenerico('modal-edit-lab'));
-    });
-
-    if (modalEditLab) {
-        modalEditLab.addEventListener('click', (event) => {
-            if (event.target === modalEditLab) {
-                fecharModalGenerico('modal-edit-lab');
-            }
-        });
-    }
-
-    if (formEditLab) {
-        formEditLab.addEventListener('submit', (event) => {
-            event.preventDefault();
-            // ... (Lógica de envio de Edição de Laboratório) ...
-            console.log(`Laboratório atualizado.`);
-            fecharModalGenerico('modal-edit-lab');
-        });
-    }
-
-
-    // ====================================================================
-    // 2. LÓGICA DE BOTÕES DA ABA MATERIAIS
-    // ====================================================================
-
-    // D. Modal "Editar Material"
-    const modalEditMaterial = document.getElementById('modal-edit-material');
-    const formEditMaterial = document.getElementById('form-edit-material');
-    const btnsFecharEditMaterial = document.querySelectorAll('[data-close="modal-edit-material"]');
-
-    btnsFecharEditMaterial.forEach(button => {
-        button.addEventListener('click', () => fecharModalGenerico('modal-edit-material'));
-    });
-    if (modalEditMaterial) {
-        modalEditMaterial.addEventListener('click', (event) => {
-            if (event.target === modalEditMaterial) {
-                fecharModalGenerico('modal-edit-material');
-            }
-        });
-    }
-
-    // Lógica para Unidade Personalizada ("Outro") no Modal EDITAR Material
-    const selectEditUnit = document.getElementById('edit-material-unit');
-    const customEditUnitGroup = document.getElementById('custom-edit-unit-group');
-    const customEditUnitText = document.getElementById('custom-edit-unit-text');
-
-    if (selectEditUnit && customEditUnitGroup && customEditUnitText) {
-        selectEditUnit.addEventListener('change', () => {
-            if (selectEditUnit.value === 'outro') {
-                customEditUnitGroup.style.display = 'block';
-                customEditUnitText.setAttribute('required', 'required');
-            } else {
-                customEditUnitGroup.style.display = 'none';
-                customEditUnitText.removeAttribute('required');
-                customEditUnitText.value = '';
-            }
-        });
-    }
-
-
-    // Função que preenche e abre o modal de Edição de Material
-    const abrirModalEdicaoMaterial = (materialId) => {
-        const materialData = materiais[materialId];
-
-        if (materialData && modalEditMaterial) {
-            // 1. Preenche campos
-            document.getElementById('edit-material-id').value = materialId;
-            document.getElementById('edit-material-name').value = materialData.item;
-            document.getElementById('edit-material-quantity').value = materialData.quantidade;
-            // O campo "unidade" requer mais lógica devido à opção 'outro'
-            if (document.getElementById('edit-material-unit').querySelector(`option[value="${materialData.unidade}"]`)) {
-                document.getElementById('edit-material-unit').value = materialData.unidade;
-                customEditUnitGroup.style.display = 'none';
-                customEditUnitText.removeAttribute('required');
-            } else {
-                // Se a unidade não estiver na lista (é uma unidade customizada)
-                document.getElementById('edit-material-unit').value = 'outro';
-                customEditUnitText.value = materialData.unidade;
-                customEditUnitGroup.style.display = 'block';
-                customEditUnitText.setAttribute('required', 'required');
-            }
-
-            // 2. Abre o modal
-            abrirModalGenerico('modal-edit-material');
-        }
-    };
-
-    // Lógica de envio do formulário de Edição de Material
-    if (formEditMaterial) {
-        formEditMaterial.addEventListener('submit', (event) => {
-            event.preventDefault();
-
-            const id = document.getElementById('edit-material-id').value;
-            const nome = document.getElementById('edit-material-name').value;
-            const quantidade = document.getElementById('edit-material-quantity').value;
-            
-            // Determina a unidade final
-            let unidadeFinal;
-            const unidadeSelecionada = selectEditUnit.value;
-            if (unidadeSelecionada === 'outro') {
-                unidadeFinal = customEditUnitText.value;
-            } else {
-                unidadeFinal = unidadeSelecionada;
-            }
-
-            // ** SIMULAÇÃO DE SALVAMENTO: Atualiza o objeto JS **
-            materiais[id].item = nome;
-            materiais[id].quantidade = parseInt(quantidade);
-            materiais[id].unidade = unidadeFinal;
-
-            // ** Atualiza a linha na tabela (Precisa do ID na linha) **
-            const row = document.querySelector(`tr[data-material-id="${id}"]`);
-            if (row) {
-                row.querySelector('.material-item-name').textContent = nome;
-                row.querySelector('.material-quantity').textContent = quantidade;
-                row.querySelector('.material-unit').textContent = unidadeFinal;
-            }
-
-            console.log(`Material ${nome} atualizado com sucesso!`);
-            fecharModalGenerico('modal-edit-material');
-        });
-    }
-
-    // E. Modal "Confirmar Remoção" (Reutilizado para Desativar/Reativar)
-    const modalConfirm = document.getElementById('modal-confirm');
-    const confirmMessage = document.getElementById('confirm-message');
-    const btnConfirmYes = document.getElementById('btn-confirm-yes');
-    const btnConfirmNo = document.getElementById('btn-confirm-no');
-
-    // Variável para armazenar a ação de remoção
-    let currentRemovalAction = null;
-
-    // Função para mostrar o modal de confirmação
-    const showConfirmModal = (message, onConfirm) => {
-        confirmMessage.textContent = message;
-        currentRemovalAction = onConfirm; // Armazena a função de callback
-        abrirModalGenerico('modal-confirm');
-    };
-
-    // Lógica do botão SIM no modal de confirmação
-    if (btnConfirmYes) {
-        btnConfirmYes.addEventListener('click', () => {
-            if (currentRemovalAction) {
-                currentRemovalAction(); // Executa a ação
-            }
-            fecharModalGenerico('modal-confirm');
-        });
-    }
-
-    // Lógica do botão NÃO no modal de confirmação
-    if (btnConfirmNo) {
-        btnConfirmNo.addEventListener('click', () => fecharModalGenerico('modal-confirm'));
+    const abrirModalEdicaoUsuario = (id) => {
+    const u = usuarios[id];
+    if (!u) return;
+    document.getElementById('edit-user-id').value = id;
+    document.getElementById('edit-user-title').textContent = `Editar ${u.nome}`;
+    document.getElementById('edit-user-name').value = u.nome;
+    document.getElementById('edit-user-email').value = u.email;
+    
+    // Garantir que o perfil seja mapeado corretamente
+    const perfilSelect = document.getElementById('edit-user-profile');
+    if (perfilSelect) {
+        // Se o valor salvo for "admin", mapear para "Administrador"
+        const perfilCorrigido = u.perfil === 'admin' ? 'Administrador' : u.perfil;
+        perfilSelect.value = perfilCorrigido;
     }
     
-    // Fechar ao clicar fora
-    if (modalConfirm) {
-        modalConfirm.addEventListener('click', (event) => {
-            if (event.target === modalConfirm) {
-                fecharModalGenerico('modal-confirm');
-            }
-        });
-    }
+    abrirModal('modal-edit-user');
+};
+    // ================== FORMULÁRIOS DE EDIÇÃO ==================
+    const setupFormEdit = (formId, dataObj, updateRowCallback) => {
+        const form = document.getElementById(formId);
+        if (!form) return;
 
-
-    // F. Gerenciamento de Cliques na Tabela de Materiais
-    const materialTableBody = document.getElementById('material-table-body');
-
-    if (materialTableBody) {
-        materialTableBody.addEventListener('click', (event) => {
-            // Verifica se o botão "Editar" foi clicado
-            if (event.target.closest('.btn-edit-material')) {
-                const materialId = event.target.closest('button').getAttribute('data-material-id');
-                abrirModalEdicaoMaterial(materialId);
-            }
-
-            // Verifica se o botão "Remover" foi clicado
-            if (event.target.closest('.btn-remove-material')) {
-                const materialId = event.target.closest('button').getAttribute('data-material-id');
-                const materialName = materiais[materialId].item;
-                
-                showConfirmModal(`Tem certeza que deseja remover o material "${materialName}"?`, () => {
-                    // AÇÃO DE REMOÇÃO:
-                    delete materiais[materialId]; // Remove do objeto de simulação
-                    
-                    // Remove a linha da tabela
-                    const rowToRemove = document.querySelector(`tr[data-material-id="${materialId}"]`);
-                    if (rowToRemove) {
-                        rowToRemove.remove();
-                    }
-                    console.log(`Material "${materialName}" removido.`);
-                });
-            }
-        });
-    }
-
-    // ====================================================================
-    // 3. LÓGICA DE TECLAS GERAIS E USUÁRIOS (NOVAS ADIÇÕES)
-    // ====================================================================
-
-    // G. Modal "Editar Usuário" (NOVO)
-    const modalEditUser = document.getElementById('modal-edit-user');
-    const formEditUser = document.getElementById('form-edit-user');
-    const btnsFecharEditUser = document.querySelectorAll('[data-close="modal-edit-user"]');
-
-    btnsFecharEditUser.forEach(button => {
-        button.addEventListener('click', () => fecharModalGenerico('modal-edit-user'));
-    });
-    if (modalEditUser) {
-        modalEditUser.addEventListener('click', (event) => {
-            if (event.target === modalEditUser) {
-                fecharModalGenerico('modal-edit-user');
-            }
-        });
-    }
-
-    // Função que preenche e abre o modal de Edição de Usuário
-    const abrirModalEdicaoUsuario = (userId) => {
-        const userData = usuarios[userId];
-
-        if (userData && modalEditUser) {
-            // 1. Preenche campos
-            document.getElementById('edit-user-id').value = userId;
-            document.getElementById('edit-user-title').textContent = `Editar ${userData.nome}`;
-            document.getElementById('edit-user-name').value = userData.nome;
-            document.getElementById('edit-user-email').value = userData.email;
-            document.getElementById('edit-user-profile').value = userData.perfil;
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            const id = form.querySelector('[id$="-id"]').value;
+            const fields = Array.from(form.querySelectorAll('[id^="edit-"]')).filter(f => !f.id.endsWith('-id') && !f.id.endsWith('-title'));
             
-            // 2. Abre o modal
-            abrirModalGenerico('modal-edit-user');
-        }
+            fields.forEach(f => {
+                const key = f.id.replace(/edit-[^-]+-?/, '');
+                dataObj[id][key] = f.value;
+            });
+
+            updateRowCallback && updateRowCallback(id, dataObj[id]);
+            console.log(`${formId} atualizado com sucesso!`);
+            fecharModal(form.closest('.modal-overlay').id);
+        });
     };
 
-    // Lógica de envio do formulário de Edição de Usuário
-    if (formEditUser) {
-        formEditUser.addEventListener('submit', (event) => {
-            event.preventDefault();
+    // --- Editar Material ---
+    setupFormEdit('form-edit-material', materiais, (id, m) => {
+        const row = document.querySelector(`tr[data-material-id="${id}"]`);
+        if (row) {
+            row.querySelector('.material-item-name').textContent = m.item;
+            row.querySelector('.material-quantity').textContent = m.quantidade;
+            row.querySelector('.material-unit').textContent = m.unidade;
+        }
+    });
 
-            const id = document.getElementById('edit-user-id').value;
-            const nome = document.getElementById('edit-user-name').value;
-            const email = document.getElementById('edit-user-email').value;
-            const perfil = document.getElementById('edit-user-profile').value;
+    // --- Editar Usuário ---
+const setupFormEditUsuario = () => {
+    const form = document.getElementById('form-edit-user');
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const usuarioId = document.getElementById('edit-user-id').value;
+        
+        const dadosAtualizados = {
+            nome: document.getElementById('edit-user-name').value,
+            email: document.getElementById('edit-user-email').value,
+            perfil: document.getElementById('edit-user-profile').value
+        };
+
+        try {
+            usuarios[usuarioId] = { ...usuarios[usuarioId], ...dadosAtualizados };
+            atualizarTabelaUsuarios();
             
-            // ** SIMULAÇÃO DE SALVAMENTO: Atualiza o objeto JS **
-            usuarios[id].nome = nome;
-            usuarios[id].email = email;
-            usuarios[id].perfil = perfil;
+            console.log("✅ Usuário atualizado:", dadosAtualizados);
+            alert("Usuário atualizado com sucesso!");
+            fecharModal('modal-edit-user');
+        } catch (erro) {
+            console.error("❌ Erro ao atualizar usuário:", erro);
+            alert("Erro ao atualizar usuário.");
+        }
+    });
+};
+    // ================== CONFIRMAÇÃO ==================
+    const modalConfirm = document.getElementById('modal-confirm');
+    const confirmMessage = document.getElementById('confirm-message');
+    let currentAction = null;
 
-            // ** Atualiza a linha na tabela (Sincroniza o DOM) **
-            const row = document.querySelector(`tr[data-user-id="${id}"]`);
-            if (row) {
-                row.querySelector('.user-name').textContent = nome;
-                row.querySelector('.user-email').textContent = email;
-                row.querySelector('.user-profile').textContent = perfil;
-            }
+    const showConfirm = (msg, action) => {
+        confirmMessage.textContent = msg;
+        currentAction = action;
+        abrirModal('modal-confirm');
+    };
 
-            console.log(`Usuário ${nome} atualizado com sucesso!`);
-            fecharModalGenerico('modal-edit-user');
-        });
-    }
+    document.getElementById('btn-confirm-yes')?.addEventListener('click', () => {
+        currentAction && currentAction();
+        fecharModal('modal-confirm');
+    });
 
-    // H. Gerenciamento de Cliques na Tabela de Usuários (NOVO)
-    const userTableBody = document.getElementById('users-table-body');
+    document.getElementById('btn-confirm-no')?.addEventListener('click', () => fecharModal('modal-confirm'));
 
-    if (userTableBody) {
-        userTableBody.addEventListener('click', (event) => {
-            
-            // --- 1. Botão "Editar" ---
-            if (event.target.closest('.btn-edit-user')) {
-                const userId = event.target.closest('button').getAttribute('data-user-id');
-                abrirModalEdicaoUsuario(userId);
-            }
+    modalConfirm?.addEventListener('click', e => { if (e.target === modalConfirm) fecharModal('modal-confirm'); });
 
-            // --- 2. Botão "Desativar/Ativar" (Reutiliza modal-confirm) ---
-            if (event.target.closest('.btn-remove-user')) {
-                const userId = event.target.closest('button').getAttribute('data-user-id');
-                const userName = usuarios[userId].nome;
-                const currentStatus = usuarios[userId].status;
-                
-                // Determina a ação e a mensagem baseada no status atual
-                const newStatus = currentStatus === 'Ativo' ? 'Desativado' : 'Ativo';
-                const actionText = currentStatus === 'Ativo' ? 'Desativar' : 'Reativar';
-                const statusClass = newStatus === 'Ativo' ? 'status-active' : 'status-disabled';
+    // ================== EVENTOS DE TABELA ==================
+    // Materiais
+    document.getElementById('material-table-body')?.addEventListener('click', e => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        const id = btn.dataset.materialId;
 
-                showConfirmModal(`Tem certeza que deseja ${actionText.toLowerCase()} o usuário "${userName}"?`, () => {
-                    // AÇÃO DE ATIVAÇÃO/DESATIVAÇÃO:
-                    usuarios[userId].status = newStatus; // Atualiza o objeto de simulação
-                    
-                    // Atualiza a linha da tabela
-                    const rowToUpdate = document.querySelector(`tr[data-user-id="${userId}"]`);
-                    if (rowToUpdate) {
-                        // Atualiza o texto do status e a classe do badge
-                        const statusSpan = rowToUpdate.querySelector('.user-status');
-                        statusSpan.textContent = newStatus;
-                        
-                        // Remove todas as classes de status e adiciona a nova
-                        statusSpan.classList.remove('status-active', 'status-disabled', 'status-denied', 'status-draft');
-                        statusSpan.classList.add(statusClass);
-                        
-                        // Atualiza o texto do botão de ação
-                        const actionButton = rowToUpdate.querySelector('.btn-remove-user');
-                        actionButton.textContent = newStatus === 'Ativo' ? 'Desativar' : 'Reativar';
-                    }
-                    console.log(`Usuário "${userName}" agora está ${newStatus}.`);
-                });
-            }
-        });
-    }
+        if (btn.classList.contains('btn-edit-material')) abrirModalEdicaoMaterial(id);
+        if (btn.classList.contains('btn-remove-material')) {
+            showConfirm(`Deseja remover o material "${materiais[id].item}"?`, () => {
+                delete materiais[id];
+                document.querySelector(`tr[data-material-id="${id}"]`)?.remove();
+                console.log(`Material "${id}" removido.`);
+            });
+        }
+    });
 
+    // Usuários
+    document.getElementById('users-table-body')?.addEventListener('click', e => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        const id = btn.dataset.userId;
 
-    // I. Fechar qualquer modal ao pressionar a tecla ESC
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') {
-            const openModals = document.querySelectorAll('.modal-overlay[aria-hidden="false"]');
-            openModals.forEach(modal => fecharModalGenerico(modal.id));
+        if (btn.classList.contains('btn-edit-user')) abrirModalEdicaoUsuario(id);
+        if (btn.classList.contains('btn-remove-user')) {
+            const u = usuarios[id];
+            const newStatus = u.status === 'Ativo' ? 'Desativado' : 'Ativo';
+            const actionText = u.status === 'Ativo' ? 'Desativar' : 'Reativar';
+
+            showConfirm(`Deseja ${actionText.toLowerCase()} o usuário "${u.nome}"?`, () => {
+                u.status = newStatus;
+                const row = document.querySelector(`tr[data-user-id="${id}"]`);
+                if (row) {
+                    const span = row.querySelector('.user-status');
+                    span.textContent = newStatus;
+                    span.classList.remove('status-active', 'status-disabled', 'status-denied', 'status-draft');
+                    span.classList.add(newStatus === 'Ativo' ? 'status-active' : 'status-disabled');
+
+                    const actionBtn = row.querySelector('.btn-remove-user');
+                    actionBtn.textContent = newStatus === 'Ativo' ? 'Desativar' : 'Reativar';
+                }
+                console.log(`Usuário "${u.nome}" agora está ${newStatus}.`);
+            });
         }
     });
 
