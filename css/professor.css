@@ -1,6 +1,5 @@
 #cps-header {
-    display: flex
-;
+    display: flex;
     -webkit-box-align: center;
     -ms-flex-align: center;
     align-items: center;
@@ -10,12 +9,14 @@
     padding: 1.6rem;
     border-top: 1px solid #dadada;
 }
-#cps-header, #tabela-contratos tr:nth-child(2n), .caixa__codigo, .panel {
+
+/* CORREÇÃO: Removidos seletores obsoletos (#tabela-contratos tr:nth-child(2n) e .caixa__codigo) */
+#cps-header,
+.panel {
     background-color: #fff;
 }
 
-#cps-header .cps-header__container .cps-header__logo
- {
+#cps-header .cps-header__container .cps-header__logo {
     display: flex;
     -webkit-box-pack: justify;
     -ms-flex-pack: justify;
@@ -26,16 +27,20 @@
 }
 
 .cps-header__logo img {
-    display: block; /* Garante que a imagem se comporta como um bloco, se necessário */
-    max-width: 100%; /* Garante que não exceda a largura do contêiner */
+    display: block;
+    /* Garante que a imagem se comporta como um bloco, se necessário */
+    max-width: 100%;
+    /* Garante que não exceda a largura do contêiner */
     height: auto;
 }
 
 /* Pode ser necessário ajustar a altura do cabeçalho */
 #cps-header {
     /* ... estilos existentes ... */
-    min-height: 100px; /* Exemplo: ajuste a altura para acomodar os logos */
+    min-height: 100px;
+    /* Exemplo: ajuste a altura para acomodar os logos */
 }
+
 * {
     box-sizing: border-box;
 }
@@ -59,16 +64,14 @@ body {
 
 /* Variáveis */
 :root {
-    --red: #b9080f; /* Cor principal (vermelho ETEC) */
+    --red: #b9080f;
+    /* Cor principal (vermelho ETEC) */
     --muted: #8b8b8b;
     --card-bg: #fff;
     --border: #e9e9ea;
     --radius: 12px;
     --light-red: #fcebeb;
 }
-
-
-
 
 /* Campo de busca à direita */
 .right-search {
@@ -99,7 +102,8 @@ body {
     background: transparent;
     font-size: 18px;
     cursor: pointer;
-    color: var(--muted); /* Usando a cor muted para o ícone de busca */
+    color: var(--muted);
+    /* Usando a cor muted para o ícone de busca */
 }
 
 /* Linha vermelha */
@@ -115,7 +119,8 @@ body {
     gap: 12px;
     padding: 18px 20px;
     align-items: center;
-    justify-content: center; /* CENTRALIZA AS ABAS */
+    justify-content: center;
+    /* CENTRALIZA AS ABAS */
     background: #fff;
     border-bottom: 1px solid #e0e0e0;
 }
@@ -127,7 +132,8 @@ body {
     border-radius: 999px;
     cursor: pointer;
     font-weight: 600;
-    transition: all 0.2s; /* Adicionado transição para suavizar */
+    transition: all 0.2s;
+    /* Adicionado transição para suavizar */
 }
 
 .tab:hover:not(.active) {
@@ -143,16 +149,19 @@ body {
 /* Main Content */
 .main-content {
     padding-top: 10px;
-    flex-grow: 1; /* Ocupa o espaço restante */
+    flex-grow: 1;
+    /* Ocupa o espaço restante */
 }
 
 /* --- Lógica de Abas --- */
 .tab-content {
-    display: none; /* Por padrão, esconde todas as seções de conteúdo */
+    display: none;
+    /* Por padrão, esconde todas as seções de conteúdo */
 }
 
 .tab-content.active {
-    display: block; /* Apenas a seção com a classe 'active' é exibida */
+    display: block;
+    /* Apenas a seção com a classe 'active' é exibida */
 }
 
 .placeholder-content {
@@ -168,8 +177,8 @@ body {
     align-items: center;
     justify-content: center;
 }
-/* --- FIM Lógica de Abas --- */
 
+/* --- FIM Lógica de Abas --- */
 
 .page-title {
     color: var(--red);
@@ -261,6 +270,7 @@ body {
     color: var(--red);
     border: 2px solid rgba(185, 8, 15, 0.12);
 }
+
 .btn-outline:hover {
     background: #fef4f4;
 }
@@ -276,19 +286,23 @@ body {
     padding: 8px 12px;
     border-radius: 8px;
     transition: background-color 0.2s;
+    font-size: 14px;
 }
+
 .btn-light:hover {
     background: #f8f8f8;
 }
 
 .btn-danger {
-    background: transparent;
+    background: #fff;
     border: 1px solid #e5aeb0;
-    color: #b9080f;
+
     padding: 8px 10px;
     border-radius: 8px;
     transition: background-color 0.2s;
+    font-size: 14px;
 }
+
 .btn-danger:hover {
     background: #fdf5f5;
 }
@@ -369,7 +383,6 @@ body {
     margin-top: 6px;
 }
 
-
 /* --- ESTILOS PARA ABAS DE LISTAGEM (Kits e Agendamentos) --- */
 
 /* Header com estatísticas e botão de ação */
@@ -390,13 +403,16 @@ body {
 
 .kits-stats strong {
     font-weight: 700;
-    color: #333; /* Cor mais escura para o valor */
+    color: #333;
+    /* Cor mais escura para o valor */
 }
 
 /* Estilos de Tabela Responsiva */
 .kit-table-container {
-    padding: 0; /* O padding é aplicado dentro do card no HTML */
-    overflow-x: auto; /* Permite rolagem horizontal em telas pequenas */
+    padding: 0;
+    /* O padding é aplicado dentro do card no HTML */
+    overflow-x: auto;
+    /* Permite rolagem horizontal em telas pequenas */
 }
 
 table {
@@ -410,7 +426,8 @@ thead {
     background: #f7f7f8;
 }
 
-th, td {
+th,
+td {
     padding: 15px 20px;
     border-bottom: 1px solid var(--border);
 }
@@ -436,40 +453,73 @@ tbody tr:hover {
     text-align: center;
 }
 
-.status-active { /* Usado para Status: Confirmado (Green) */
+.status-active {
+    /* Usado para Status: Confirmado (Green) */
     background-color: #d1f7d6;
     color: #1b9b46;
 }
 
-.status-draft { /* Usado para Status: Pendente (Amber/Yellow) */
+.status-draft {
+    /* Usado para Status: Pendente (Amber/Yellow) */
     background-color: #fff3cc;
     color: #db8a00;
 }
 
-.status-disabled { /* Usado para Kits: Arquivado (Muted) */
+.status-disabled {
+    /* Usado para Kits: Arquivado (Muted) */
     background-color: #eee;
     color: var(--muted);
 }
 
-.status-denied { /* Usado para Agendamentos: Negado (Red) */
-    background-color: var(--light-red); 
+.status-denied {
+    /* Usado para Agendamentos: Negado (Red) */
+    background-color: var(--light-red);
     color: var(--red);
     border: 1px solid #f6d1d1;
 }
 
-
+/* --- ESTILOS PARA BOTÕES COMPACTOS NAS TABELAS --- */
 .kit-actions-compact {
-    white-space: nowrap; /* Impede que os botões quebrem linha */
+    white-space: nowrap;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.kit-actions-compact .btn {
+    flex-shrink: 0;
+    min-width: auto;
+}
+
+/* Garantir que os botões fiquem alinhados na mesma linha */
+.kit-actions-compact .btn-light,
+.kit-actions-compact .btn-danger {
+    padding: 6px 10px;
+    font-size: 13px;
+    border-radius: 6px;
+}
+
+/* Responsividade para mobile */
+@media (max-width: 960px) {
+    .kit-actions-compact {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .kit-actions-compact .btn {
+        flex: 0 0 auto;
+    }
 }
 
 /* --- FIM ESTILOS PARA ABAS DE LISTAGEM --- */
-
 
 /* Footer */
 .site-footer {
     padding: 12px;
     text-align: center;
-    color: var(--muted); /* Ajustado para usar a cor muted, que é visível */
+    color: var(--muted);
+    /* Ajustado para usar a cor muted, que é visível */
     margin-top: 30px;
     font-size: 12px;
     background: #fff;
@@ -481,17 +531,19 @@ tbody tr:hover {
 
 .modal-overlay {
     /* Escondido por padrão */
-    display: none; 
+    display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.6); /* Fundo semi-transparente */
+    background-color: rgba(0, 0, 0, 0.6);
+    /* Fundo semi-transparente */
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    overflow-y: auto; /* Permite rolagem se o conteúdo for muito grande */
+    overflow-y: auto;
+    /* Permite rolagem se o conteúdo for muito grande */
     padding: 20px;
 }
 
@@ -499,10 +551,12 @@ tbody tr:hover {
     background: var(--card-bg);
     border-radius: var(--radius);
     width: 100%;
-    max-width: 900px; /* Largura máxima para desktop */
+    max-width: 900px;
+    /* Largura máxima para desktop */
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     overflow: hidden;
-    margin: auto; /* Centraliza verticalmente e horizontalmente */
+    margin: auto;
+    /* Centraliza verticalmente e horizontalmente */
 }
 
 .modal-header {
@@ -528,6 +582,7 @@ tbody tr:hover {
     color: var(--muted);
     padding: 5px;
 }
+
 .close-btn:hover {
     color: #333;
 }
@@ -566,7 +621,7 @@ tbody tr:hover {
     color: #555;
 }
 
-.input-group input[type="text"], 
+.input-group input[type="text"],
 .input-group textarea,
 .input-group select {
     width: 100%;
@@ -576,18 +631,20 @@ tbody tr:hover {
     font-size: 16px;
     background: #fff;
 }
+
 .input-group textarea {
     resize: vertical;
 }
 
-
 .input-group select {
     cursor: pointer;
-    appearance: none; /* Remove seta padrão em alguns browsers */
+    appearance: none;
+    /* Remove seta padrão em alguns browsers */
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23666' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 15px center;
 }
+
 .input-group select:disabled {
     background-color: #f7f7f8;
     color: var(--muted);
@@ -601,12 +658,11 @@ tbody tr:hover {
     gap: 10px;
 }
 
-
 /* --- Estilos do Calendário Dinâmico --- */
 .calendar-container {
     display: grid;
     /* Grid de 7 colunas (dias da semana) */
-    grid-template-columns: repeat(7, 1fr); 
+    grid-template-columns: repeat(7, 1fr);
     gap: 10px;
     margin-top: 20px;
 }
@@ -621,7 +677,8 @@ tbody tr:hover {
     cursor: pointer;
     transition: all 0.2s;
     font-size: 14px;
-    height: 70px; /* Altura fixa para todos os dias */
+    height: 70px;
+    /* Altura fixa para todos os dias */
     justify-content: space-around;
     user-select: none;
 }
@@ -647,6 +704,7 @@ tbody tr:hover {
     cursor: not-allowed;
     background-color: #f7f7f8;
 }
+
 .calendar-day.weekend {
     background-color: #fefefe;
 }
@@ -657,12 +715,14 @@ tbody tr:hover {
     border-color: var(--red);
     box-shadow: 0 4px 8px rgba(185, 8, 15, 0.2);
 }
+
 .calendar-day.day-selected .day-name {
     color: #ffeaea;
 }
 
 .current-month-label {
-    grid-column: 1 / -1; /* Ocupa todas as 7 colunas */
+    grid-column: 1 / -1;
+    /* Ocupa todas as 7 colunas */
     text-align: center;
     font-weight: 700;
     color: var(--red);
@@ -706,11 +766,13 @@ tbody tr:hover {
     transition: all 0.2s;
     font-weight: 500;
 }
+
 .checkbox-item input[type="checkbox"] {
     cursor: pointer;
     width: 20px;
     height: 20px;
-    accent-color: var(--red); /* Cor do checkbox */
+    accent-color: var(--red);
+    /* Cor do checkbox */
 }
 
 .checkbox-item:hover {
@@ -731,6 +793,7 @@ tbody tr:hover {
     cursor: not-allowed;
     background-color: #f5f5f5;
 }
+
 .checkbox-item.disabled-limit .checkbox-label {
     color: #666;
 }
@@ -745,17 +808,19 @@ tbody tr:hover {
     font-weight: 600;
     text-align: center;
 }
+
 .limit-message.hidden {
     display: none;
 }
-/* --- FIM ESTILOS PARA SELEÇÃO MÚLTIPLA DE HORÁRIOS --- */
 
+/* --- FIM ESTILOS PARA SELEÇÃO MÚLTIPLA DE HORÁRIOS --- */
 
 /* --- ESTILOS PARA CRIAÇÃO DE KIT (Lista Dinâmica) --- */
 
 .kit-items-header {
     display: grid;
-    grid-template-columns: 3fr 1fr 1.5fr 40px; /* Alinhado com kit-item-row */
+    grid-template-columns: 3fr 1fr 1.5fr 40px;
+    /* Alinhado com kit-item-row */
     gap: 10px;
     margin-bottom: 10px;
     font-weight: 600;
@@ -763,17 +828,21 @@ tbody tr:hover {
     font-size: 14px;
     padding: 0 10px;
 }
+
 .kit-items-header span:nth-child(2) {
-    text-align: center; /* Alinha Qtd. */
+    text-align: center;
+    /* Alinha Qtd. */
 }
+
 .kit-items-header span:last-child {
-    visibility: hidden; /* Esconde o cabeçalho para o botão de lixeira */
+    visibility: hidden;
+    /* Esconde o cabeçalho para o botão de lixeira */
 }
 
 .kit-item-row {
     display: grid;
     /* Colunas: Nome, Quantidade, Unidade, Botão de exclusão */
-    grid-template-columns: 3fr 1fr 1.5fr 40px; 
+    grid-template-columns: 3fr 1fr 1.5fr 40px;
     gap: 10px;
     margin-bottom: 10px;
     align-items: center;
@@ -902,16 +971,297 @@ tbody tr:hover {
 
 /* --- FIM ESTILOS PARA ADIÇÃO MANUAL DE MATERIAIS --- */
 
+/* ======================================================= */
+/* ESTILOS ADICIONAIS DO JAVASCRIPT (MOVIDOS PARA CSS) */
+/* ======================================================= */
+
+/* --- ANIMAÇÕES DE NOTIFICAÇÃO --- */
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+
+/* --- ESTILOS DE MODAL GERAIS --- */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn-secondary {
+    background: #f2f2f3;
+    border: 1px solid #ddd;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background: #e9e9ea;
+}
+
+/* --- ESTILOS ESPECÍFICOS PARA MODAL EDITAR AGENDAMENTO --- */
+.modal-editar-agendamento .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.modal-editar-agendamento .form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.modal-editar-agendamento .form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.modal-editar-agendamento .form-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(43, 110, 246, 0.1);
+}
+
+.modal-editar-agendamento .form-select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: white;
+    cursor: pointer;
+}
+
+.modal-editar-agendamento .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.modal-editar-agendamento .btn-primary {
+    background: var(--primary-color, #2b6ef6);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.modal-editar-agendamento .btn-primary:hover {
+    background: var(--primary-dark, #1a5bd5);
+}
+
+.modal-editar-agendamento .btn-secondary {
+    background: #f2f2f3;
+    color: var(--text-primary);
+    border: 1px solid #ddd;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.modal-editar-agendamento .btn-secondary:hover {
+    background: #e9e9ea;
+}
+
+/* --- ESTILOS PARA BOTÕES DA TABELA DE KITS --- */
+.kit-actions-compact {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.kit-actions-compact .btn-light {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+}
+
+.kit-actions-compact .btn-light:hover {
+    background: #e9ecef;
+}
+
+.kit-actions-compact .btn-remover {
+    background: #b9080f;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: background-color 0.2s ease;
+}
+
+.kit-actions-compact .btn-remover:hover {
+    background: #98050b;
+}
+
+/* --- ESTILOS PARA NOTIFICAÇÕES --- */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    z-index: 10000;
+    animation: slideIn 0.3s ease-out;
+}
+
+.notification-success {
+    background-color: #1b9b46;
+}
+
+.notification-error {
+    background-color: #b9080f;
+}
+
+.notification-info {
+    background-color: #2b6ef6;
+}
+
+.notification-warning {
+    background-color: #db8a00;
+}
+
+/* --- ESTILOS PARA OS MODAIS DE KIT --- */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 18px;
+    padding: 25px;
+    max-width: 850px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h2 {
+    color: var(--red);
+    margin: 0 0 20px 0;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.modal-body {
+    margin-bottom: 20px;
+}
+
+.modal-body p {
+    margin: 10px 0;
+    line-height: 1.5;
+}
+
+.modal-body strong {
+    color: #333;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+
+/* Estilos para os formulários nos modais */
+.modal-body label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.modal-body input[type="text"],
+.modal-body input[type="number"],
+.modal-body textarea,
+.modal-body select {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 16px;
+    background: #fff;
+    margin-bottom: 15px;
+}
+
+.modal-body textarea {
+    resize: vertical;
+    min-height: 80px;
+}
 
 /* Responsividade */
 @media (max-width: 960px) {
-    /* ... (Estilos já existentes) ... */
-    
-    .header-middle {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-    }
+    /* CORREÇÃO: Removido .header-middle pois não existe no HTML */
 
     .right-search {
         width: 100%;
@@ -924,7 +1274,7 @@ tbody tr:hover {
     .stats-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .mini-stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -947,35 +1297,42 @@ tbody tr:hover {
     }
 
     .btn.large {
-        width: 100%; /* Botão em largura total no mobile */
+        width: 100%;
+        /* Botão em largura total no mobile */
         padding: 14px 28px;
     }
-    
+
     /* Configuração para transformar a tabela em 'cards' no mobile */
-    table, thead, tbody, th, td, tr {
+    table,
+    thead,
+    tbody,
+    th,
+    td,
+    tr {
         display: block;
     }
-    
+
     thead tr {
         position: absolute;
         top: -9999px;
         left: -9999px;
     }
-    
+
     tr {
         border: 1px solid var(--border);
         margin-bottom: 10px;
         border-radius: var(--radius);
         background: var(--card-bg);
     }
-    
+
     td {
         border: none;
         position: relative;
-        padding-left: 50%; /* Espaço para o label */
+        padding-left: 50%;
+        /* Espaço para o label */
         text-align: right;
     }
-    
+
     td:before {
         /* Cria o label da coluna */
         content: attr(data-label);
@@ -990,36 +1347,43 @@ tbody tr:hover {
     }
 
     .kit-actions-compact {
+        white-space: nowrap;
         display: flex;
-        justify-content: flex-end;
         gap: 8px;
+        justify-content: flex-end;
     }
 
     /* Responsividade do Modal no Mobile */
     .modal-content {
         margin: 0;
-        min-height: 100vh; /* Ocupa a tela inteira */
+        min-height: 100vh;
+        /* Ocupa a tela inteira */
         border-radius: 0;
     }
+
     .calendar-day {
         height: 60px;
         font-size: 12px;
     }
+
     .day-number {
         font-size: 16px;
     }
+
     .time-select-grid {
         grid-template-columns: 1fr;
     }
 
     /* Responsividade do Kit Item Row */
     .kit-items-header {
-        display: none; /* Esconde cabeçalho em telas pequenas */
+        display: none;
+        /* Esconde cabeçalho em telas pequenas */
     }
-    
+
     .kit-item-row {
-        grid-template-columns: 1fr; /* Muda para uma única coluna */
-        grid-template-areas: 
+        grid-template-columns: 1fr;
+        /* Muda para uma única coluna */
+        grid-template-areas:
             "name delete"
             "qty unit";
         gap: 8px;
@@ -1028,19 +1392,160 @@ tbody tr:hover {
     .kit-item-name {
         grid-area: name;
     }
+
     .kit-item-qty {
         grid-area: qty;
     }
+
     .kit-item-unit {
         grid-area: unit;
     }
+
     .btn-delete-item {
         grid-area: delete;
         justify-self: end;
         width: auto;
     }
-    
+
     .kit-item-row input[type="number"] {
         text-align: left;
+    }
+}
+/* ======================================================= */
+/* ESTILOS ESPECÍFICOS PARA O MODAL EDITAR AGENDAMENTO */
+/* ======================================================= */
+
+/* Container de horários no modal editar */
+.horario-item-editar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+}
+
+.horario-item-editar .time-inputs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.horario-item-editar .time-inputs input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.horario-item-editar .time-inputs span {
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.btn-remove-horario {
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.btn-remove-horario:hover {
+    background: #c82333;
+}
+
+/* Divisor entre kit existente e materiais manuais */
+.divider {
+    text-align: center;
+    margin: 20px 0;
+    color: var(--muted);
+    position: relative;
+    font-size: 14px;
+}
+
+.divider:before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--border);
+    z-index: 1;
+}
+
+.divider:after {
+    content: "ou";
+    background: white;
+    padding: 0 15px;
+    position: relative;
+    z-index: 2;
+}
+
+/* Melhorias nos inputs do modal */
+.modal-body .form-input,
+.modal-body .form-select {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.modal-body .form-input:focus,
+.modal-body .form-select:focus {
+    outline: none;
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(185, 8, 15, 0.1);
+}
+
+/* Ajustes para materiais manuais no modal editar */
+#editarMateriaisContainer .manual-item-row {
+    grid-template-columns: 2fr 1fr 40px;
+    margin-bottom: 8px;
+}
+
+/* Responsividade para o modal editar */
+@media (max-width: 768px) {
+    .horario-item-editar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .horario-item-editar .time-inputs {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .horario-item-editar .time-inputs span {
+        display: none;
+    }
+    
+    .btn-remove-horario {
+        align-self: flex-end;
+        margin-top: 8px;
+    }
+    
+    #editarMateriaisContainer .manual-item-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    #editarMateriaisContainer .btn-remove-material {
+        justify-self: start;
     }
 }
