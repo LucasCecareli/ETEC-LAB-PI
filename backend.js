@@ -15,7 +15,7 @@ app.use(cors({
   credentials: true
 }));
 
-// ======= MODELOS =======
+// ======= Schemas =======
 const usuarioSchema = new mongoose.Schema({
   nome: { type: String, required: true },
   email: { type: String, required: true, unique: true },
@@ -43,15 +43,15 @@ const laboratorioSchema = new mongoose.Schema({
 });
 const Laboratorio = mongoose.model("Laboratorio", laboratorioSchema);
 
-// ======= CONEXÃO COM O MONGODB =======
+// ======= Conexão com o banco de dados  =======
 mongoose.set("strictQuery", true);
 
 async function conectarAoMongoDB() {
   try {
     await mongoose.connect(process.env.CONEXAO_BD);
-    console.log("✅ Conexão com MongoDB estabelecida!");
+    console.log("Conexão com MongoDB estabelecida!");
   } catch (error) {
-    console.error("❌ Erro ao conectar MongoDB:", error);
+    console.error("Erro ao conectar MongoDB:", error);
     process.exit(1);
   }
 }
@@ -97,7 +97,7 @@ conectarAoMongoDB().then(() => {
 });
 
 
-// ======= ROTAS PARA MATERIAIS =======
+// ======= Materiais =======
 
 // lista todos os materiais
 app.get("/materiais", async (req, res) => {
@@ -138,5 +138,78 @@ app.post("/materiais", async (req, res) => {
   } catch (error) {
     console.error("Erro ao cadastrar material:", error);
     res.status(500).json({ error: "Erro interno ao cadastrar material" });
+  }
+});
+
+// ======= Login =======
+
+
+app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    console.log("Tentativa de login para:", email);
+
+    // valida a entrada
+    if (!email || !password) {
+      return res.status(400).json({ 
+        success: false,
+        error: "E-mail e senha são obrigatórios." 
+      });
+    }
+
+    // busca o usuário no MongoDB pelo email
+    const usuario = await Usuario.findOne({ email });
+
+    // verifica se existe
+    if (!usuario) {
+      console.log("Usuário não encontrado:", email);
+      return res.status(401).json({ 
+        success: false,
+        error: "Credenciais inválidas." 
+      });
+    }
+
+    // verifica se está ativo
+    if (usuario.status !== "Ativo") {
+      console.log("Usuário inativo:", email);
+      return res.status(401).json({ 
+        success: false,
+        error: "Usuário desativado. Contate o administrador." 
+      });
+    }
+
+    // verifica a senha usando bcrypt
+    const senhaValida = await bcrypt.compare(password, usuario.password);
+    if (!senhaValida) {
+      console.log("Senha inválida para:", email);
+      return res.status(401).json({ 
+        success: false,
+        error: "Credenciais inválidas." 
+      });
+    }
+
+    console.log("Login bem-sucedido para:", email, "Perfil:", usuario.perfil);
+
+    // retorna sucesso com informações do usuário
+    res.json({
+      success: true,
+      message: "Login realizado com sucesso!",
+      perfil: usuario.perfil,
+      user: {
+        id: usuario._id,
+        nome: usuario.nome,
+        email: usuario.email,
+        perfil: usuario.perfil,
+        status: usuario.status
+      }
+    });
+
+  } catch (error) {
+    console.error("Erro no processo de login:", error);
+    res.status(500).json({ 
+      success: false,
+      error: "Erro interno do servidor." 
+    });
   }
 });
