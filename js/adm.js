@@ -40,7 +40,7 @@ async function cadastrarUsuario() {
         fecharModal("modal-new-user")
 
     } catch (erro) {
-        console.error(" Erro ao cadastrar usuário:", erro)
+        console.error("❌ Erro ao cadastrar usuário:", erro)
 
         let mensagemErro = "Erro ao cadastrar usuário."
 
@@ -70,6 +70,7 @@ async function cadastrarUsuario() {
         alert(mensagemErro);
     }
 }
+
 //carregar usuários
 let usuarios = {}
 async function carregarUsuarios() {
@@ -89,7 +90,7 @@ async function carregarUsuarios() {
 
         return usuarios;
     } catch (erro) {
-        console.error(" Erro ao carregar usuários:", erro);
+        console.error("❌ Erro ao carregar usuários:", erro);
         alert("Erro ao carregar usuários do servidor.");
         return {};
     }
@@ -203,7 +204,7 @@ async function verificarMaterialExistente(nome, descricao) {
             const novaDescricao = descricao || "(sem descrição)";
             
             const confirmar = confirm(
-                ` Atenção!\n\nJá existe um material com o nome "${mesmoNomeDescricaoDiferente.item}" mas com descrição diferente.\n\n` +
+                `⚠️ Atenção!\n\nJá existe um material com o nome "${mesmoNomeDescricaoDiferente.item}" mas com descrição diferente.\n\n` +
                 `Existente: ${descricaoExistente}\n` +
                 `Novo: ${novaDescricao}\n\n` +
                 `Deseja cadastrar mesmo assim?`
@@ -214,10 +215,11 @@ async function verificarMaterialExistente(nome, descricao) {
         return null;
         
     } catch (erro) {
-        console.error(" Erro ao verificar duplicatas:", erro);
+        console.error("❌ Erro ao verificar duplicatas:", erro);
         return null;
     }
 }
+
 // cadastro de materiais
 async function cadastrarMaterial() {
     const nome = document.getElementById("material-name").value.trim();
@@ -248,14 +250,14 @@ async function cadastrarMaterial() {
     }
 
     try {
-        console.log(" Enviando dados do material:", {
+        console.log("📤 Enviando dados do material:", {
             nome, descricao, categoria, quantidade, unidade, quantidadeMinima
         });
 
         // Verificação de duplicatas (atualizada para descrição opcional)
         const materialExistente = await verificarMaterialExistente(nome, descricao);
         if (materialExistente) {
-            alert(` Material já cadastrado!\n\nItem: ${materialExistente.item}\nDescrição: ${materialExistente.descricao || '(sem descrição)'}\nQuantidade atual: ${materialExistente.quantidade} ${materialExistente.unidade}`);
+            alert(`❌ Material já cadastrado!\n\nItem: ${materialExistente.item}\nDescrição: ${materialExistente.descricao || '(sem descrição)'}\nQuantidade atual: ${materialExistente.quantidade} ${materialExistente.unidade}`);
             return;
         }
 
@@ -268,7 +270,7 @@ async function cadastrarMaterial() {
             quantidadeMinima: quantidadeMinima
         });
 
-        console.log(" Material cadastrado:", resposta.data);
+        console.log("✅ Material cadastrado:", resposta.data);
         alert("Material cadastrado com sucesso!");
 
         // Recarregar a lista de materiais
@@ -279,13 +281,13 @@ async function cadastrarMaterial() {
         fecharModal("modal-new-material");
         
     } catch (erro) {
-        console.error(" Erro ao cadastrar material:", erro);
+        console.error("❌ Erro ao cadastrar material:", erro);
         
         let mensagemErro = "Erro ao cadastrar material.";
         
         if (erro.response) {
             console.error("Status:", erro.response.status);
-            console.error( "Dados:", erro.response.data);
+            console.error("Dados:", erro.response.data);
             
             switch (erro.response.status) {
                 case 400:
@@ -324,7 +326,7 @@ async function carregarMateriais() {
 
         return materiais;
     } catch (erro) {
-        console.error("Erro ao carregar materiais:", erro);
+        console.error("❌ Erro ao carregar materiais:", erro);
         alert("Erro ao carregar materiais do servidor.");
         return {};
     }
@@ -353,11 +355,11 @@ function criarLinhaMaterial(materialId, material) {
         <td data-label="Unidade" class="material-unit">${material.unidade}</td>
         <td data-label="Laboratorio">${material.laboratorio || 'Depósito Química'}</td>
         <td data-label="Ações" class="kit-actions-compact actions-cell">
-            <button class="btn-action btn-edit-material" data-material-id="${materialId}">
-                <span class="edit-icon">✏️ Editar</span>
+            <button class="btn btn-light btn-edit-material" data-material-id="${materialId}">
+                ✏️ Editar
             </button>
-            <button class="btn-action btn-remove-material" data-material-id="${materialId}">
-                <span class="remove-icon">🗑️ Remover</span>
+            <button class="btn btn-remove-material" data-material-id="${materialId}">
+                🗑️ Remover
             </button>
         </td>
     `;
@@ -434,14 +436,13 @@ const setupFormEditMaterial = () => {
         };
 
         try {
-            // Aqui você pode adicionar uma rota PUT no backend quando precisar
-            // const resposta = await axios.put(`http://localhost:3000/materiais/${materialId}`, dadosAtualizados);
+            const resposta = await axios.put(`http://localhost:3000/materiais/${materialId}`, dadosAtualizados);
             
-            // Por enquanto, atualizamos localmente
+            // Atualizar localmente
             materiais[materialId] = { ...materiais[materialId], ...dadosAtualizados };
             atualizarTabelaMateriais();
             
-            console.log("✅ Material atualizado:", dadosAtualizados);
+            console.log("✅ Material atualizado:", resposta.data);
             alert("Material atualizado com sucesso!");
             fecharModal('modal-edit-material');
         } catch (erro) {
@@ -469,21 +470,22 @@ async function carregarEstatisticasAgendamentos() {
 
         return agendamentosMes;
     } catch (erro) {
-        console.error(" Erro ao carregar agendamentos:", erro);
+        console.error("❌ Erro ao carregar agendamentos:", erro);
         return 0;
     }
 }
+
 // Função para carregar todos os dados do dashboard
 async function carregarDashboard() {
     try {
         await Promise.all([
             carregarUsuarios(),
-            carregarEstatisticasMateriais(),
+            carregarMateriais(),
             carregarEstatisticasAgendamentos()
         ]);
-        console.log("Dashboard carregado com sucesso!");
+        console.log("✅ Dashboard carregado com sucesso!");
     } catch (erro) {
-        console.error("Erro ao carregar dashboard:", erro);
+        console.error("❌ Erro ao carregar dashboard:", erro);
     }
 }
 
@@ -537,6 +539,21 @@ const setupFormEditUsuario = () => {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const usuarioId = document.getElementById('edit-user-id').value;
+        const novaSenha = document.getElementById('edit-user-password').value;
+        const confirmarSenha = document.getElementById('edit-user-confirm-password').value;
+
+        // Validação de senha
+        if (novaSenha || confirmarSenha) {
+            if (novaSenha !== confirmarSenha) {
+                alert("❌ As senhas não coincidem. Por favor, verifique.");
+                return;
+            }
+            
+            if (novaSenha.length < 6) {
+                alert("❌ A senha deve ter pelo menos 6 caracteres.");
+                return;
+            }
+        }
 
         const dadosAtualizados = {
             nome: document.getElementById('edit-user-name').value,
@@ -544,25 +561,56 @@ const setupFormEditUsuario = () => {
             perfil: document.getElementById('edit-user-profile').value
         };
 
+        // Adiciona a senha apenas se foi preenchida
+        if (novaSenha) {
+            dadosAtualizados.password = novaSenha;
+        }
+
         try {
+            // Enviar para o backend
+            const resposta = await axios.put(`http://localhost:3000/usuarios/${usuarioId}`, dadosAtualizados);
+            
+            // Atualizar localmente
             usuarios[usuarioId] = { ...usuarios[usuarioId], ...dadosAtualizados };
             atualizarTabelaUsuarios();
 
-            console.log(" Usuário atualizado:", dadosAtualizados);
-            alert("Usuário atualizado com sucesso!");
+            console.log("✅ Usuário atualizado:", resposta.data);
+            alert("✅ Usuário atualizado com sucesso!");
+            
+            // Limpar campos de senha
+            document.getElementById('edit-user-password').value = '';
+            document.getElementById('edit-user-confirm-password').value = '';
+            
             fecharModal('modal-edit-user');
         } catch (erro) {
-            console.error(" Erro ao atualizar usuário:", erro);
-            alert("Erro ao atualizar usuário.");
+            console.error("❌ Erro ao atualizar usuário:", erro);
+            
+            let mensagemErro = "Erro ao atualizar usuário.";
+            if (erro.response) {
+                switch (erro.response.status) {
+                    case 400:
+                        mensagemErro = "Dados inválidos. Verifique as informações.";
+                        break;
+                    case 404:
+                        mensagemErro = "Usuário não encontrado.";
+                        break;
+                    case 500:
+                        mensagemErro = "Erro interno do servidor.";
+                        break;
+                }
+            }
+            alert(mensagemErro);
         }
     });
 };
+
 // ======================= MODAIS =======================
 
 // DOMContentLoaded ======================================
 document.addEventListener('DOMContentLoaded', async () => {
     await carregarUsuarios()
     await carregarMateriais()
+    
     // ===== Modais simples =====
     const modais = document.querySelectorAll('.modal-overlay');
     modais.forEach(modal => {
@@ -649,33 +697,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         abrirModal('modal-edit-lab');
     };
 
-    const abrirModalEdicaoMaterial = (id) => {
-        const m = materiais[id];
-        if (!m) return;
-        document.getElementById('edit-material-id').value = id;
-        document.getElementById('edit-material-name').value = m.item;
-        document.getElementById('edit-material-quantity').value = m.quantidade;
-
-        const select = document.getElementById('edit-material-unit');
-        const customGroup = document.getElementById('custom-edit-unit-group');
-        const customInput = document.getElementById('custom-edit-unit-text');
-
-        if (select.querySelector(`option[value="${m.unidade}"]`)) {
-            select.value = m.unidade;
-            customGroup.style.display = 'none';
-            customInput.removeAttribute('required');
-        } else {
-            select.value = 'outro';
-            customInput.value = m.unidade;
-            customGroup.style.display = 'block';
-            customInput.setAttribute('required', 'required');
-        }
-        abrirModal('modal-edit-material');
-    };
-
     const abrirModalEdicaoUsuario = (id) => {
         const u = usuarios[id];
         if (!u) return;
+        
         document.getElementById('edit-user-id').value = id;
         document.getElementById('edit-user-title').textContent = `Editar ${u.nome}`;
         document.getElementById('edit-user-name').value = u.nome;
@@ -689,8 +714,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             perfilSelect.value = perfilCorrigido;
         }
 
+        // Limpar campos de senha ao abrir o modal
+        document.getElementById('edit-user-password').value = '';
+        document.getElementById('edit-user-confirm-password').value = '';
+
         abrirModal('modal-edit-user');
     };
+
     // ================== FORMULÁRIOS DE EDIÇÃO ==================
     const setupFormEdit = (formId, dataObj, updateRowCallback) => {
         const form = document.getElementById(formId);
@@ -722,7 +752,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // --- Editar Usuário ---
     // ================== CONFIRMAÇÃO ==================
     const modalConfirm = document.getElementById('modal-confirm');
     const confirmMessage = document.getElementById('confirm-message');
