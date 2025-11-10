@@ -1,0 +1,1760 @@
+/* ---------------------------
+   tecnico.css (integrado)
+   Conteúdo: seu CSS original + complementos para Agendamentos
+   --------------------------- */
+
+/* === (Seu CSS original que você me enviou) === */
+/* (Colei exatamente o CSS que você enviou) */
+
+#cps-header {
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    padding: 1.6rem;
+    border-top: 1px solid #dadada;
+}
+
+#cps-header,
+#tabela-contratos tr:nth-child(2n),
+.caixa__codigo,
+.panel {
+    background-color: #fff;
+}
+
+#cps-header .cps-header__container .cps-header__logo {
+    display: flex;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+
+.cps-header__logo img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+/* Pode ser necessário ajustar a altura do cabeçalho */
+#cps-header {
+    min-height: 100px;
+}
+
+/* BASE VISUAL */
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    color: #333;
+    background: #fafafa;
+}
+
+:root {
+    --red: #b9080f;
+    --muted: #8b8b8b;
+    --card-bg: #fff;
+    --border: #e9e9ea;
+    --radius: 12px;
+    --light-red: #fcebeb;
+}
+
+/* container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* search wrap */
+.right-search {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.search-wrap {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 30px;
+    padding: 5px 10px;
+    width: 300px;
+    background: #fff;
+}
+
+.search-wrap input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 8px;
+    font-size: 14px;
+}
+
+.search-btn {
+    border: none;
+    background: transparent;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--muted);
+}
+
+.thin-sep {
+    height: 3px;
+    background: linear-gradient(to right, var(--red), #c14444);
+    margin-top: 10px;
+}
+
+/* tabs */
+.tabs {
+    display: flex;
+    gap: 12px;
+    padding: 18px 20px;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.tab {
+    background: #f2f2f3;
+    border: 0;
+    padding: 10px 28px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all .2s;
+}
+
+.tab:hover:not(.active) {
+    background: #e9e9ea;
+}
+
+.tab.active {
+    background: var(--red);
+    color: #fff;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, .15);
+}
+
+/* main content */
+.main-content {
+    padding-top: 10px;
+    flex-grow: 1;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* placeholders */
+.placeholder-content {
+    background: var(--card-bg);
+    border: 1px dashed var(--border);
+    padding: 30px;
+    text-align: center;
+    border-radius: var(--radius);
+    color: var(--muted);
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* titles/text */
+.page-title {
+    color: var(--red);
+    margin: 8px 0 6px;
+    font-weight: 600;
+}
+
+.subtitle {
+    color: var(--muted);
+    margin: 0 0 24px;
+}
+
+/* cards/metrics */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-bottom: 28px;
+}
+
+.card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 26px;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, .03);
+    border: 1px solid var(--border);
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 36px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: rgb(42, 73, 212);
+}
+
+.stat-label {
+    color: var(--muted);
+}
+
+/* buttons */
+.btn {
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    transition: background-color .2s, box-shadow .2s;
+}
+
+.btn-primary {
+    background: var(--red);
+    color: #fff;
+    border: 1px solid rgba(0, 0, 0, .06);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, .03);
+}
+
+.btn-primary:hover {
+    background: #a3070d;
+}
+
+.btn-outline {
+    background: #fff;
+    color: var(--red);
+    border: 2px solid rgba(185, 8, 15, 0.12);
+}
+
+.btn-outline:hover {
+    background: #fef4f4;
+}
+
+/* tables */
+.kit-table-container {
+    padding: 0;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 15px;
+}
+
+thead {
+    background: #f7f7f8;
+}
+
+th,
+td {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+th {
+    font-weight: 600;
+    color: #555;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+/* badges */
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12px;
+    text-align: center;
+}
+
+.status-active {
+    background-color: #d1f7d6;
+    color: #1b9b46;
+}
+
+.status-draft {
+    background-color: #fff3cc;
+    color: #db8a00;
+}
+
+.status-disabled {
+    background-color: #eee;
+    color: var(--muted);
+}
+
+.status-denied {
+    background-color: var(--light-red);
+    color: var(--red);
+    border: 1px solid #f6d1d1;
+}
+
+/* footer */
+.site-footer {
+    padding: 12px;
+    text-align: center;
+    color: var(--muted);
+    margin-top: 30px;
+    font-size: 12px;
+    background: #fff;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* responsive */
+@media (max-width:960px) {
+    .tabs {
+        flex-wrap: wrap;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .kit-table-container {
+        overflow-x: auto;
+    }
+
+    table,
+    thead,
+    tbody,
+    th,
+    td,
+    tr {
+        display: block;
+    }
+
+    thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    tr {
+        border: 1px solid var(--border);
+        margin-bottom: 10px;
+        border-radius: var(--radius);
+        background: var(--card-bg);
+    }
+
+    td {
+        border: none;
+        position: relative;
+        padding-left: 50%;
+        text-align: right;
+    }
+
+    td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        width: 45%;
+        padding-left: 20px;
+        font-weight: 600;
+        text-align: left;
+        color: var(--red);
+    }
+}
+
+/* modal styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
+    width: 90%;
+    max-width: 500px;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.modal-title-red {
+    color: #e31f24;
+    font-size: 1.5em;
+    font-weight: bold;
+    margin: 0;
+}
+
+.modal-subtitle-text {
+    color: #555;
+    margin-bottom: 20px;
+    font-size: 0.9em;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color .2s;
+    font-weight: normal;
+    font-family: Arial, sans-serif;
+}
+
+.close-modal:hover {
+    color: #333;
+    background-color: #f0f0f0;
+}
+
+.close-modal span {
+    font-size: 18px;
+    color: #666;
+}
+
+.close-modal:hover span {
+    color: #333;
+}
+
+/* form */
+.input-group {
+    margin-bottom: 18px;
+}
+
+.input-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #333;
+}
+
+.input-group input[type="text"],
+.input-group input[type="email"],
+.input-group input[type="password"],
+.input-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1em;
+    outline: none;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+    border-color: #e31f24;
+    box-shadow: 0 0 0 2px rgba(227, 31, 36, 0.2);
+}
+
+.input-helper {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.75em;
+    color: #777;
+}
+
+.modal-footer-cadastro {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    margin-top: 10px;
+    gap: 10px;
+}
+
+.btn-primary.btn-red {
+    background-color: #e31f24;
+    border-color: #e31f24;
+    color: white;
+}
+
+.btn-primary.btn-red:hover {
+    background-color: #c91b1f;
+    border-color: #c91b1f;
+}
+
+.btn-cancelar {
+    background: none;
+    color: #777;
+    border: none;
+    padding: 10px 15px;
+    font-size: 1em;
+}
+
+.btn-cancelar:hover {
+    color: #000;
+    background-color: #f0f0f0;
+}
+
+.input-group-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 18px;
+}
+
+.input-group-row .input-group {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.modal-content.large-modal {
+    max-width: 600px;
+}
+
+.configs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.lab-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.lab-item:last-child {
+    border-bottom: none;
+}
+
+.lab-info h4 {
+    margin: 0 0 2px 0;
+    font-size: 1em;
+    font-weight: 600;
+}
+
+.lab-info p {
+    margin: 0;
+    font-size: 0.85em;
+    color: var(--muted);
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: var(--red);
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.btn-link:hover {
+    color: #a3070d;
+}
+
+.time-inputs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.time-inputs input[type="time"] {
+    width: 100px;
+    text-align: center;
+}
+
+.time-separator {
+    font-weight: 500;
+    color: #555;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    margin-right: 10px;
+    width: 16px;
+    height: 16px;
+}
+
+.modal-content.small-modal {
+    max-width: 400px;
+}
+
+.actions-cell .btn {
+    margin-right: 8px;
+    min-width: 98px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.actions-cell .btn-edit-user {
+    background: #fff;
+    border: 1px solid var(--border);
+}
+
+.actions-cell .btn-remove-user {
+    background: transparent;
+    border: 1px solid rgba(185, 8, 15, 0.12);
+    color: var(--red);
+}
+
+/* === ADIÇÕES: estilos específicos para a tela Agendamentos (prints) === */
+
+.agendamentos-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.agendamentos-stats span {
+    margin-right: 12px;
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.agendamentos-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.agendamentos-actions input[type="search"] {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    outline: none;
+    min-width: 220px;
+}
+
+.agendamentos-actions select {
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    outline: none;
+}
+
+.agendamentos-card {
+    padding: 0;
+    margin-top: 8px;
+}
+
+/* status pills: mais proeminentes para agendamentos */
+.status-pill {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.status-pendente {
+    background: #fff6e8;
+    color: #b46a00;
+    border: 1px solid #f2d9b7;
+}
+
+.status-aprovado {
+    background: #e8fbef;
+    color: #0f8a3b;
+    border: 1px solid #cfeed3;
+}
+
+.status-negado {
+    background: #fdecec;
+    color: #b9080f;
+    border: 1px solid #f8d2d2;
+}
+
+/* ações na tabela */
+.table-actions .btn {
+    padding: 6px 10px;
+    font-size: 13px;
+    min-width: 86px;
+    border-radius: 8px;
+}
+
+.btn-approve {
+    background: #1b9b46;
+    color: #fff;
+    border: 0;
+}
+
+.btn-deny {
+    background: transparent;
+    color: var(--red);
+    border: 1px solid rgba(185, 8, 15, 0.12);
+}
+
+.btn-view {
+    background: #fff;
+    border: 1px solid var(--border);
+    color: #333;
+}
+
+/* small text in table */
+.data-small {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+/* responsive tweaks */
+@media (max-width:760px) {
+    .agendamentos-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .agendamentos-actions {
+        justify-content: space-between;
+    }
+
+    .agendamentos-actions input[type="search"] {
+        width: 100%;
+    }
+
+    .table-actions {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    th,
+    td {
+        padding: 12px;
+    }
+}
+
+/* --- ADIÇÕES PARA O MODAL DE MATERIAL --- */
+
+/* Ajuste para alinhar campos lado a lado */
+.input-group-row {
+    display: flex;
+    gap: 20px;
+    /* Espaço entre as colunas */
+    margin-bottom: 18px;
+}
+
+.input-group-row .input-group {
+    flex: 1;
+    /* Faz com que cada campo ocupe metade do espaço disponível */
+    margin-bottom: 0;
+    /* Remove a margem vertical interna, pois a .input-group-row já tem */
+}
+
+/* Garante que o modal de material possa ser um pouco maior se necessário */
+.modal-content.large-modal {
+    max-width: 600px;
+    /* Um pouco mais largo que o de usuário (500px) */
+}
+
+/* === ESTILOS PARA A TELA DE HISTÓRICO === */
+
+/* Filtros */
+.filters {
+    margin-bottom: 24px;
+}
+
+.filters-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.filters-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.1em;
+}
+
+.search-filter {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.search-filter .search-wrap {
+    width: 280px;
+    margin: 0;
+}
+
+.search-filter select {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: white;
+    color: #333;
+}
+
+/* Lista de Histórico */
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.history-item {
+    padding: 24px;
+    border-left: 4px solid #e9e9ea;
+    transition: all 0.3s ease;
+}
+
+.history-item:hover {
+    border-left-color: var(--red);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.teacher-info h3 {
+    margin: 0 0 4px 0;
+    color: #333;
+    font-size: 1.2em;
+}
+
+.class-info {
+    color: var(--muted);
+    font-size: 0.9em;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-completed {
+    background-color: #e8fbef;
+    color: #0f8a3b;
+    border: 1px solid #cfeed3;
+}
+
+.status-cancelled {
+    background-color: #fdecec;
+    color: #b9080f;
+    border: 1px solid #f8d2d2;
+}
+
+/* Detalhes do Histórico */
+.history-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 20px;
+}
+
+.date-time,
+.materials-used {
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.date-time strong,
+.materials-used strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-size: 0.95em;
+}
+
+.time-slot {
+    margin-top: 8px;
+}
+
+.time-slot strong {
+    display: inline;
+    margin-right: 4px;
+}
+
+.materials-used ul {
+    margin: 0;
+    padding-left: 16px;
+    color: var(--muted);
+}
+
+.materials-used li {
+    margin-bottom: 4px;
+    font-size: 0.9em;
+}
+
+/* Ações */
+.history-actions {
+    text-align: right;
+}
+
+.btn-view-details {
+    min-width: 120px;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .filters-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-filter {
+        flex-direction: column;
+    }
+
+    .search-filter .search-wrap {
+        width: 100%;
+    }
+
+    .history-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .history-details {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .history-actions {
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .history-item {
+        padding: 16px;
+    }
+
+    .date-time,
+    .materials-used {
+        padding: 12px;
+    }
+}
+
+/* ======== Layout de Cards de Agendamentos ======== */
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.appointment-card {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.appointment-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.card-header .card-date {
+    font-weight: 600;
+    color: #333;
+}
+
+.card-header .status-pill {
+    font-size: 0.9rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.status-pendente {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-aprovado {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-negado {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.card-body {
+    flex: 1;
+}
+
+.card-body p {
+    margin: 6px 0;
+    color: #555;
+    font-size: 0.95rem;
+}
+
+.card-body strong {
+    color: #222;
+}
+
+.card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1.2rem;
+}
+
+.card-actions .btn {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+}
+
+.btn-view {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.btn-approve {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.btn-deny {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.btn-view:hover {
+    background-color: #0056b3;
+}
+
+.btn-approve:hover {
+    background-color: #218838;
+}
+
+.btn-deny:hover {
+    background-color: #c82333;
+}
+
+.appointment-card.full-width {
+    width: 100%;
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.card-info h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #1f1f1f;
+}
+
+.turma-link {
+    color: #0056b3;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.card-status {
+    font-weight: 600;
+}
+
+.card-body {
+    margin-top: 10px;
+}
+
+.datas {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.chips-container {
+    margin-top: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.chip {
+    background-color: #f2f2f2;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.card-actions {
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* === CARDS DE AGENDAMENTO (layout de ponta a ponta) === */
+
+#appointments-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.appointment-card {
+    width: 100%;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.appointment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.appointment-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.appointment-info h3 {
+    margin: 0;
+    color: #333;
+    font-weight: 600;
+    font-size: 1.1em;
+}
+
+.appointment-info .class {
+    color: #2953cc;
+    font-weight: 500;
+    text-decoration: none;
+    font-size: 0.95em;
+}
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85em;
+    text-transform: capitalize;
+}
+
+.status-pendente {
+    background: #fff6e8;
+    color: #b46a00;
+    border: 1px solid #f2d9b7;
+}
+
+.status-aprovado {
+    background: #e8fbef;
+    color: #0f8a3b;
+    border: 1px solid #cfeed3;
+}
+
+.status-negado {
+    background: #fdecec;
+    color: #b9080f;
+    border: 1px solid #f8d2d2;
+}
+
+.appointment-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    margin-top: 14px;
+    font-size: 0.95em;
+}
+
+.appointment-details div strong {
+    color: #333;
+    font-weight: 600;
+    margin-right: 4px;
+}
+
+.materials {
+    margin-top: 18px;
+}
+
+.materials strong {
+    display: block;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.material-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.material-tag {
+    background: #f5f5f5;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.85em;
+    color: #333;
+}
+
+.card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.card-actions .btn {
+    min-width: 100px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.9em;
+}
+
+/* ==================== FILTROS ==================== */
+.filters-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.filter-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    font-size: 15px;
+    transition: 0.2s ease;
+}
+
+.filter-input:focus {
+    outline: none;
+    border-color: #b70000;
+    box-shadow: 0 0 0 3px rgba(183, 0, 0, 0.1);
+}
+
+.filter-select {
+    padding: 12px 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.filter-select:hover,
+.filter-select:focus {
+    border-color: #b70000;
+    outline: none;
+}
+
+/* ======= MODAL DE CONFIRMAÇÃO ======= */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 25px 30px;
+    border-radius: 10px;
+    width: 340px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* .modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+} */
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* === Botões da janela de confirmação === */
+.modal-actions button {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.modal-actions button.confirm {
+    background: #198754;
+    color: #fff;
+}
+
+.modal-actions button.confirm:hover {
+    background: #198754;
+    transform: scale(1.03);
+}
+
+.modal-actions button.cancel {
+    background: #f1f1f1;
+    color: #333;
+}
+
+.modal-actions button.cancel:hover {
+    background: #e0e0e0;
+    transform: scale(1.03);
+}
+
+
+/* ======= TOAST (mensagem de feedback) ======= */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: gray;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 15px;
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.3s ease;
+    transform: translateY(-20px);
+    z-index: 1000;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast.error {
+    background: gray;
+}
+
+/* === Ajuste local: tons de vermelho mais escuros apenas nos botões "Recusar" e modais === */
+
+/* Botão "Recusar" nos cards */
+.btn-deny {
+    background-color: #BA1A1A;
+    /* vermelho mais escuro */
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    /* mantém o mesmo arredondamento do padrão */
+    transition: 0.2s ease;
+}
+
+.btn-deny:hover {
+    background-color: #BA1A1A;
+    /* ainda mais escuro no hover */
+}
+
+/* Botões vermelhos na janela de confirmação */
+#confirmation-modal .btn-confirm.red,
+#confirmation-modal .btn-danger {
+    background-color: #BA1A1A;
+    color: #fff;
+    border-radius: 6px;
+    transition: 0.2s ease;
+}
+
+#confirmation-modal .btn-confirm.red:hover,
+#confirmation-modal .btn-danger:hover {
+    background-color: #BA1A1A;
+}
+
+/* === Ajuste visual: botões de ação nos cards de agendamento === */
+
+/* Botão "Aprovar" mantém o preenchimento verde */
+.btn-approve {
+    background-color: #1b9b46;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.btn-approve:hover {
+    background-color: #157a37;
+}
+
+/* Botão "Recusar" apenas com borda e texto vermelhos */
+.btn-deny {
+    background-color: transparent;
+    border: 2px solid #BA1A1A;
+    color: #BA1A1A;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-deny:hover {
+    background-color: rgba(186, 26, 26, 0.05);
+}
+
+/* Botão "Ver Detalhes" com borda e texto pretos */
+.btn-view {
+    background-color: transparent;
+    border: 2px solid #222;
+    color: #222;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-view:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* === Ajuste visual do botão "Ver Detalhes" === */
+.btn-view {
+    background-color: #f2f2f2;
+    /* cinza bem claro, similar aos chips */
+    color: #555;
+    /* texto cinza médio */
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-view:hover {
+    background-color: #e6e6e6;
+    /* leve escurecida no hover */
+    color: #333;
+    /* texto um pouco mais escuro no hover */
+}
+
+/* === ESTILOS PARA O MODAL DE APROVAR AGENDAMENTOS === */
+
+.multiple-select-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border);
+}
+
+.multiple-select-header .btn-outline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 2px solid var(--border);
+    background: white;
+}
+
+.checkbox-placeholder {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--muted);
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.multiple-select-mode .checkbox-placeholder {
+    background: var(--red);
+    border-color: var(--red);
+}
+
+.selected-count {
+    color: var(--red);
+    font-weight: 600;
+}
+
+.agendamentos-pendentes-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.agendamento-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    position: relative;
+    transition: all 0.2s ease;
+    border-left: 4px solid #e9e9ea;
+}
+
+.agendamento-card:hover {
+    border-left-color: var(--red);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.agendamento-card.selected {
+    border-left-color: var(--red);
+    background-color: #fef4f4;
+    border-color: var(--red);
+}
+
+.agendamento-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.agendamento-info {
+    flex: 1;
+}
+
+.agendamento-professor {
+    font-weight: 600;
+    color: #333;
+    font-size: 1.1em;
+    margin: 0 0 4px 0;
+}
+
+.agendamento-turma {
+    color: var(--muted);
+    font-size: 0.9em;
+    margin: 0;
+}
+
+.agendamento-dates {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.date-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.date-label {
+    font-size: 0.85em;
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.date-value {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95em;
+}
+
+.agendamento-details {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.detail-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.detail-label {
+    font-size: 0.85em;
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.detail-value {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95em;
+}
+
+.agendamento-materiais {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border);
+}
+
+.materiais-label {
+    font-size: 0.9em;
+    color: var(--muted);
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.materiais-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.material-tag {
+    background: #f5f5f5;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 0.8em;
+    color: #333;
+}
+
+.btn-approve-single {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: var(--red);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-approve-single:hover {
+    background: #a3070d;
+}
+
+/* Checkbox de seleção múltipla */
+.agendamento-checkbox {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--muted);
+    border-radius: 3px;
+    cursor: pointer;
+    display: none;
+}
+
+.multiple-select-mode .agendamento-checkbox {
+    display: block;
+}
+
+.agendamento-card.selected .agendamento-checkbox {
+    background: var(--red);
+    border-color: var(--red);
+}
+
+.agendamento-card.selected .agendamento-checkbox::after {
+    content: '✓';
+    color: white;
+    font-size: 12px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.multiple-select-mode .btn-approve-single {
+    display: none;
+}
+
+/* Scrollbar personalizada */
+.agendamentos-pendentes-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.agendamentos-pendentes-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.agendamentos-pendentes-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.agendamentos-pendentes-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+.agendamento-card {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 5px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.agendamento-card:hover {
+    background: #f8f8f8;
+}
+
+.agendamento-card.selected {
+    background: #c8f7c5;
+    border-color: #4CAF50;
+}
