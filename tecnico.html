@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Painel do Técnico — ETEC-LAB</title>
+
+    <!-- CSS do tecnico -->
+    <link rel="stylesheet" href="css/tecnico.css">
+
+    <!-- JS do tecnico  -->
+    <script src="js/tecnico.js" defer></script>
+
+</head>
+
+<body>
+    <!-- TOP BAR GOV SP (mantido do seu início) -->
+    <section class="govsp-topo">
+        <link rel="stylesheet" type="text/css"
+            href="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/css/sao-paulo/topo-padrao-govsp.min.css">
+        <link rel="stylesheet" type="text/css"
+            href="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/css/sao-paulo/barra-contraste-govsp.min.css">
+        <div id="govsp-topbarGlobal" class="blu-e">
+            <!-- (conteúdo do topo) -->
+            <div id="topbarGlobal">
+                <div id="topbarLink" class="govsp-black">
+                    <div class="govsp-portal">
+                        <a href="http://www.saopaulo.sp.gov.br/" target="_blank">
+                            <img src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/logo-governo-do-estado-sp.png"
+                                alt="Governo do Estado de São Paulo" height="38" class="logo">
+                        </a>
+                    </div>
+                </div>
+                <nav class="govsp-navbar govsp-navbar-expand-lg">
+                    <!-- ícones sociais e controles de acessibilidade ... -->
+                    <a class="govsp-social" href="https://www.flickr.com/governosp/" target="_blank">
+                        <img class="govsp-icon-social"
+                            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-flickr.png"
+                            alt="Flickr Governo de São Paulo">
+                    </a>
+                    <a class="govsp-social" href="https://www.linkedin.com/company/governosp/" target="_blank">
+                        <img class="govsp-icon-social"
+                            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-linkedin.png"
+                            alt="Linkedin Governo de São Paulo">
+                    </a>
+                    <a class="govsp-social" href="https://www.tiktok.com/@governosp" target="_blank">
+                        <img class="govsp-icon-social"
+                            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-tiktok.png"
+                            alt="TikTok Governo de São Paulo">
+                    </a>
+                    <a class="govsp-social" href="https://www.youtube.com/governosp/" target="_blank">
+                        <img class="govsp-icon-social"
+                            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-youtube.png"
+                            alt="Youtube Governo de São Paulo">
+                    </a>
+                    <a class="govsp-social" href="https://www.twitter.com/governosp/" target="_blank">
+                        <img class="govsp-icon-social"
+                            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-twitter.png"
+                            alt="Twitter Governo de São Paulo">
+                    </a>
+                    <a class="govsp-social" href="https://www.instagram.com/governosp/" target="_blank">
+                        <img class="govsp-icon-social"
+                            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-insta.png"
+                            alt="Instagram Governo de São Paulo">
+                    </a>
+                    <a class="govsp-social" href="https://www.facebook.com/governosp/" target="_blank">
+                        <img class="govsp-icon-social"
+                            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-facebook.png"
+                            alt="Facebook Governo de São Paulo">
+                    </a>
+                    <p class="govsp-social" style="min-height:auto;">/governosp</p>
+                    <div id="separador-nav"></div>
+                    <a class="govsp-acessibilidade" href="javascript:mudaTamanho('body', 1);">
+                        <img class="govsp-acessibilidade"
+                            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-big-font.png"
+                            alt="Aumentar Fonte">
+                    </a>
+                    <a class="govsp-acessibilidade" href="javascript:mudaTamanho('body', -1);">
+                        <img class="govsp-acessibilidade"
+                            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-small-font.png"
+                            alt="Diminuir Fonte">
+                    </a>
+                    <a class="govsp-acessibilidade" href="#" id="altocontraste" accesskey="3"
+                        onclick="window.toggleContrast()" onkeydown="window.toggleContrast()">
+                        <img class="govsp-acessibilidade"
+                            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-contrast.png"
+                            alt="Contraste">
+                    </a>
+                    <a class="govsp-acessibilidade" href="http://www.saopaulo.sp.gov.br/fale-conosco/comunicar-erros/"
+                        title="Comunicar Erros" target="_blank">
+                        <img class="govsp-acessibilidade"
+                            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-error-report.png">
+                    </a>
+                </nav>
+            </div>
+            <div class="govsp-kebab">
+                <!-- dropdown mobile (mantido) -->
+            </div>
+        </div>
+
+        <script
+            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/js/sao-paulo/script-topo.js"></script>
+        <script
+            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/js/sao-paulo/script-contrast.js"></script>
+        <script
+            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/js/sao-paulo/script-tamanho-fonte.js"></script>
+        <script
+            src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/js/sao-paulo/script-scroll.js"></script>
+    </section>
+
+    <!--  HEADER CPS (logo ETEC)  -->
+    <header id="cps-header">
+        <div class="cps-header__container">
+            <div class="cps-header__logo">
+                <a href="https://etecjuliodemesquita.cps.sp.gov.br/" rel="home" title="Etec Júlio de Mesquita">
+                    <img width="272" height="79"
+                        src="https://bkpsitecpsnew.blob.core.windows.net/uploadsitecps/sites/143/2024/04/etec_santo_andre.png"
+                        class="custom-logo" alt="Etec Júlio de Mesquita">
+                </a>
+            </div>
+
+        </div>
+    </header>
+
+    <!--  NAV TABS  -->
+    <nav class="tabs container">
+        <button class="tab active" data-tab="visao-geral">📊 Dashboard</button>
+        <button class="tab" data-tab="agendamentos">📅 Agendamentos</button>
+        <button class="tab" data-tab="materiais">🧪 Materiais</button>
+        <button class="tab" data-tab="historico">📋 Histórico</button>
+    </nav>
+
+    <!--  CONTEÚDO PRINCIPAL  -->
+    <main class="container main-content">
+
+        <!-- --- VISÃO GERAL --- -->
+        <section class="tab-content active" id="visao-geral">
+            <h1 class="page-title">Dashboard do Técnico</h1>
+            <p class="subtitle">Bem-vindo ao painel administrativo do técnico. Acompanhe os agendamentos, materiais e
+                histórico.</p>
+
+            <div class="stats-grid">
+                <div class="stat card">
+                    <div class="stat-number text-green">20</div>
+                    <div class="stat-label">Agendamentos Pendentes</div>
+                </div>
+
+                <div class="stat card">
+                    <div class="stat-number text-amber">18</div>
+                    <div class="stat-label">Materiais Disponíveis</div>
+                </div>
+
+                <div class="stat card">
+                    <div class="stat-number text-blue">47</div>
+                    <div class="stat-label">Aulas Realizadas este Mês</div>
+                </div>
+            </div>
+
+            <h2 class="section-title">Ações Rápidas</h2>
+            <div class="actions-row">
+                <button id="btn-aprovar-agendamento" class="btn btn-primary large">Aprovar Agendamento</button>
+                <button id="btn-add-material" class="btn btn-outline">🧪 Adicionar Material</button>
+                <button id="btn-view-reports" class="btn btn-outline">📋 Ver Histórico</button>
+            </div>
+
+            <!-- exemplos rápidos (cards) -->
+            <section class="cards-section">
+                <h3 class="section-title">Atividades Recentes</h3>
+                <div class="mini-stats-grid">
+                    <div class="mini-stat card">
+                        <div class="mini-number">5</div>
+                        <div class="mini-label">Novos cadastros (7d)</div>
+                    </div>
+                    <div class="mini-stat card">
+                        <div class="mini-number">12</div>
+                        <div class="mini-label">Kits alterados (7d)</div>
+                    </div>
+                    <div class="mini-stat card">
+                        <div class="mini-number">3</div>
+                        <div class="mini-label">Agendamentos pendentes</div>
+                    </div>
+                    <div class="mini-stat card">
+                        <div class="mini-number">8</div>
+                        <div class="mini-label">Relatórios gerados</div>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+
+        <!--  AGENDAMENTOS  -->
+        <section id="agendamentos" class="tab-content">
+
+            <div class="content-header">
+                <h1 class="page-title">Agendamentos</h1>
+                <p class="subtitle">Consulte os agendamentos.</p>
+                <div class="content-actions">
+                    <div class="filters-row">
+                        <input type="text" id="filter-search" class="filter-input"
+                            placeholder="🔍 Buscar professor..." />
+
+                        <select id="filter-date" class="filter-select">
+                            <option value="all">Todas as datas</option>
+                            <option value="today">Hoje</option>
+                            <option value="week">Esta semana</option>
+                            <option value="month">Este mês</option>
+                        </select>
+
+                        <select id="filter-class" class="filter-select">
+                            <option value="all">Todas as turmas</option>
+                            <option value="1ano">1º Ano</option>
+                            <option value="2ano">2º Ano</option>
+                            <option value="3ano">3º Ano</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row cards-container" id="appointments-cards"></div>
+
+            <div class="summary">
+                <p>Total de agendamentos: <span id="total-agendamentos">0</span></p>
+                <p>Agendamentos para hoje: <span id="agendamentos-hoje">0</span></p>
+            </div>
+
+        </section>
+
+        <!-- --- MATERIAIS --- -->
+        <section class="tab-content" id="materiais">
+            <h1 class="page-title">Materiais</h1>
+            <p class="subtitle">Cadastro e inventário de materiais e kits.</p>
+
+            <div class="kits-header">
+                <div class="kits-stats">
+                    <span>Total de Itens: <strong id="total-materiais">0</strong></span>
+                    <span>Itens críticos: <strong class="text-amber" id="itens-criticos">0</strong></span>
+                </div>
+            </div>
+
+            <div class="kit-table-container card">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Quantidade</th>
+                            <th>Unidade</th>
+                            <th>Laboratório</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <!-- TABELA VAZIA - JavaScript vai preencher -->
+                    <tbody id="material-table-body">
+                        <!-- Os materiais serão carregados dinamicamente via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        <!-- --- FIM MATERIAIS --- -->
+
+        <!-- --- HISTÓRICO --- -->
+        <section class="tab-content" id="historico">
+            <h1 class="page-title">Histórico</h1>
+            <p class="subtitle">Veja o histórico de aulas concluídas.</p>
+            <!-- --- HISTÓRICO --- -->
+            <section class="tab-content" id="historico">
+                <h1 class="page-title">Histórico</h1>
+                <p class="subtitle">Veja o histórico de aulas concluídas.</p>
+
+                <!-- Filtros -->
+                <div class="filters card">
+                    <div class="filters-header">
+                        <h3>Buscar professor...</h3>
+                        <div class="search-filter">
+                            <div class="search-wrap">
+                                <input type="text" id="search-teacher" placeholder="Digite o nome do professor...">
+                                <button class="search-btn">🔍</button>
+                            </div>
+                            <select id="filter-status">
+                                <option value="all">Sem filtro</option>
+                                <option value="completed">Concluída</option>
+                                <option value="cancelled">Cancelada</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Histórico -->
+                <div class="history-list">
+                    <!-- Item 1 -->
+                    <div class="history-item card">
+                        <div class="history-header">
+                            <div class="teacher-info">
+                                <h3>Prof. Carlos Santos</h3>
+                                <span class="class-info">3º Química B</span>
+                            </div>
+                            <div class="status-badge status-completed">
+                                Concluída
+                            </div>
+                        </div>
+
+                        <div class="history-details">
+                            <div class="date-time">
+                                <strong>Data do Agendamento: 10/10/2025</strong>
+                                <div class="time-slot">
+                                    <strong>Horário</strong>
+                                    <span>08:00 - 10:00</span>
+                                </div>
+                            </div>
+
+                            <div class="materials-used">
+                                <strong>Materiais Utilizados</strong>
+                                <ul>
+                                    <li>Bequer 250mL</li>
+                                    <li>Reagentes</li>
+                                    <li>Vidraria</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="history-actions">
+                            <button class="btn btn-outline btn-view-details">Ver Detalhes</button>
+                        </div>
+                    </div>
+
+                    <!-- Item 2 -->
+                    <div class="history-item card">
+                        <div class="history-header">
+                            <div class="teacher-info">
+                                <h3>Prof. Ana Costa</h3>
+                                <span class="class-info">2º Química A</span>
+                            </div>
+                            <div class="status-badge status-completed">
+                                Concluída
+                            </div>
+                        </div>
+
+                        <div class="history-details">
+                            <div class="date-time">
+                                <strong>Data do Agendamento: 12/10/2025</strong>
+                                <div class="time-slot">
+                                    <strong>Horário</strong>
+                                    <span>14:00 - 16:00</span>
+                                </div>
+                            </div>
+
+                            <div class="materials-used">
+                                <strong>Materiais Utilizados</strong>
+                                <ul>
+                                    <li>Balança Analítica</li>
+                                    <li>Pipetas</li>
+                                    <li>Reagentes Químicos</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="history-actions">
+                            <button class="btn btn-outline btn-view-details">Ver Detalhes</button>
+                        </div>
+                    </div>
+
+                    <!-- Item 3 -->
+                    <div class="history-item card">
+                        <div class="history-header">
+                            <div class="teacher-info">
+                                <h3>Prof. Roberto Silva</h3>
+                                <span class="class-info">1º Química C</span>
+                            </div>
+                            <div class="status-badge status-cancelled">
+                                Cancelada
+                            </div>
+                        </div>
+
+                        <div class="history-details">
+                            <div class="date-time">
+                                <strong>Data do Agendamento: 15/10/2025</strong>
+                                <div class="time-slot">
+                                    <strong>Horário</strong>
+                                    <span>10:00 - 12:00</span>
+                                </div>
+                            </div>
+
+                            <div class="materials-used">
+                                <strong>Materiais Reservados</strong>
+                                <ul>
+                                    <li>Microscópios</li>
+                                    <li>Lâminas</li>
+                                    <li>Corantes</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="history-actions">
+                            <button class="btn btn-outline btn-view-details">Ver Detalhes</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+        </section>
+
+        <!--  MODAL: Detalhes do Agendamento  -->
+        <div id="modal-appointment-details" class="modal-overlay" aria-hidden="true" style="display:none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="appointment-details-title">Detalhes do Agendamento</h3>
+                    <button class="close-modal" data-close="modal-appointment-details"><span>&times;</span></button>
+                </div>
+                <div class="modal-body" id="appointment-details-body">
+                    <!-- preenchido via JS -->
+                    <p><strong>Solicitante:</strong> <span id="det-nome"></span></p>
+                    <p><strong>Email:</strong> <span id="det-email"></span></p>
+                    <p><strong>Laboratório:</strong> <span id="det-lab"></span></p>
+                    <p><strong>Data / Horário:</strong> <span id="det-datahora"></span></p>
+                    <p><strong>Finalidade:</strong> <span id="det-finalidade"></span></p>
+                    <p><strong>Observações:</strong></p>
+                    <p id="det-observacoes"></p>
+                </div>
+                <div class="modal-footer modal-footer-cadastro">
+                    <button class="btn btn-light btn-cancelar" data-close="modal-appointment-details">Fechar</button>
+                    <button id="btn-modal-approve" class="btn btn-primary btn-red">Aprovar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- modal-confirm  -->
+        <div id="modal-new-material" class="modal-overlay" aria-hidden="true" style="display: none;">
+            <!-- ... (mesmo do original) -->
+        </div>
+
+        <div id="modal-edit-lab" class="modal-overlay" aria-hidden="true" style="display: none;">
+            <!-- ... (mesmo do original) -->
+        </div>
+
+        <div id="modal-edit-material" class="modal-overlay" aria-hidden="true" style="display: none;">
+            <!-- ... (mesmo do original) -->
+        </div>
+
+        <div id="modal-confirm" class="modal-overlay" aria-hidden="true" style="display: none;">
+            <div class="modal-content modal-small">
+                <div class="modal-header">
+                    <h3>Confirmação</h3>
+                    <button class="close-modal" data-close="modal-confirm"><span>&times;</span></button>
+                </div>
+                <p id="confirm-message" class="text-center mb-4">Tem certeza que deseja realizar esta ação?</p>
+                <div class="modal-actions justify-center">
+                    <button id="btn-confirm-no" class="btn btn-secondary">Não</button>
+                    <button id="btn-confirm-yes" class="btn btn-danger">Sim</button>
+                </div>
+            </div>
+        </div>
+
+        <!--  MODAL DE CONFIRMAÇÃO ABA AGENDAMENTOS  -->
+        <div id="confirmation-modal" class="modal-overlay" style="display:none;">
+            <div class="modal-content">
+                <p id="modal-message"></p>
+                <div class="modal-actions">
+                    <button id="confirm-yes" class="btn-approve">Confirmar</button>
+                    <button id="confirm-no" class="btn-deny">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <!--  MENSAGEM DE FEEDBACK ABA AGENDAMENTOS  -->
+        <div id="toast" class="toast"></div>
+
+        <!--  MODAL: Aprovar Agendamentos  -->
+        <div id="modal-approve-agendamento" class="modal-overlay" aria-hidden="true" style="display:none;">
+            <div class="modal-content large-modal">
+                <div class="modal-header">
+                    <h3 class="modal-title-red">Agendamentos Pendentes</h3>
+                    <button class="close-modal" data-close="modal-approve-agendamento"><span>&times;</span></button>
+                </div>
+
+                <div class="modal-body">
+                    <!-- Botão Selecionar Múltiplos -->
+                    <div class="multiple-select-header">
+                        <button id="select-multiple-btn" class="btn btn-outline">
+                            <span class="checkbox-placeholder"></span>
+                            Selecionar Múltiplos
+                        </button>
+                        <span id="selected-count" class="selected-count" style="display:none;">
+                            <strong id="count-number">0</strong> selecionados
+                        </span>
+                    </div>
+
+                    <!-- Container dos Cards de Agendamentos -->
+                    <div id="agendamentos-pendentes-container" class="agendamentos-pendentes-container">
+                        <!-- Os cards serão gerados dinamicamente via JavaScript -->
+                    </div>
+                </div>
+
+                <div class="modal-footer modal-footer-cadastro">
+                    <button id="cancel-selection-btn" class="btn btn-light btn-cancelar" style="display:none;">
+                        Cancelar Seleção
+                    </button>
+                    <button id="approve-selected-btn" class="btn btn-primary btn-red" disabled>
+                        Aprovar Selecionados
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!--  MODAL: Confirmação de Aprovação  -->
+        <div id="modal-confirm-approval" class="modal-overlay" aria-hidden="true" style="display:none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Confirmar Aprovação</h3>
+                    <button class="close-modal" data-close="modal-confirm-approval"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <p id="confirm-approval-message" class="text-center mb-4">
+                        Tem certeza de que deseja aprovar este agendamento?
+                    </p>
+                </div>
+                <div class="modal-actions justify-center">
+                    <button id="btn-confirm-approval-cancel" class="btn btn-secondary">Cancelar</button>
+                    <button id="btn-confirm-approval-confirm" class="btn btn-primary btn-red">Confirmar</button>
+                </div>
+            </div>
+        </div>
+
+        <!--  TOAST DE FEEDBACK  -->
+        <div id="toast-approval" class="toast" style="display:none;"></div>
+
+        <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+        <script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
+</body>
+
+</html>
