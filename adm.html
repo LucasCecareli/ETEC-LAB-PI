@@ -10,14 +10,14 @@
 </head>
 
 <body>
-    
+
     <section class="govsp-topo">
         <link rel="stylesheet" type="text/css"
             href="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/css/sao-paulo/topo-padrao-govsp.min.css">
         <link rel="stylesheet" type="text/css"
             href="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/css/sao-paulo/barra-contraste-govsp.min.css">
         <div id="govsp-topbarGlobal" class="blu-e">
-            
+
             <div id="topbarGlobal">
                 <div id="topbarLink" class="govsp-black">
                     <div class="govsp-portal">
@@ -28,7 +28,7 @@
                     </div>
                 </div>
                 <nav class="govsp-navbar govsp-navbar-expand-lg">
-                    
+
                     <a class="govsp-social" href="https://www.flickr.com/governosp/" target="_blank">
                         <img class="govsp-icon-social"
                             src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-flickr.png"
@@ -90,7 +90,7 @@
                 </nav>
             </div>
             <div class="govsp-kebab">
-               
+
             </div>
         </div>
 
@@ -104,7 +104,7 @@
             src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/js/sao-paulo/script-scroll.js"></script>
     </section>
 
-    
+
     <header id="cps-header">
         <div class="cps-header__container">
             <div class="cps-header__logo">
@@ -118,7 +118,7 @@
         </div>
     </header>
 
-    
+
     <nav class="tabs container">
         <button class="tab active" data-tab="visao-geral">📊 Dashboard</button>
         <button class="tab" data-tab="usuarios">👥 Usuários</button>
@@ -127,10 +127,10 @@
         <button class="tab" data-tab="configuracoes">⚙️ Configurações</button>
     </nav>
 
-    
+
     <main class="container main-content">
 
-        
+
         <section class="tab-content active" id="visao-geral">
             <h1 class="page-title">Dashboard do Administrador</h1>
             <p class="subtitle">Bem-vindo ao painel administrativo. Acompanhe usuários, materiais e agendamentos.</p>
@@ -161,7 +161,7 @@
                 <button id="btn-view-reports" class="btn btn-outline">📄 Ver Relatórios</button>
             </div>
 
-            
+
             <section class="cards-section">
                 <h3 class="section-title">Atividades Recentes</h3>
                 <div class="mini-stats-grid">
@@ -241,12 +241,12 @@
                         </tr>
                     </thead>
                     <tbody id="material-table-body">
-                        
+
                     </tbody>
                 </table>
             </div>
         </section>
-        
+
 
 
         <!-- aba relatórios -->
@@ -265,68 +265,15 @@
 
         <!-- aba configurações -->
         <section class="tab-content" id="configuracoes">
-            <h1 class="page-title">Configurações do Sistema</h1>
-            <p class="subtitle">Gerencie laboratórios e configurações gerais</p>
+            <h1 class="page-title">Configurações dos laboratórios</h1>
+            <p class="subtitle">Gerencie seus laboratórios</p>
 
-            <div class="configs-grid">
-                <div class="card">
-                    <h3>Laboratórios</h3>
-
-                    <div class="lab-item">
-                        <div class="lab-info">
-                            <h4>Laboratório 1</h4>
-                            <p>Química Geral - Capacidade: 20 alunos</p>
-                        </div>
-                        <button class="btn-link" data-open="modal-edit-lab" data-lab-id="1">Editar</button>
-                    </div>
-
-                    <div class="lab-item">
-                        <div class="lab-info">
-                            <h4>Laboratório 2</h4>
-                            <p>Química Orgânica - Capacidade: 18 alunos</p>
-                        </div>
-                        <button class="btn-link" data-open="modal-edit-lab" data-lab-id="2">Editar</button>
-                    </div>
-
-                    <div class="lab-item">
-                        <div class="lab-info">
-                            <h4>Laboratório 3</h4>
-                            <p>Análise Quantitativa - Capacidade: 16 alunos</p>
-                        </div>
-                        <button class="btn-link" data-open="modal-edit-lab" data-lab-id="3">Editar</button>
-                    </div>
+            <div class="card">
+                <h3>Laboratórios</h3>
+                <div id="loading-labs" style="text-align: center; padding: 20px;">
+                    Carregando laboratórios...
                 </div>
-
-                <div class="card">
-                    <h3>Configurações Gerais</h3>
-
-                    <div class="input-group">
-                        <label>Horário de Funcionamento</label>
-                        <div class="time-inputs">
-                            <input type="time" value="07:00">
-                            <span class="time-separator">às</span>
-                            <input type="time" value="22:00">
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="antecedencia-minima">Antecedência Mínima para Agendamento</label>
-                        <select id="antecedencia-minima">
-                            <option value="24">24 horas</option>
-                            <option value="48">48 horas</option>
-                            <option value="48">72 horas</option>
-                        </select>
-                    </div>
-
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="notificar-tecnicos" checked>
-                        <label for="notificar-tecnicos">Notificar técnicos sobre novos agendamentos</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="alerta-estoque" checked>
-                        <label for="alerta-estoque">Alertar sobre estoque baixo</label>
-                    </div>
-                </div>
+            </div>
             </div>
         </section>
 
@@ -461,7 +408,8 @@
                 <div class="modal-footer modal-footer-cadastro">
                     <button type="button" class="btn btn-light btn-cancelar"
                         data-close="modal-new-material">Cancelar</button>
-                    <button type="button" form="form-new-material" class="btn btn-primary btn-red" onclick="cadastrarMaterial()">Cadastrar
+                    <button type="button" form="form-new-material" class="btn btn-primary btn-red"
+                        onclick="cadastrarMaterial()">Cadastrar
                         Material</button>
                 </div>
 
@@ -470,7 +418,7 @@
         </div>
         <!-- modal de edição de lab -->
         <div id="modal-edit-lab" class="modal-overlay" aria-hidden="true" style="display: none;">
-            <div class="modal-content small-modal">
+            <div class="modal-content">
                 <div class="modal-header">
                     <h2 class="modal-title-red" id="edit-lab-title">Editar Laboratório</h2>
                     <button class="close-btn" data-close="modal-edit-lab">&times;</button>
@@ -482,17 +430,25 @@
 
                         <div class="input-group">
                             <label for="edit-lab-name">Nome do Laboratório</label>
-                            <input type="text" id="edit-lab-name" value="" required>
+                            <input type="text" id="edit-lab-name" required>
                         </div>
 
                         <div class="input-group">
-                            <label for="edit-lab-desc">Descrição/Finalidade</label>
-                            <input type="text" id="edit-lab-desc" value="" required>
+                            <label for="edit-lab-disponibilidade">Status</label>
+                            <select id="edit-lab-disponibilidade" required>
+                                <option value="disponivel">Disponível</option>
+                                <option value="indisponivel">Indisponível</option>
+                                <option value="manutencao">Em Manutenção</option>
+                            </select>
                         </div>
 
                         <div class="input-group">
-                            <label for="edit-lab-capacity">Capacidade (Nº de Alunos)</label>
-                            <input type="number" id="edit-lab-capacity" value="" min="1" required>
+                            <label>Horários de Funcionamento</label>
+                            <div id="horarios-container"
+                                style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 4px; background: #f9f9f9;">
+
+                            </div>
+                            <small class="text-muted">Horários padrão do sistema</small>
                         </div>
                     </form>
                 </div>
@@ -505,7 +461,7 @@
                 </div>
             </div>
         </div>
-       
+
         <!-- Modal de edição de material -->
         <div id="modal-edit-material" class="modal-overlay" aria-hidden="true" style="display: none;">
             <div class="modal-content">
@@ -557,7 +513,7 @@
             </div>
         </div>
 
-       
+
         <div id="modal-confirm" class="modal-overlay" aria-hidden="true" style="display: none;">
             <div class="modal-content modal-small">
                 <div class="modal-header">
@@ -606,7 +562,8 @@
 
                         <div class="input-group">
                             <label for="edit-user-password">Nova Senha</label>
-                            <input id="edit-user-password" type="password" placeholder="Deixe em branco para manter a senha atual" />
+                            <input id="edit-user-password" type="password"
+                                placeholder="Deixe em branco para manter a senha atual" />
                             <small class="input-helper">Preencha apenas se desejar alterar a senha</small>
                         </div>
 
@@ -629,8 +586,8 @@
         <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
         <script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous">
-        </script>
+            integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous">
+            </script>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script src="js/adm.js"></script>
 </body>
