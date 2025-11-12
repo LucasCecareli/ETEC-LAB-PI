@@ -37,10 +37,13 @@ const materialSchema = new mongoose.Schema({
 const Material = mongoose.model("Material", materialSchema);
 
 const laboratorioSchema = new mongoose.Schema({
-  nome: { type: String, required: true },
-  descricao: { type: String },
-  capacidade: { type: Number, required: true }
+  nome: { type: String, required: true},
+  disponibilidade: { type: String, required: true,default: "disponivel"},
+  horarios: [{ type: String, required: true }]
+}, {
+  timestamps: true
 });
+
 const Laboratorio = mongoose.model("Laboratorio", laboratorioSchema);
 
 // Conexão com o banco de dados 
@@ -276,6 +279,50 @@ app.delete("/materiais/:id", async (req, res) => {
   } catch (error) {
     console.error("Erro ao deletar material:", error);
     res.status(500).json({ error: "Erro interno ao deletar material." });
+  }
+});
+
+// laboratórios
+
+// buscar laboratórios
+app.get("/laboratorios", async (req, res) => {
+  try {
+    console.log("Buscando todos os laboratórios");
+    
+    const laboratorios = await Laboratorio.find();
+    console.log("Laboratórios encontrados:", laboratorios.length);
+    
+    res.json(laboratorios);
+    
+  } catch (error) {
+    console.error("Erro ao buscar laboratórios:", error);
+    res.status(500).json({ error: "Erro interno ao buscar laboratórios" });
+  }
+});
+// atualizar laboratórios
+app.put("/laboratorios/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nome, disponibilidade } = req.body;
+
+    console.log("Atualizando laboratório ID:", id, "Dados:", req.body);
+
+    const laboratorio = await Laboratorio.findByIdAndUpdate(
+      id,
+      { nome, disponibilidade },
+      { new: true, runValidators: true }
+    );
+
+    if (!laboratorio) {
+      return res.status(404).json({ error: "Laboratório não encontrado" });
+    }
+
+    console.log("Laboratório atualizado:", laboratorio);
+    res.json(laboratorio);
+
+  } catch (error) {
+    console.error("Erro ao atualizar laboratório:", error);
+    res.status(500).json({ error: "Erro interno ao atualizar laboratório" });
   }
 });
 

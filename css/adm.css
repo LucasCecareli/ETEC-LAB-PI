@@ -746,3 +746,10 @@ th {
     color: #721c24;
     border: 1px solid #f5c6cb;
 }
+.lab-item {
+    display: block !important;
+    border: 1px solid #ddd !important;
+    margin: 10px 0 !important;
+    padding: 15px !important;
+    background: white !important;
+}
