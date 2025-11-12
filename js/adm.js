@@ -331,7 +331,7 @@ async function cadastrarMaterial() {
         console.log("Material cadastrado:", resposta.data)
         exibirAlerta('.alert-modal-novo-material', "Material cadastrado com sucesso!", ['show', 'alert-success'], ['d-none'], 2000)
 
-        await carregarMateriais()
+        await obterMateriais()
 
         document.getElementById("form-new-material").reset()
         fecharModal("modal-new-material")
@@ -403,8 +403,8 @@ function atualizarTabelaMateriais() {
 
 // cria uma linha nova
 function criarLinhaMaterial(materialId, material) {
-    const tr = document.createElement('tr')
-    tr.setAttribute('data-material-id', materialId)
+    const tr = document.createElement('tr');
+    tr.setAttribute('data-material-id', materialId);
 
     tr.innerHTML = `
         <td data-label="Item" class="material-item-name">${material.item}</td>
@@ -415,33 +415,31 @@ function criarLinhaMaterial(materialId, material) {
             <button class="btn btn-light btn-edit-material" data-material-id="${materialId}">
                 ✏️ Editar
             </button>
-            <button class="btn btn-remove-material" data-material-id="${materialId}">
+            <button class="btn btn-danger btn-remove-material" data-material-id="${materialId}">
                 🗑️ Remover
             </button>
         </td>
-    `
+    `;
 
-    return tr
+    return tr;
 }
-
 // atualiza as stats no dashboard e na aba de materiais
 function atualizarEstatisticasMateriais() {
-    const totalMateriais = Object.keys(materiais).length
+    const totalMateriais = Object.keys(materiais).length;
 
-    const statTotalMateriais = document.getElementById('stat-total-materiais')
+    const statTotalMateriais = document.getElementById('stat-total-materiais');
     if (statTotalMateriais) {
-        statTotalMateriais.textContent = totalMateriais
+        statTotalMateriais.textContent = totalMateriais;
     }
 
-    const statsMateriais = document.querySelector('#materiais .kits-stats')
+    const statsMateriais = document.querySelector('#materiais .kits-stats');
     if (statsMateriais) {
         statsMateriais.innerHTML = `
             <span>Total de Itens: <strong>${totalMateriais}</strong></span>
             <span>Itens críticos: <strong class="text-amber">0</strong></span>
-        `
+        `;
     }
 }
-
 // função para abrir modal de edição de material
 const abrirModalEdicaoMaterial = (materialId) => {
     const material = materiais[materialId]
@@ -516,6 +514,171 @@ const setupFormEditMaterial = () => {
         })
     }
 }
+// laboratórios
+
+let laboratorios = {};
+
+// carrega os laboratórios 
+async function obterLaboratorios() {
+    try {
+        const resposta = await axios.get("http://localhost:3000/laboratorios")
+        console.log("Laboratórios carregados:", resposta.data)
+
+        laboratorios = {}
+        resposta.data.forEach(lab => {
+            laboratorios[lab._id] = lab
+        });
+
+        atualizarListaLaboratorios()
+        return laboratorios
+
+    } catch (erro) {
+        console.error("Erro ao carregar laboratórios:", erro)
+        exibirAlerta('.alert-modal-novo-material', "Erro ao carregar laboratórios do servidor", ['show', 'alert-danger'], ['d-none'], 2000)
+        return {}
+    }
+}
+
+// atualiza a lista de laboratórios na interface
+function atualizarListaLaboratorios() {
+    console.log("Buscando container de laboratórios...")
+
+    let container = document.querySelector('#configuracoes .card')
+
+    if (!container) {
+        console.log("Primeiro seletor falhou, tentando alternativos...")
+        container = document.querySelector('.card')
+    }
+
+    if (!container) {
+        console.error("Container não encontrado!")
+        return
+    }
+
+    console.log("Container encontrado:", container)
+
+    const loading = container.querySelector('#loading-labs')
+    if (loading) {
+        console.log("Removendo loading...")
+        loading.remove()
+    }
+
+    const oldItems = container.querySelectorAll('.lab-item')
+    console.log(`Removendo ${oldItems.length} itens antigos`)
+    oldItems.forEach(item => item.remove())
+
+    const labIds = Object.keys(laboratorios);
+    console.log(`Adicionando ${labIds.length} laboratórios`)
+
+    if (labIds.length === 0) {
+        const noLabsMessage = document.createElement('div')
+        noLabsMessage.className = 'lab-item'
+        noLabsMessage.innerHTML = `
+            <div class="lab-info">
+                <p>Nenhum laboratório cadastrado no sistema</p>
+            </div>
+        `;
+        container.appendChild(noLabsMessage)
+        return
+    }
+
+    labIds.forEach(labId => {
+        const lab = laboratorios[labId]
+        console.log(`➕ Criando item para: ${lab.nome}`)
+        const labItem = criarItemLaboratorio(labId, lab)
+        container.appendChild(labItem)
+    });
+
+    console.log("Lista de laboratórios atualizada!");
+}
+// abre o modal de edição
+const abrirModalEdicaoLab = (labId) => {
+    const lab = laboratorios[labId]
+    if (!lab) {
+        console.error("Laboratório não encontrado:", labId)
+        return
+    }
+
+    console.log("Editando laboratório:", lab)
+
+    document.getElementById('edit-lab-title').textContent = `Editar ${lab.nome}`
+    document.getElementById('edit-lab-id').value = labId
+    document.getElementById('edit-lab-name').value = lab.nome
+    document.getElementById('edit-lab-disponibilidade').value = lab.disponibilidade
+
+    const horariosContainer = document.getElementById('horarios-container')
+    if (horariosContainer) {
+        horariosContainer.innerHTML = ''
+
+        if (lab.horarios && lab.horarios.length > 0) {
+            lab.horarios.forEach((horario, index) => {
+                const horarioItem = document.createElement('div')
+                horarioItem.className = 'horario-item'
+                horarioItem.style.padding = '8px 5px'
+                horarioItem.style.borderBottom = '1px solid #eee'
+                horarioItem.style.fontSize = '14px'
+                horarioItem.textContent = `${index + 1}. ${horario}`
+                horariosContainer.appendChild(horarioItem)
+            })
+        } else {
+            horariosContainer.innerHTML = '<p style="color: #666; text-align: center;">Nenhum horário cadastrado</p>'
+        }
+    }
+
+    abrirModal('modal-edit-lab')
+}
+
+// salva as alterações do laboratório
+async function salvarEdicaoLaboratorio(event) {
+    event.preventDefault()
+
+    const labId = document.getElementById('edit-lab-id').value
+    const nome = document.getElementById('edit-lab-name').value
+    const disponibilidade = document.getElementById('edit-lab-disponibilidade').value
+
+    try {
+        const dadosAtualizados = {
+            nome: nome,
+            disponibilidade: disponibilidade
+        }
+
+        const resposta = await axios.put(`http://localhost:3000/laboratorios/${labId}`, dadosAtualizados)
+        console.log("Laboratório atualizado:", resposta.data)
+
+        laboratorios[labId] = { ...laboratorios[labId], ...dadosAtualizados }
+
+        atualizarListaLaboratorios()
+
+        fecharModal('modal-edit-lab')
+
+        exibirAlerta('.alert-modal-novo-material', "Laboratório atualizado com sucesso!", ['show', 'alert-success'], ['d-none'], 2000)
+
+    } catch (erro) {
+        console.error("Erro ao atualizar laboratório:", erro)
+        exibirAlerta('.alert-modal-novo-material', "Erro ao atualizar laboratório", ['show', 'alert-danger'], ['d-none'], 2000)
+    }
+}
+function criarItemLaboratorio(labId, lab) {
+    const labItem = document.createElement('div')
+    labItem.className = 'lab-item'
+
+    // Formata a disponibilidade para exibição
+    const disponibilidadeText = {
+        'disponivel': '🟢 Disponível',
+        'indisponivel': '🔴 Indisponível',
+        'manutencao': '🟡 Em Manutenção'
+    }[lab.disponibilidade] || lab.disponibilidade
+
+    labItem.innerHTML = `
+        <div class="lab-info">
+            <h4>${lab.nome}</h4>
+            <p>${disponibilidadeText} • ${lab.horarios.length} horários cadastrados</p>
+        </div>
+        <button class="btn-link" data-open="modal-edit-lab" data-lab-id="${labId}">Editar</button>
+    `;
+
+    return labItem
+}
 
 // Agendamentos 
 // carrega e atualiza estatísticas de agendamentos
@@ -552,12 +715,6 @@ async function carregarDashboard() {
     } catch (erro) {
         console.error("Erro ao carregar dashboard:", erro)
     }
-}
-
-const laboratorios = {
-    '1': { nome: 'Laboratório 1', descricao: 'Química Geral', capacidade: 20 },
-    '2': { nome: 'Laboratório 2', descricao: 'Química Orgânica', capacidade: 18 },
-    '3': { nome: 'Laboratório 3', descricao: 'Análise Quantitativa', capacidade: 16 }
 }
 
 let materiais = {}
@@ -597,6 +754,7 @@ document.querySelectorAll(".tab").forEach(tab => {
 document.addEventListener('DOMContentLoaded', async () => {
     await obterUsuarios()
     await obterMateriais()
+    await obterLaboratorios()
 
     const modais = document.querySelectorAll('.modal-overlay')
     modais.forEach(modal => {
@@ -635,6 +793,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupUnitSelect('material-unit', 'custom-unit-group', 'custom-unit-text')
     setupUnitSelect('edit-material-unit', 'custom-edit-unit-group', 'custom-edit-unit-text')
 
+    document.addEventListener('click', function (e) {
+        const btn = e.target.closest('.btn-link')
+        if (!btn) return
+
+        const modalTarget = btn.getAttribute('data-open')
+        const labId = btn.getAttribute('data-lab-id')
+
+        if (modalTarget === 'modal-edit-lab' && labId) {
+            abrirModalEdicaoLab(labId)
+        }
+    })
     // novo material 
     const formNewMaterial = document.getElementById('form-new-material')
     if (formNewMaterial) {
@@ -649,25 +818,73 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Editar Laboratório 
     const formEditLab = document.getElementById('form-edit-lab')
     if (formEditLab) {
-        formEditLab.addEventListener('submit', e => {
+        formEditLab.addEventListener('submit', async e => {
             e.preventDefault()
-            console.log("Laboratório atualizado.")
-            fecharModal('modal-edit-lab')
+
+            const labId = document.getElementById('edit-lab-id').value
+            const dadosAtualizados = {
+                nome: document.getElementById('edit-lab-name').value,
+                disponibilidade: document.getElementById('edit-lab-disponibilidade').value
+            }
+
+            try {
+                const resposta = await axios.put(`http://localhost:3000/laboratorios/${labId}`, dadosAtualizados)
+                console.log("Laboratório atualizado:", resposta.data)
+
+                laboratorios[labId] = { ...laboratorios[labId], ...dadosAtualizados }
+
+                atualizarListaLaboratorios()
+
+                exibirAlerta('.alert-modal-novo-material', "Laboratório atualizado com sucesso!", ['show', 'alert-success'], ['d-none'], 2000)
+
+                setTimeout(() => {
+                    fecharModal('modal-edit-lab')
+                }, 2000)
+
+            } catch (erro) {
+                console.error("Erro ao atualizar laboratório:", erro)
+                exibirAlerta('.alert-modal-novo-material', "Erro ao atualizar laboratório", ['show', 'alert-danger'], ['d-none'], 2000)
+            }
         })
     }
-
     // modais de edição
+    // edição lab
     const abrirModalEdicaoLab = (labId) => {
         const lab = laboratorios[labId]
-        if (!lab) return
+        if (!lab) {
+            console.error("Laboratório não encontrado:", labId)
+            return
+        }
+
+        console.log("Editando laboratório:", lab)
+
         document.getElementById('edit-lab-title').textContent = `Editar ${lab.nome}`
         document.getElementById('edit-lab-id').value = labId
         document.getElementById('edit-lab-name').value = lab.nome
-        document.getElementById('edit-lab-desc').value = lab.descricao
-        document.getElementById('edit-lab-capacity').value = lab.capacidade
+        document.getElementById('edit-lab-disponibilidade').value = lab.disponibilidade
+
+        const horariosContainer = document.getElementById('horarios-container')
+        if (horariosContainer) {
+            horariosContainer.innerHTML = ''
+
+            if (lab.horarios && lab.horarios.length > 0) {
+                lab.horarios.forEach((horario, index) => {
+                    const horarioItem = document.createElement('div')
+                    horarioItem.className = 'horario-item'
+                    horarioItem.style.padding = '8px 5px'
+                    horarioItem.style.borderBottom = '1px solid #eee'
+                    horarioItem.style.fontSize = '14px'
+                    horarioItem.textContent = `${index + 1}. ${horario}`
+                    horariosContainer.appendChild(horarioItem)
+                })
+            } else {
+                horariosContainer.innerHTML = '<p style="color: #666; text-align: center;">Nenhum horário cadastrado</p>'
+            }
+        }
+
         abrirModal('modal-edit-lab')
     }
-
+    // edição usuario
     const abrirModalEdicaoUsuario = (id) => {
         const u = usuarios[id]
         if (!u) {
@@ -787,10 +1004,32 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (btn.classList.contains('btn-edit-material')) abrirModalEdicaoMaterial(id)
         if (btn.classList.contains('btn-remove-material')) {
-            showConfirm(`Deseja remover o material "${materiais[id].item}"?`, () => {
-                delete materiais[id]
-                document.querySelector(`tr[data-material-id="${id}"]`)?.remove()
-                console.log(`Material "${id}" removido.`)
+            showConfirm(`Deseja remover o material "${materiais[id].item}"?`, async () => {
+                try {
+                    const resposta = await axios.delete(`http://localhost:3000/materiais/${id}`)
+
+                    delete materiais[id]
+
+                    document.querySelector(`tr[data-material-id="${id}"]`)?.remove()
+
+                    atualizarEstatisticasMateriais()
+
+                    console.log(`Material "${materiais[id]?.item || id}" removido com sucesso.`)
+
+                    exibirAlerta('.alert-modal-novo-material', "Material removido com sucesso!", ['show', 'alert-success'], ['d-none'], 2000)
+
+                } catch (error) {
+                    console.error('Erro ao remover material:', error)
+
+                    let mensagemErro = "Erro ao remover material"
+                    if (error.response?.status === 404) {
+                        mensagemErro = "Material não encontrado"
+                    } else if (error.response?.data?.error) {
+                        mensagemErro = error.response.data.error
+                    }
+
+                    exibirAlerta('.alert-modal-novo-material', mensagemErro, ['show', 'alert-danger'], ['d-none'], 3000)
+                }
             })
         }
     })
