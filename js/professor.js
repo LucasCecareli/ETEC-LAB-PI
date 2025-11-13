@@ -1,4 +1,596 @@
+class EtecLabAPI {
+    constructor() {
+        this.baseURL = 'http://localhost:3000';
+        this.usuarioLogado = this.getUsuarioLogado();
+    }
+
+    // Editar agendamento
+    async editarAgendamento(id, agendamentoData) {
+        return this.fazerRequisicao(`/agendamentos/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(agendamentoData)
+        });
+    }
+
+    // Excluir agendamento  
+    async excluirAgendamento(id) {
+        return this.fazerRequisicao(`/agendamentos/${id}`, {
+            method: 'DELETE'
+        });
+    }
+
+    // Excluir kit
+    async deletarKit(id) {
+        return this.fazerRequisicao(`/kits/${id}`, {
+            method: 'DELETE'
+        });
+    }
+
+    // Cancelar agendamento (já existe, mas confirmando)
+    async cancelarAgendamento(id) {
+        return this.fazerRequisicao(`/agendamentos/${id}/cancelar`, {
+            method: 'PUT'
+        });
+    }
+
+    async listarLaboratorios() {
+        const data = await this.fazerRequisicao('/laboratorios');
+        return data.laboratorios;
+    }
+
+    async listarKitsDisponiveis() {
+        const data = await this.fazerRequisicao('/kits');
+        return data.kits;
+    }
+
+    getUsuarioLogado() {
+        // ✅ VERIFIQUE se está buscando da chave correta:
+        const usuarioSalvo = localStorage.getItem('user'); // ← DEVE SER 'user'
+        console.log('🔍 Debug - usuarioSalvo:', usuarioSalvo); // ← DEBUG
+
+        if (usuarioSalvo) {
+            const usuario = JSON.parse(usuarioSalvo);
+            console.log('🔍 Debug - usuário parseado:', usuario); // ← DEBUG
+
+            if (usuario.perfil === 'Professor') {
+                return usuario;
+            }
+        }
+
+        console.log('🔒 Nenhum usuário professor logado - redirecionando...');
+        window.location.href = 'index.html';
+        return null;
+    }
+
+    salvarUsuarioLogado(usuario) {
+        this.usuarioLogado = usuario;
+        localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+    }
+
+    async fazerRequisicao(endpoint, options = {}) {
+        try {
+            console.log(`🔍 Fazendo requisição para: ${this.baseURL}${endpoint}`);
+
+            const response = await fetch(`${this.baseURL}${endpoint}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                },
+                ...options
+            });
+
+            const data = await response.json();
+
+            // ✅ DEBUG ADICIONADO AQUI:
+            console.log('🔍 Resposta da API:', {
+                endpoint,
+                status: response.status,
+                success: data.success,
+                data: data
+            });
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Erro na requisição');
+            }
+
+            return data;
+        } catch (error) {
+            console.error('❌ Erro detalhado na API:', error);
+            throw error;
+        }
+    }
+
+    // Kits
+    async criarKit(kitData) {
+        return this.fazerRequisicao('/kits', {
+            method: 'POST',
+            body: JSON.stringify({
+                ...kitData,
+                professorId: this.usuarioLogado.id,  // ← MUDE _id para id
+                professorNome: this.usuarioLogado.nome
+            })
+        });
+    }
+
+    async listarKitsProfessor() {
+        const data = await this.fazerRequisicao(`/kits/professor/${this.usuarioLogado.id}`); // ← id
+        return data.kits;
+    }
+
+    // Agendamentos
+    async criarAgendamento(agendamentoData) {
+        return this.fazerRequisicao('/agendamentos', {
+            method: 'POST',
+            body: JSON.stringify({
+                ...agendamentoData,
+                professorId: this.usuarioLogado.id,  // ← id
+                professorNome: this.usuarioLogado.nome
+            })
+        });
+    }
+
+    async listarAgendamentosProfessor() {
+        const data = await this.fazerRequisicao(`/agendamentos/professor/${this.usuarioLogado.id}`); // ← id
+        return data.agendamentos;
+    }
+
+    // Estatísticas
+    async buscarEstatisticas() {
+        const data = await this.fazerRequisicao(`/professor/${this.usuarioLogado.id}/estatisticas`); // ← id
+        return data.estatisticas;
+    }
+}
+
+// Função para carregar agendamentos na tabela
+let agendamentos = [];
+
+// Função para carregar agendamentos do backend
+async function carregarAgendamentos() {
+    try {
+        const agendamentosBackend = await api.listarAgendamentosProfessor();
+        agendamentos = agendamentosBackend;
+
+        const listaAgendamentos = document.getElementById('lista-agendamentos');
+        if (!listaAgendamentos) return;
+
+        listaAgendamentos.innerHTML = '';
+
+        agendamentos.forEach(agendamento => {
+            const linha = document.createElement('tr');
+
+            // Formatar data e horário
+            const dataFormatada = new Date(agendamento.data).toLocaleDateString('pt-BR');
+            const horarioFormatado = agendamento.horarios ? agendamento.horarios.join(', ') : agendamento.horario;
+
+            linha.innerHTML = `
+                <td>${dataFormatada} (${horarioFormatado})</td>
+                <td>${agendamento.laboratorio || agendamento.laboratorio_nome}</td>
+                <td>${agendamento.kit || agendamento.kit_nome || 'Nenhum kit'}</td>
+                <td class="${agendamento.status === 'pendente' ? 'status-pendente' : agendamento.status === 'confirmado' ? 'status-confirmado' : 'status-negado'}">
+                    ${formatarStatusAgendamento(agendamento.status)}
+                </td>
+                <td class="acoes-agendamento">
+                    <button class="botao-editar" onclick="editarAgendamentoFrontend('${agendamento._id || agendamento.id}')">Editar</button>
+                    <button class="botao-excluir" onclick="excluirAgendamentoFrontend('${agendamento._id || agendamento.id}')">Excluir</button>
+                </td>
+            `;
+
+            listaAgendamentos.appendChild(linha);
+        });
+
+        atualizarContadoresAgendamentos();
+    } catch (error) {
+        console.error('Erro ao carregar agendamentos:', error);
+        // Fallback para dados locais se o backend falhar
+        carregarAgendamentosLocais();
+    }
+}
+
+// Fallback com dados locais
+function carregarAgendamentosLocais() {
+    const agendamentosLocais = [
+        {
+            id: 1,
+            data: "12/11/2025",
+            horario: "13:00 - 13:50",
+            laboratorio: "química-1",
+            kit: "kit-síntese",
+            status: "Pendente"
+        },
+        {
+            id: 2,
+            data: "12/11/2025",
+            horario: "13:00 - 13:50",
+            laboratorio: "Laboratório de Informática 1",
+            kit: "kit 2 121",
+            status: "Pendente"
+        }
+    ];
+
+    const listaAgendamentos = document.getElementById('lista-agendamentos');
+    if (!listaAgendamentos) return;
+
+    listaAgendamentos.innerHTML = '';
+
+    agendamentosLocais.forEach(agendamento => {
+        const linha = document.createElement('tr');
+
+        linha.innerHTML = `
+            <td>${agendamento.data} (${agendamento.horario})</td>
+            <td>${agendamento.laboratorio}</td>
+            <td>${agendamento.kit}</td>
+            <td class="${agendamento.status === 'Pendente' ? 'status-pendente' : 'status-confirmado'}">${agendamento.status}</td>
+            <td class="acoes-agendamento">
+                <button class="botao-editar" onclick="editarAgendamentoFrontend(${agendamento.id})">Editar</button>
+                <button class="botao-excluir" onclick="excluirAgendamentoFrontend(${agendamento.id})">Excluir</button>
+            </td>
+        `;
+
+        listaAgendamentos.appendChild(linha);
+    });
+
+    atualizarContadoresAgendamentos();
+}
+
+// Função para atualizar contadores
+function atualizarContadoresAgendamentos() {
+    const listaAgendamentos = document.getElementById('lista-agendamentos');
+    if (!listaAgendamentos) return;
+
+    const total = listaAgendamentos.querySelectorAll('tr').length;
+    const confirmados = listaAgendamentos.querySelectorAll('.status-confirmado').length;
+    const pendentes = listaAgendamentos.querySelectorAll('.status-pendente').length;
+
+    const totalElement = document.getElementById('total-agendamentos');
+    const confirmadosElement = document.getElementById('confirmados');
+    const pendentesElement = document.getElementById('pendentes');
+
+    if (totalElement) totalElement.textContent = total;
+    if (confirmadosElement) confirmadosElement.textContent = confirmados;
+    if (pendentesElement) pendentesElement.textContent = pendentes;
+}
+
+// Função para formatar status
+function formatarStatusAgendamento(status) {
+    const statusMap = {
+        'pendente': 'Pendente',
+        'confirmado': 'Confirmado',
+        'negado': 'Negado',
+        'cancelado': 'Cancelado'
+    };
+    return statusMap[status] || status;
+}
+
+// Função para atualizar os contadores de status
+function atualizarContadores() {
+    const total = agendamentos.length;
+    const confirmados = agendamentos.filter(a => a.status === 'Confirmado').length;
+    const pendentes = agendamentos.filter(a => a.status === 'Pendente').length;
+
+    const totalElement = document.getElementById('total-agendamentos');
+    const confirmadosElement = document.getElementById('confirmados');
+    const pendentesElement = document.getElementById('pendentes');
+
+    if (totalElement) totalElement.textContent = total;
+    if (confirmadosElement) confirmadosElement.textContent = confirmados;
+    if (pendentesElement) pendentesElement.textContent = pendentes;
+}
+
+// Função para editar um agendamento
+function editarAgendamento(id) {
+    const agendamento = agendamentos.find(a => a.id === id);
+    if (agendamento) {
+        // Aqui você pode implementar a lógica para editar o agendamento
+        alert(`Editando agendamento: ${agendamento.laboratorio} - ${agendamento.data}`);
+
+        // Exemplo de alteração de status (apenas para demonstração)
+        // agendamento.status = agendamento.status === 'Pendente' ? 'Confirmado' : 'Pendente';
+        // carregarAgendamentos();
+    }
+}
+
+// Instância global da API
+const api = new EtecLabAPI();
+
+
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('🔧 Debug - Iniciando carregamento...');
+    const usuario = api.getUsuarioLogado();
+    console.log('🔧 Debug - Usuário:', usuario);
+
+    if (!usuario) return;
+
+    // Debug do carregamento
+    carregarDadosIniciais().then(() => {
+        console.log('🔧 Debug - Dados carregados completos');
+    });
+
+
+    // =======================================================
+    // 0. INICIALIZAÇÃO E CARREGAMENTO DE DADOS DO BACKEND
+    // =======================================================
+
+    async function carregarDadosIniciais() {
+        try {
+            await carregarEstatisticas();
+            await carregarKits();
+            await carregarAgendamentos();
+            await carregarLaboratorios();
+            await carregarKitsDisponiveis();
+        } catch (error) {
+            console.error('Erro ao carregar dados iniciais:', error);
+        }
+    }
+
+    async function carregarEstatisticas() {
+        try {
+            const estatisticas = await api.buscarEstatisticas();
+
+            // Atualizar a interface
+            const confirmadasEl = document.querySelector('#aulas-confirmadas');
+            const pendentesEl = document.querySelector('#aulas-pendentes');
+            const kitsEl = document.querySelector('#kits-criados');
+
+            if (confirmadasEl) confirmadasEl.textContent = estatisticas.aulasConfirmadas;
+            if (pendentesEl) pendentesEl.textContent = estatisticas.aulasPendentes;
+            if (kitsEl) kitsEl.textContent = estatisticas.kitsCriados;
+
+        } catch (error) {
+            console.error('Erro ao carregar estatísticas:', error);
+        }
+    }
+
+    async function carregarKits() {
+        try {
+            console.log('📦 Carregando kits do backend...');
+            const kits = await api.listarKitsProfessor();
+            console.log('✅ Kits carregados:', kits);
+            atualizarTabelaKits(kits);
+        } catch (error) {
+            console.error('❌ Erro ao carregar kits:', error);
+            showNotification('Erro ao carregar kits', 'error');
+        }
+    }
+
+    async function carregarAgendamentos() {
+        try {
+            const agendamentos = await api.listarAgendamentosProfessor();
+            atualizarTabelaAgendamentos(agendamentos);
+        } catch (error) {
+            console.error('Erro ao carregar agendamentos:', error);
+        }
+    }
+
+    async function carregarLaboratorios() {
+        try {
+            const laboratorios = await api.listarLaboratorios();
+            atualizarSelectLaboratorios(laboratorios);
+        } catch (error) {
+            console.error('Erro ao carregar laboratórios:', error);
+        }
+    }
+
+    async function carregarKitsDisponiveis() {
+        try {
+            const kits = await api.listarKitsDisponiveis();
+            atualizarSelectKits(kits);
+        } catch (error) {
+            console.error('Erro ao carregar kits disponíveis:', error);
+        }
+    }
+
+    // =======================================================
+    // FUNÇÕES AUXILIARES PARA ATUALIZAR A INTERFACE
+    // =======================================================
+
+    function atualizarSelectLaboratorios(laboratorios) {
+        const labSelect = document.getElementById('lab-select');
+        if (!labSelect) return;
+
+        // Limpa options existentes (mantendo o primeiro)
+        while (labSelect.options.length > 1) {
+            labSelect.remove(1);
+        }
+
+        // Adiciona os laboratórios do backend
+        laboratorios.forEach(lab => {
+            const option = document.createElement('option');
+            option.value = lab.nome;
+            option.textContent = lab.nome;
+            labSelect.appendChild(option);
+        });
+    }
+
+    function atualizarSelectKits(kits) {
+        const kitSelect = document.getElementById('kit-select');
+        if (!kitSelect) return;
+
+        // Limpa options existentes (mantendo os primeiros)
+        while (kitSelect.options.length > 1) {
+            kitSelect.remove(1);
+        }
+
+        // Adiciona os kits do backend
+        kits.forEach(kit => {
+            const option = document.createElement('option');
+            option.value = kit.nome;
+            option.textContent = kit.nome;
+            option.dataset.id = kit._id;
+            kitSelect.appendChild(option);
+        });
+    }
+
+    function atualizarTabelaKits(kits) {
+        const tbody = document.querySelector('#kits-content tbody');
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+
+        kits.forEach(kit => {
+            const row = document.createElement('tr');
+
+            const statusClass = {
+                'ativo': 'status-active',
+                'rascunho': 'status-draft',
+                'arquivado': 'status-disabled'
+            }[kit.status] || 'status-draft';
+
+            const dataCriacao = new Date(kit.dataCriacao).toLocaleDateString('pt-BR');
+
+            row.innerHTML = `
+                <td data-label="Nome do Kit">${kit.nome}</td>
+                <td data-label="Itens">${kit.materiais.length}</td>
+                <td data-label="Usos">${kit.usos}</td>
+                <td data-label="Status"><span class="badge ${statusClass}">${formatStatusForDisplay(kit.status)}</span></td>
+                <td data-label="Criado em">${dataCriacao}</td>
+                <td data-label="Ações" class="kit-actions-compact">
+                    <button class="btn btn-light" data-kit-id="${kit._id}">👁️ Ver</button>
+                    <button class="btn btn-light" data-kit-id="${kit._id}">✏️ Editar</button>
+                    <button class="btn-remover" data-kit-id="${kit._id}" style="background: #b9080f; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.875rem;">
+                        🗑️ Remover
+                    </button>
+                </td>
+            `;
+
+            tbody.appendChild(row);
+        });
+
+        // Reconfigurar os event listeners
+        // setupViewKitButtons();
+        // setupEditKitButtons();
+        // setupRemoveKitButtons();
+    }
+
+    function atualizarTabelaAgendamentos(agendamentos) {
+        const tbody = document.querySelector('#agendamentos-content tbody');
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+
+        agendamentos.forEach(agendamento => {
+            const row = document.createElement('tr');
+
+            const statusClass = {
+                'confirmado': 'status-active',
+                'pendente': 'status-draft',
+                'negado': 'status-denied',
+                'cancelado': 'status-disabled'
+            }[agendamento.status] || 'status-draft';
+
+            // Formatar data e horários para exibição
+            const dataFormatada = new Date(agendamento.data + 'T00:00:00').toLocaleDateString('pt-BR');
+            const horariosFormatados = agendamento.horarios.join(', ');
+            const displayDataHora = `${dataFormatada} (${horariosFormatados})`;
+
+            // Determinar texto do kit/material
+            let kitMaterialTexto = 'Nenhum kit';
+            if (agendamento.kitNome) {
+                kitMaterialTexto = agendamento.kitNome;
+            } else if (agendamento.materiaisManuais && agendamento.materiaisManuais.length > 0) {
+                kitMaterialTexto = `${agendamento.materiaisManuais.length} materiais manuais`;
+            }
+
+            row.innerHTML = `
+                <td data-label="Data e Hora">${displayDataHora}</td>
+                <td data-label="Laboratório">${agendamento.laboratorio}</td>
+                <td data-label="Kit/Material Solicitado">${kitMaterialTexto}</td>
+                <td data-label="Status"><span class="badge ${statusClass}">${formatStatusAgendamento(agendamento.status)}</span></td>
+                <td data-label="Ações" class="kit-actions-compact">
+                    ${agendamento.status === 'confirmado' ? '<button class="btn btn-light">👁️ Ver</button>' : ''}
+                    ${agendamento.status === 'pendente' ? '<button class="btn btn-light">✏️ Editar</button><button class="btn-danger btn-remover-agendamento" data-agendamento-id="${agendamento._id}">❌ Cancelar</button>' : ''}
+                    ${agendamento.status === 'negado' ? '<button class="btn btn-light">❓ Motivo</button>' : ''}
+                </td>
+            `;
+
+            tbody.appendChild(row);
+        });
+
+        // Configurar event listeners para cancelar agendamentos
+        setupCancelarAgendamentoButtons();
+    }
+
+    function formatStatusAgendamento(status) {
+        const statusMap = {
+            'pendente': 'Pendente',
+            'confirmado': 'Confirmado',
+            'negado': 'Negado',
+            'cancelado': 'Cancelado'
+        };
+        return statusMap[status] || status;
+    }
+
+    function setupCancelarAgendamentoButtons() {
+        document.querySelectorAll('.btn-remover-agendamento').forEach(button => {
+            button.addEventListener('click', function () {
+                const agendamentoId = this.dataset.agendamentoId;
+                showCancelarAgendamentoConfirmation(agendamentoId, this.closest('tr'));
+            });
+        });
+    }
+
+    async function showCancelarAgendamentoConfirmation(agendamentoId, row) {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        `;
+
+        modal.innerHTML = `
+            <div class="modal-content" style="background: white; border-radius: 12px; padding: 24px; max-width: 400px; width: 90%;">
+                <h3 style="margin: 0 0 16px 0; color: var(--text-primary);">Cancelar Agendamento</h3>
+                <p style="margin: 0 0 24px 0; color: var(--text-secondary);">
+                    Tem certeza de que deseja cancelar este agendamento?
+                </p>
+                <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 12px;">
+                    <button class="btn-secondary" style="background: #f2f2f3; border: 1px solid #ddd; padding: 10px 20px; border-radius: 8px; cursor: pointer;">
+                        Não
+                    </button>
+                    <button class="btn-danger confirmar-cancelamento" style="background: #b9080f; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                        Sim, cancelar
+                    </button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        const btnNao = modal.querySelector('.btn-secondary');
+        const btnSim = modal.querySelector('.confirmar-cancelamento');
+
+        btnNao.addEventListener('click', function () {
+            document.body.removeChild(modal);
+        });
+
+        btnSim.addEventListener('click', async function () {
+            try {
+                await api.cancelarAgendamento(agendamentoId);
+                showNotification('Agendamento cancelado com sucesso!', 'success');
+                row.remove();
+                document.body.removeChild(modal);
+                await carregarEstatisticas(); // Atualiza estatísticas
+            } catch (error) {
+                showNotification(`Erro ao cancelar agendamento: ${error.message}`, 'error');
+                document.body.removeChild(modal);
+            }
+        });
+
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) {
+                document.body.removeChild(modal);
+            }
+        });
+    }
+
+
     // =======================================================
     // 1. LÓGICA DE TROCA DE ABAS
     // =======================================================
@@ -268,52 +860,64 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    btnSchedule.addEventListener('click', () => {
+    btnSchedule.addEventListener('click', async () => {
+        console.log('🔍 Debug - Dados do agendamento:', {
+            selectedDate,
+            laboratorio: labSelect.value,
+            horarios: Array.from(document.querySelectorAll('#time-select-container input[type="checkbox"]:checked')).map(cb => cb.value),
+            kit: document.getElementById('kit-select').value
+        });
+
         const selectedTimes = Array.from(
             document.querySelectorAll('#time-select-container input[type="checkbox"]:checked')
         ).map(cb => cb.value);
 
-        const selectedKit = document.getElementById('kit-select').value;
-        let materialsToUse = [];
+        const selectedKitElement = document.getElementById('kit-select');
+        const selectedKit = selectedKitElement.value;
+        const selectedKitOption = selectedKitElement.options[selectedKitElement.selectedIndex];
+        const selectedKitId = selectedKitOption.dataset.id;
+
+        let materiaisManuais = [];
 
         if (selectedKit === 'Nenhum') {
-            // Inclui materiais manuais, validando nome e quantidade mínima
-            materialsToUse = manualMaterials
+            materiaisManuais = manualMaterials
                 .filter(mat => mat.name.trim() !== '' && mat.quantity >= 1)
-                .map(mat => ({ name: mat.name.trim(), quantity: mat.quantity, unit: 'unidade' })); // Adicionado unidade padrão
-        } else {
-            // Aqui, em um sistema real, você buscaria os itens do Kit no banco
-            materialsToUse = [`Kit: ${selectedKit}`];
+                .map(mat => ({
+                    nome: mat.name.trim(),
+                    quantidade: mat.quantity,
+                    unidade: 'unidade'
+                }));
         }
-
-
+        
         if (selectedTimes.length === 0 || selectedTimes.length > MAX_SCHEDULES) {
-            console.error("Erro de validação: Número de horários incorreto.");
+            showNotification("Selecione entre 1 e 4 horários.", 'error');
             return;
         }
 
-        const agendamento = {
+        const agendamentoData = {
             data: selectedDate,
             laboratorio: labSelect.value,
             horarios: selectedTimes,
-            kit: selectedKit,
-            materiais_solicitados: materialsToUse
+            kitId: selectedKitId || null,
+            kitNome: selectedKit !== 'Nenhum' ? selectedKit : null,
+            materiaisManuais: materiaisManuais
         };
 
-        console.log('Agendamento Enviado:', agendamento);
-        // Usamos uma mensagem personalizada em vez de alert() conforme a regra
-        const messageBox = document.createElement('div');
-        messageBox.className = 'limit-message';
-        messageBox.style.marginTop = '15px';
-        messageBox.style.backgroundColor = '#d1f7d6';
-        messageBox.style.borderColor = '#1b9b46';
-        messageBox.style.color = '#1b9b46';
-        messageBox.textContent = `Agendamento criado para ${agendamento.data} no ${agendamento.laboratorio} nos horários: ${agendamento.horarios.join(', ')}.`;
+        try {
+            const resultado = await api.criarAgendamento(agendamentoData);
 
-        document.querySelector('.modal-body').prepend(messageBox);
-        setTimeout(() => messageBox.remove(), 5000); // Remove a mensagem após 5 segundos
+            showNotification(`Agendamento criado para ${agendamentoData.data} com sucesso!`, 'success');
 
-        closeAppointmentModal();
+            // Recarrega os dados
+            await carregarAgendamentos();
+            await carregarEstatisticas();
+
+            closeAppointmentModal();
+
+        } catch (error) {
+            console.error('Erro ao criar agendamento:', error);
+            showNotification(`Erro ao criar agendamento: ${error.message}`, 'error');
+        }
     });
 
 
@@ -491,41 +1095,43 @@ document.addEventListener('DOMContentLoaded', () => {
     kitDescriptionInput.addEventListener('input', checkKitFormValidity);
 
     // Submissão do Formulário
-    kitForm.addEventListener('submit', (event) => {
+    kitForm.addEventListener('submit', async (event) => {
         event.preventDefault();
 
         const kitData = {
-            name: kitNameInput.value.trim(),
-            description: kitDescriptionInput.value.trim(),
-            // Filtra e limpa os dados antes de salvar
-            items: kitItems
+            nome: kitNameInput.value.trim(),
+            descricao: kitDescriptionInput.value.trim(),
+            materiais: kitItems
                 .filter(item => item.name.trim() !== '' && item.quantity >= 1)
-                .map(item => ({ name: item.name.trim(), quantity: item.quantity, unit: item.unit }))
+                .map(item => ({
+                    nome: item.name.trim(),
+                    quantidade: item.quantity,
+                    unidade: item.unit
+                }))
         };
 
-        if (kitData.items.length === 0) {
-            // Usamos um console error para simular o erro em vez de alert()
-            console.error('O kit deve ter pelo menos um item válido.');
+        if (kitData.materiais.length === 0) {
+            showNotification('O kit deve ter pelo menos um item válido.', 'error');
             return;
         }
 
-        // Simulação do envio (código real de Firebase/Backend aqui)
-        console.log('Kit Criado (Dados Finais):', kitData);
+        try {
+            const resultado = await api.criarKit(kitData);
 
-        const messageBox = document.createElement('div');
-        messageBox.className = 'limit-message';
-        messageBox.style.marginTop = '15px';
-        messageBox.style.backgroundColor = '#d1f7d6';
-        messageBox.style.borderColor = '#1b9b46';
-        messageBox.style.color = '#1b9b46';
-        messageBox.textContent = `Kit "${kitData.name}" criado com sucesso! (${kitData.items.length} itens registrados)`;
+            showNotification(`Kit "${kitData.nome}" criado com sucesso!`, 'success');
 
-        document.querySelector('#new-kit-modal .modal-body').prepend(messageBox);
-        setTimeout(() => messageBox.remove(), 5000); // Remove a mensagem após 5 segundos
+            // Recarrega os dados
+            await carregarKits();
+            await carregarEstatisticas();
+            await carregarKitsDisponiveis();
 
+            closeKitModal();
 
-        // Fechar o modal
-        closeKitModal();
+        } catch (error) {
+            console.error('❌ Erro detalhado ao criar kit:', error);
+            console.log('📨 Resposta completa:', error.message);
+            showNotification(`Erro ao criar kit: ${error.message}`, 'error');
+        }
     });
 
     // Chamada inicial
@@ -617,78 +1223,78 @@ document.addEventListener('DOMContentLoaded', () => {
     // =======================================================
 
     // Dados de exemplo para os kits (simulando um banco de dados)
-    let kitsData = [
-        {
-            id: 1,
-            name: "Kit Titulação Básica",
-            description: "Kit completo para aulas de titulação ácido-base com indicadores.",
-            items: 8,
-            uses: 5,
-            status: "ativo",
-            createdDate: "10/01/2025",
-            materials: [
-                { name: "Béquer 50ml", quantity: 8, unit: "unidade" },
-                { name: "Pipeta", quantity: 8, unit: "unidade" },
-                { name: "Indicador Fenolftaleína", quantity: 1, unit: "frasco" }
-            ]
-        },
-        {
-            id: 2,
-            name: "Kit Síntese Orgânica",
-            description: "Materiais para síntese de compostos orgânicos simples.",
-            items: 12,
-            uses: 3,
-            status: "ativo",
-            createdDate: "08/01/2025",
-            materials: [
-                { name: "Balão de Fundo Redondo", quantity: 12, unit: "unidade" },
-                { name: "Condensador", quantity: 12, unit: "unidade" },
-                { name: "Termômetro", quantity: 12, unit: "unidade" }
-            ]
-        },
-        {
-            id: 3,
-            name: "Kit Medidas Elétricas",
-            description: "Instrumentos para medições elétricas básicas.",
-            items: 15,
-            uses: 15,
-            status: "ativo",
-            createdDate: "20/12/2024",
-            materials: [
-                { name: "Multímetro Digital", quantity: 15, unit: "unidade" },
-                { name: "Fios Jumper", quantity: 45, unit: "unidade" },
-                { name: "Protoboard", quantity: 15, unit: "unidade" }
-            ]
-        },
-        {
-            id: 4,
-            name: "Kit Desmontagem PC",
-            description: "Ferramentas para desmontagem e manutenção de computadores.",
-            items: 5,
-            uses: 0,
-            status: "rascunho",
-            createdDate: "01/03/2025",
-            materials: [
-                { name: "Chave Phillips", quantity: 15, unit: "unidade" },
-                { name: "Pulseira Anti-estática", quantity: 15, unit: "unidade" },
-                { name: "Alicate", quantity: 15, unit: "unidade" }
-            ]
-        },
-        {
-            id: 5,
-            name: "Kit Introdução à Biologia",
-            description: "Materiais para aulas introdutórias de biologia celular.",
-            items: 22,
-            uses: 22,
-            status: "arquivado",
-            createdDate: "01/10/2024",
-            materials: [
-                { name: "Microscópio Óptico", quantity: 15, unit: "unidade" },
-                { name: "Lâminas e Lamínulas", quantity: 150, unit: "conjunto" },
-                { name: "Corantes Biológicos", quantity: 8, unit: "kit" }
-            ]
-        }
-    ];
+    // let kitsData = [
+    //     {
+    //         id: 1,
+    //         name: "Kit Titulação Básica",
+    //         description: "Kit completo para aulas de titulação ácido-base com indicadores.",
+    //         items: 8,
+    //         uses: 5,
+    //         status: "ativo",
+    //         createdDate: "10/01/2025",
+    //         materials: [
+    //             { name: "Béquer 50ml", quantity: 8, unit: "unidade" },
+    //             { name: "Pipeta", quantity: 8, unit: "unidade" },
+    //             { name: "Indicador Fenolftaleína", quantity: 1, unit: "frasco" }
+    //         ]
+    //     },
+    //     {
+    //         id: 2,
+    //         name: "Kit Síntese Orgânica",
+    //         description: "Materiais para síntese de compostos orgânicos simples.",
+    //         items: 12,
+    //         uses: 3,
+    //         status: "ativo",
+    //         createdDate: "08/01/2025",
+    //         materials: [
+    //             { name: "Balão de Fundo Redondo", quantity: 12, unit: "unidade" },
+    //             { name: "Condensador", quantity: 12, unit: "unidade" },
+    //             { name: "Termômetro", quantity: 12, unit: "unidade" }
+    //         ]
+    //     },
+    //     {
+    //         id: 3,
+    //         name: "Kit Medidas Elétricas",
+    //         description: "Instrumentos para medições elétricas básicas.",
+    //         items: 15,
+    //         uses: 15,
+    //         status: "ativo",
+    //         createdDate: "20/12/2024",
+    //         materials: [
+    //             { name: "Multímetro Digital", quantity: 15, unit: "unidade" },
+    //             { name: "Fios Jumper", quantity: 45, unit: "unidade" },
+    //             { name: "Protoboard", quantity: 15, unit: "unidade" }
+    //         ]
+    //     },
+    //     {
+    //         id: 4,
+    //         name: "Kit Desmontagem PC",
+    //         description: "Ferramentas para desmontagem e manutenção de computadores.",
+    //         items: 5,
+    //         uses: 0,
+    //         status: "rascunho",
+    //         createdDate: "01/03/2025",
+    //         materials: [
+    //             { name: "Chave Phillips", quantity: 15, unit: "unidade" },
+    //             { name: "Pulseira Anti-estática", quantity: 15, unit: "unidade" },
+    //             { name: "Alicate", quantity: 15, unit: "unidade" }
+    //         ]
+    //     },
+    //     {
+    //         id: 5,
+    //         name: "Kit Introdução à Biologia",
+    //         description: "Materiais para aulas introdutórias de biologia celular.",
+    //         items: 22,
+    //         uses: 22,
+    //         status: "arquivado",
+    //         createdDate: "01/10/2024",
+    //         materials: [
+    //             { name: "Microscópio Óptico", quantity: 15, unit: "unidade" },
+    //             { name: "Lâminas e Lamínulas", quantity: 150, unit: "conjunto" },
+    //             { name: "Corantes Biológicos", quantity: 8, unit: "kit" }
+    //         ]
+    //     }
+    // ];
 
     // Modais
     const viewKitModal = document.getElementById('view-kit-modal');
@@ -715,20 +1321,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // 7.1 FUNCIONALIDADE VER KIT
     // =======================================================
 
-    function setupViewKitButtons() {
-        document.querySelectorAll('.kit-actions-compact .btn-light:first-child').forEach(button => {
-            button.addEventListener('click', function () {
-                const row = this.closest('tr');
-                const kitName = row.querySelector('td[data-label="Nome do Kit"]').textContent;
+    // function setupViewKitButtons() {
+    //     document.querySelectorAll('.kit-actions-compact .btn-light:first-child').forEach(button => {
+    //         button.addEventListener('click', function () {
+    //             const row = this.closest('tr');
+    //             const kitName = row.querySelector('td[data-label="Nome do Kit"]').textContent;
 
-                // Encontrar o kit nos dados
-                const kit = kitsData.find(k => k.name === kitName);
-                if (kit) {
-                    openViewKitModal(kit);
-                }
-            });
-        });
-    }
+    //             // Encontrar o kit nos dados
+    //             const kit = kitsData.find(k => k.name === kitName);
+    //             if (kit) {
+    //                 openViewKitModal(kit);
+    //             }
+    //         });
+    //     });
+    // }
 
     function openViewKitModal(kit) {
         // Preencher os dados no modal
@@ -752,20 +1358,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // 7.2 FUNCIONALIDADE EDITAR KIT
     // =======================================================
 
-    function setupEditKitButtons() {
-        document.querySelectorAll('.kit-actions-compact .btn-light:nth-child(2)').forEach(button => {
-            button.addEventListener('click', function () {
-                const row = this.closest('tr');
-                const kitName = row.querySelector('td[data-label="Nome do Kit"]').textContent;
+    // function setupEditKitButtons() {
+    //     document.querySelectorAll('.kit-actions-compact .btn-light:nth-child(2)').forEach(button => {
+    //         button.addEventListener('click', function () {
+    //             const row = this.closest('tr');
+    //             const kitName = row.querySelector('td[data-label="Nome do Kit"]').textContent;
 
-                // Encontrar o kit nos dados
-                const kit = kitsData.find(k => k.name === kitName);
-                if (kit) {
-                    openEditKitModal(kit);
-                }
-            });
-        });
-    }
+    //             // Encontrar o kit nos dados
+    //             const kit = kitsData.find(k => k.name === kitName);
+    //             if (kit) {
+    //                 openEditKitModal(kit);
+    //             }
+    //         });
+    //     });
+    // }
 
     function openEditKitModal(kit) {
         // Preencher os dados no formulário de edição
@@ -817,11 +1423,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function setupRemoveKitButtons() {
         document.querySelectorAll('.btn-remover').forEach(button => {
             button.addEventListener('click', function () {
-                const row = this.closest('tr');
-                const kitName = row.querySelector('td[data-label="Nome do Kit"]').textContent;
+                const kitId = this.dataset.kitId;
+                const kitName = this.closest('tr').querySelector('td[data-label="Nome do Kit"]').textContent;
 
-                // Mostrar modal de confirmação igual ao dos agendamentos
-                showRemoveKitConfirmation(kitName, row);
+                // Usar a nova função de exclusão
+                excluirKitFrontend(kitId, kitName);
             });
         });
     }
@@ -871,7 +1477,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         btnSim.addEventListener('click', function () {
-            removeKit(kitName);
+            removeKit(kitId, kitName); // Agora passa o ID
             document.body.removeChild(modal);
         });
 
@@ -883,58 +1489,59 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function removeKit(kitName) {
-        // Remover o kit dos dados
-        kitsData = kitsData.filter(k => k.name !== kitName);
-
-        // Atualizar a tabela
-        updateKitTable();
-
-        // Mostrar mensagem de sucesso
-        showNotification('Kit removido com sucesso!', 'success');
+    async function removeKit(kitId, kitName) {
+        try {
+            await api.deletarKit(kitId);
+            showNotification('Kit removido com sucesso!', 'success');
+            await carregarKits();
+            await carregarEstatisticas();
+            await carregarKitsDisponiveis();
+        } catch (error) {
+            showNotification(`Erro ao remover kit: ${error.message}`, 'error');
+        }
     }
 
     // =======================================================
     // 7.4 ATUALIZAR TABELA DE KITS - COM NOVO ESTILO DO BOTÃO REMOVER
     // =======================================================
 
-    function updateKitTable() {
-        const tbody = document.querySelector('#kits-content tbody');
-        tbody.innerHTML = '';
+    // function updateKitTable() {
+    //     const tbody = document.querySelector('#kits-content tbody');
+    //     tbody.innerHTML = '';
 
-        kitsData.forEach(kit => {
-            const row = document.createElement('tr');
+    //     kitsData.forEach(kit => {
+    //         const row = document.createElement('tr');
 
-            // Mapear status para classes CSS
-            const statusClass = {
-                'ativo': 'status-active',
-                'rascunho': 'status-draft',
-                'arquivado': 'status-disabled'
-            }[kit.status] || 'status-draft';
+    //         // Mapear status para classes CSS
+    //         const statusClass = {
+    //             'ativo': 'status-active',
+    //             'rascunho': 'status-draft',
+    //             'arquivado': 'status-disabled'
+    //         }[kit.status] || 'status-draft';
 
-            row.innerHTML = `
-            <td data-label="Nome do Kit">${kit.name}</td>
-            <td data-label="Itens">${kit.items}</td>
-            <td data-label="Usos">${kit.uses}</td>
-            <td data-label="Status"><span class="badge ${statusClass}">${formatStatusForDisplay(kit.status)}</span></td>
-            <td data-label="Criado em">${kit.createdDate}</td>
-            <td data-label="Ações" class="kit-actions-compact">
-                <button class="btn btn-light">👁️ Ver</button>
-                <button class="btn btn-light">✏️ Editar</button>
-                <button class="btn-remover" style="background: #b9080f; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.875rem;">
-                    🗑️ Remover
-                </button>
-            </td>
-        `;
+    //         row.innerHTML = `
+    //         <td data-label="Nome do Kit">${kit.name}</td>
+    //         <td data-label="Itens">${kit.items}</td>
+    //         <td data-label="Usos">${kit.uses}</td>
+    //         <td data-label="Status"><span class="badge ${statusClass}">${formatStatusForDisplay(kit.status)}</span></td>
+    //         <td data-label="Criado em">${kit.createdDate}</td>
+    //         <td data-label="Ações" class="kit-actions-compact">
+    //             <button class="btn btn-light">👁️ Ver</button>
+    //             <button class="btn btn-light">✏️ Editar</button>
+    //             <button class="btn-remover" style="background: #b9080f; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.875rem;">
+    //                 🗑️ Remover
+    //             </button>
+    //         </td>
+    //     `;
 
-            tbody.appendChild(row);
-        });
+    //         tbody.appendChild(row);
+    //     });
 
-        // Reconfigurar os event listeners dos botões
-        setupViewKitButtons();
-        setupEditKitButtons();
-        setupRemoveKitButtons();
-    }
+    //     // Reconfigurar os event listeners dos botões
+    //     setupViewKitButtons();
+    //     setupEditKitButtons();
+    //     setupRemoveKitButtons();
+    // }
 
     // =======================================================
     // 7.5 FUNÇÃO DE NOTIFICAÇÃO
@@ -1464,5 +2071,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Inicializar o modal de edição completo
     setupModalEditarAgendamentoCompleto();
+
+    // Inicia o carregamento dos dados
+    carregarDadosIniciais();
 
 });
