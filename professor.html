@@ -392,234 +392,37 @@
         <!-- ======================================================= -->
         <!-- 3. CONTEÚDO DA ABA: AGENDAMENTOS CRIADOS -->
         <section class="tab-content" id="agendamentos-content">
-            <h1 class="page-title">Agendamentos de Aulas Criados</h1>
-            <p class="subtitle">Acompanhe o status e o histórico dos seus agendamentos de laboratório.</p>
+            <div class="agendamentos-container">
+                <h1 class="page-title">Agendamentos de Aulas Criados</h1>
+                <p class="subtitle">Acompanhe o status e o histórico dos seus agendamentos de laboratório.</p>
 
-            <div class="kits-header">
-                <div class="kits-stats">
-                    <span class="stat-small">Total de Agendamentos: <strong>8</strong></span>
-                    <span class="stat-small">Confirmados: <strong class="text-green">3</strong></span>
-                    <span class="stat-small">Pendentes: <strong class="text-amber">2</strong></span>
+                <div class="agendamentos-stats">
+                    <h3>Total de Agendamentos: <span id="total-agendamentos">8</span></h3>
+                    <ul>
+                        <li><strong>Confirmados: <span id="confirmados">3</span></strong></li>
+                        <li><strong>Pendentes: <span id="pendentes">2</span></strong></li>
+                    </ul>
                 </div>
-            </div>
 
-            <div class="kit-table-container card">
-                <table>
+                <table class="tabela-agendamentos">
                     <thead>
                         <tr>
-                            <th>Data e Hora</th>
-                            <th>Laboratório</th>
-                            <th>Kit/Material Solicitado</th>
-                            <th>Status</th>
-                            <th>Ações</th>
+                            <th>DATA E HORA</th>
+                            <th>LABORATÓRIO</th>
+                            <th>KIT/MATERIAL SOLICITADO</th>
+                            <th>STATUS</th>
+                            <th>AÇÕES</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <!-- Agendamento Confirmado -->
-                        <tr>
-                            <td data-label="Data e Hora">20/05/2025 (10:00 - 11:30)</td>
-                            <td data-label="Laboratório">Lab. de Química 2</td>
-                            <td data-label="Kit/Material Solicitado">Kit Titulação Básica</td>
-                            <td data-label="Status"><span class="badge status-active">Confirmado</span></td>
-                            <td data-label="Ações" class="kit-actions-compact">
-                                <button class="btn btn-light">👁️ Ver</button>
-                            </td>
-                        </tr>
-                        <!-- Agendamento Pendente -->
-                        <tr>
-                            <td data-label="Data e Hora">21/05/2025 (14:00 - 15:30)</td>
-                            <td data-label="Laboratório">Lab. de Informática 1</td>
-                            <td data-label="Kit/Material Solicitado">15x Kit Desmontagem PC</td>
-                            <td data-label="Status"><span class="badge status-draft">Pendente</span></td>
-                            <td data-label="Ações" class="kit-actions-compact">
-                                <button class="btn btn-light">✏️ Editar</button>
-                                <button class="btn-danger btn-remover">❌ Cancelar</button>
-                            </td>
-                        </tr>
-                        <!-- Agendamento Negado -->
-                        <tr>
-                            <td data-label="Data e Hora">15/05/2025 (08:00 - 09:30)</td>
-                            <td data-label="Laboratório">Lab. de Biologia</td>
-                            <td data-label="Kit/Material Solicitado">Kit Introdução à Biologia</td>
-                            <td data-label="Status"><span class="badge status-denied">Negado</span></td>
-                            <td data-label="Ações" class="kit-actions-compact">
-                                <button class="btn btn-light">❓ Motivo</button>
-                            </td>
-                        </tr>
-                        <!-- Agendamento Confirmado -->
-                        <tr>
-                            <td data-label="Data e Hora">27/05/2025 (16:00 - 17:30)</td>
-                            <td data-label="Laboratório">Lab. de Eletrotécnica</td>
-                            <td data-label="Kit/Material Solicitado">Kit Medidas Elétricas</td>
-                            <td data-label="Status"><span class="badge status-active">Confirmado</span></td>
-                            <td data-label="Ações" class="kit-actions-compact">
-                                <button class="btn btn-light">👁️ Ver</button>
-                            </td>
-                        </tr>
-                        <!-- Agendamento Pendente -->
-                        <tr>
-                            <td data-label="Data e Hora">28/05/2025 (19:00 - 20:30)</td>
-                            <td data-label="Laboratório">Lab. de Física</td>
-                            <td data-label="Kit/Material Solicitado">Kit Síntese Orgânica</td>
-                            <td data-label="Status"><span class="badge status-draft">Pendente</span></td>
-                            <td data-label="Ações" class="kit-actions-compact">
-                                <button class="btn btn-light">✏️ Editar</button>
-                                <button class="btn-danger btn-remover">❌ Cancelar</button>
-                            </td>
-                        </tr>
+                    <tbody id="lista-agendamentos">
+                        <!-- JavaScript vai preencher aqui -->
                     </tbody>
                 </table>
+
+                <footer>
+                    <p>© 2025 ETEC Júlio de Mesquita – Centro Paula Souza</p>
+                </footer>
             </div>
-
-            <!-- ======================= -->
-            <!-- MODAL: VER AGENDAMENTO -->
-            <!-- ======================= -->
-            <div id="modalVerAgendamento" class="modal hidden">
-                <div class="modal-content">
-                    <h2>Detalhes do Agendamento</h2>
-                    <div id="verAgendamentoInfo"></div>
-
-                    <div class="modal-footer">
-                        <button id="close-ver-agendamento" class="btn btn-secondary">Fechar</button>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- ========================== -->
-            <!-- MODAL: EDITAR AGENDAMENTO -->
-            <!-- ========================== -->
-            <div id="modalEditarAgendamento" class="modal hidden">
-                <div class="modal-content" style="max-width: 700px;">
-                    <div class="modal-header">
-                        <h2>Editar Agendamento</h2>
-                        <button class="close-btn">&times;</button>
-                    </div>
-
-                    <form id="formEditarAgendamento">
-                        <div class="modal-body">
-                            <!-- DATA -->
-                            <div class="form-section">
-                                <h3>Data do Agendamento</h3>
-                                <div class="input-group">
-                                    <label for="editarData">Selecione a data:</label>
-                                    <input type="date" id="editarData" class="form-input" required>
-                                </div>
-                            </div>
-
-                            <!-- HORÁRIOS (Máx. 4) -->
-                            <div class="form-section">
-                                <h3>Horários (Máximo 4)</h3>
-                                <div id="editarHorariosContainer" class="time-select-grid">
-                                    <!-- Horários serão adicionados dinamicamente aqui -->
-                                    <div class="horario-item-editar">
-                                        <div class="time-inputs">
-                                            <input type="time" class="hora-inicio" placeholder="Início" required>
-                                            <span>até</span>
-                                            <input type="time" class="hora-fim" placeholder="Fim" required>
-                                        </div>
-                                        <button type="button" class="btn-remove-horario"
-                                            style="display: none;">×</button>
-                                    </div>
-                                </div>
-                                <button type="button" id="btnAddHorarioEditar" class="btn btn-outline small-inline">
-                                    + Adicionar Horário
-                                </button>
-                                <div id="editarTimeLimitMessage" class="limit-message hidden">
-                                    Máximo de 4 horários permitidos por agendamento.
-                                </div>
-                            </div>
-
-                            <!-- LABORATÓRIO -->
-                            <div class="form-section">
-                                <h3>Laboratório</h3>
-                                <div class="input-group">
-                                    <label for="editarLab">Selecione o laboratório:</label>
-                                    <select id="editarLab" class="form-select" required>
-                                        <option value="">Selecione um laboratório</option>
-                                        <option value="Lab. de Informática 1">Lab. de Informática 1</option>
-                                        <option value="Lab. de Informática 2">Lab. de Informática 2</option>
-                                        <option value="Lab. de Química 1">Lab. de Química 1</option>
-                                        <option value="Lab. de Química 2">Lab. de Química 2</option>
-                                        <option value="Lab. de Biologia">Lab. de Biologia</option>
-                                        <option value="Lab. de Física">Lab. de Física</option>
-                                        <option value="Lab. de Eletrotécnica">Lab. de Eletrotécnica</option>
-                                        <option value="Lab. de Mecânica">Lab. de Mecânica</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- KITS E MATERIAIS -->
-                            <div class="form-section">
-                                <h3>Materiais Necessários</h3>
-
-                                <!-- Seleção de Kit Existente -->
-                                <div class="input-group">
-                                    <label for="editarSelectKitExistente">Usar kit existente:</label>
-                                    <select id="editarSelectKitExistente" class="form-select">
-                                        <option value="">Selecione um kit</option>
-                                        <option value="Kit Desmontagem PC">Kit Desmontagem PC</option>
-                                        <option value="Kit Tradução Básica">Kit Tradução Básica</option>
-                                        <option value="Kit Introdução à Biologia">Kit Introdução à Biologia</option>
-                                        <option value="Kit Medidas Elétricas">Kit Medidas Elétricas</option>
-                                        <option value="Kit Titulação Básica">Kit Titulação Básica</option>
-                                        <option value="Kit Síntese Orgânica">Kit Síntese Orgânica</option>
-                                    </select>
-                                </div>
-
-                                <div class="divider">ou</div>
-
-                                <!-- Adicionar Materiais Manualmente -->
-                                <div class="input-group">
-                                    <label>Adicionar materiais manualmente:</label>
-                                    <div id="editarMateriaisContainer" class="manual-materials-container">
-                                        <!-- Materiais serão adicionados aqui dinamicamente -->
-                                        <p class="input-helper">Nenhum material adicionado ainda.</p>
-                                    </div>
-                                    <button type="button" id="btnAddMaterialEditar"
-                                        class="btn btn-outline small-inline">
-                                        + Adicionar Material
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- BOTÕES DE AÇÃO -->
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" id="fecharEditar">Cancelar</button>
-                            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- ============================= -->
-            <!-- MODAL: CANCELAR AGENDAMENTO -->
-            <!-- ============================= -->
-            <div id="modalCancelarAgendamento" class="modal hidden">
-                <div class="modal-content">
-
-                    <h2>Cancelar Agendamento</h2>
-                    <p>Tem certeza de que deseja cancelar este agendamento?</p>
-                    <button id="fecharCancelar" class="btn">Não</button>
-                    <button id="confirmarCancelamento" class="btn-danger"
-                        style="background: #b9080f; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600">Sim,
-                        cancelar</button>
-                </div>
-            </div>
-
-            <!-- ========================== -->
-            <!-- MODAL: MOTIVO DO INDEFERIMENTO -->
-            <!-- ========================== -->
-            <div id="modalMotivoAgendamento" class="modal hidden">
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <h2>Motivo do Indeferimento</h2>
-                    <p id="motivoTexto"></p>
-                </div>
-            </div>
-
-
         </section>
 
     </main>
