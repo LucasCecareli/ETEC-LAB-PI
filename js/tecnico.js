@@ -1,7 +1,4 @@
-// tecnico.js
-// Conteúdo: seu JS original (modals, materiais, usuários) + Agendamentos integrados
-
-// --- DADOS DE AGENDAMENTOS (SIMULAÇÃO) ---
+// dados de agendamento (simulados)
 const agendamentos = {
     'a1': {
         id: 'a1',
@@ -10,7 +7,7 @@ const agendamentos = {
         dataAgendamento: '2025-10-29',
         solicitante: 'Prof. Ricardo Alves',
         email: 'ricardo.alves@etec.edu.br',
-        status: 'Pendente', // 'Pendente' | 'Aprovado' | 'Negado'
+        status: 'Pendente', 
         turma: '3º Química B',
         materiais: ['Erlenmeyer 250ml', 'Provetas', 'Solução de AgNO₃']
     },
@@ -38,8 +35,7 @@ const agendamentos = {
     }
 }
 
-// ---------------------------------------------------------------------------------
-// Lógica principal de Tabs (fora do DOMContentLoaded — mantém seu comportamento)
+// logica de tabs
 const tabs = document.querySelectorAll(".tab");
 const tabContents = document.querySelectorAll(".tab-content");
 
@@ -61,21 +57,20 @@ tabs.forEach((tab) => {
     });
 });
 
-// === BOTÃO "VER HISTÓRICO" ===
+// botao ver historico
 document.addEventListener("DOMContentLoaded", () => {
     const btnVerHistorico = document.getElementById("btn-view-reports");
     const tabHistorico = document.querySelector('.tab[data-tab="historico"]');
 
     if (btnVerHistorico && tabHistorico) {
         btnVerHistorico.addEventListener("click", () => {
-            tabHistorico.click(); // Abre a aba Histórico
+            tabHistorico.click(); 
         });
     }
 });
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // ---------- Funções genéricas de modal (reaproveitadas) ----------
     const fecharModalGenerico = (modalId) => {
         const modal = document.getElementById(modalId);
         if (modal) {
@@ -94,24 +89,19 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 })
 
-// LÓGICA GERAL DE MODAIS (Aprovar Agendamento e Adicionar Material)
+// logica dos modais
 
-// A. Modal "Aprovar Agendamento"
-
-// ⬇️⬇️ COPIE E COLE ESTE TRECHO AQUI ⬇️⬇️
 const btnAbrirModalAprovar = document.getElementById('btn-aprovar-agendamento');
 const modalAprovar = document.getElementById('modal-approve-agendamento');
 
 if (btnAbrirModalAprovar && modalAprovar) {
     btnAbrirModalAprovar.addEventListener('click', () => {
-        // 1. Abre o modal genérico
         abrirModalGenerico('modal-approve-agendamento');
 
-        // 2. Carrega os cards de agendamentos pendentes (função que já existe no final do seu JS)
         renderizarCardsPendentes();
     });
 }
-// ⬆️⬆️ FIM DO TRECHO ⬆️⬆️
+
 
 // B. Modal "Novo Material"
 const btnAbrirMaterial = document.getElementById('btn-add-material');
@@ -241,7 +231,7 @@ if (formEditMaterial) {
     });
 }
 
-// Modal confirmar remoção (reutilizado)
+// Modal confirmar remoção 
 const modalConfirm = document.getElementById('modal-confirm');
 const confirmMessage = document.getElementById('confirm-message');
 const btnConfirmYes = document.getElementById('btn-confirm-yes');
@@ -289,9 +279,8 @@ if (materialTableBody) {
 }
 
 
-// 4. LÓGICA DE AGENDAMENTOS (ADICIONADA)
-// AGENDAMENTOS (CARDS) 
-// Dados simulados (substituir pelos que vêm do backend ou JSON)
+// logica de agendamentos 
+// dados simulados
 const appointments = [
     {
         professor: "Prof. Maria Silva",
@@ -322,7 +311,7 @@ const searchInput = document.getElementById("filter-search");
 // Função para renderizar os cards
 function renderAppointmentCards(data) {
     cardsContainer.innerHTML = "";
-    // }
+    
     data.forEach(item => {
         // Cria o card
         const card = document.createElement("div");
@@ -363,7 +352,7 @@ function renderAppointmentCards(data) {
     totalAgendamentos.textContent = data.length;
     (opcional); agendamentosHoje.textContent = data.length;
 }
-// ===================== BOTÕES DE AÇÃO DOS CARDS =====================
+// botoes de ação dos cards
 cardsContainer.addEventListener("click", (e) => {
     const card = e.target.closest(".appointment-card");
     if (!card) return;
@@ -471,7 +460,7 @@ if (filterLab) {
     });
 }
 
-// 5. Pequenas melhorias de usabilidade: fechar modais com botões [data-close]
+// fechar modais com botões
 
 document.querySelectorAll('[data-close]').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -480,7 +469,7 @@ document.querySelectorAll('[data-close]').forEach(btn => {
     });
 });
 
-// Fechar ao clicar fora em modals genéricos (já usado em outros pontos)
+// Fechar ao clicar fora em modals genéricos
 document.querySelectorAll('.modal-overlay').forEach(modal => {
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
@@ -538,7 +527,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-// Simulação de dados — use depois sua integração real
+// Simulação de dados 
 const agendamentosPendentes = [
     { id: 1, professor: 'Maria Silva', turma: '3ºA', aula: 'Química Geral', horario: '08:00 - 10:00', materiais: 'Becker, Pipeta' },
     { id: 2, professor: 'João Souza', turma: '2ºB', aula: 'Química Orgânica', horario: '10:00 - 12:00', materiais: 'Tubo de ensaio, Bico de Bunsen' },
