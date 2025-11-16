@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Painel do Professor — ETEC-LAB</title>
 
-    <!-- Fonte -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/professor.css">
     <script src="js/professor.js" defer></script>
@@ -186,24 +185,18 @@
     </header>
 
 
-    <!-- Aba de navegação (pills) -->
     <nav class="tabs container">
-        <!-- Adicionando o atributo data-tab para vincular o botão à seção de conteúdo -->
-        <button class="tab active" data-tab="dashboard-content">📊 Dashboard</button>
+        <button class="tab active" data-tab="dashboard-content">📊 Painel</button>
         <button class="tab" data-tab="kits-content">🔬 Kits Criados</button>
         <button class="tab" data-tab="agendamentos-content">📅 Agendamentos Criados</button>
     </nav>
 
-    <!-- Conteúdo principal -->
     <main class="container main-content">
 
-        <!-- ======================================================= -->
-        <!-- 1. CONTEÚDO DA ABA: DASHBOARD (Ativo por Padrão) -->
         <section class="tab-content active" id="dashboard-content">
-            <h1 class="page-title">Dashboard do Professor</h1>
+            <h1 class="page-title">Painel do Professor</h1>
             <p class="subtitle">Bem-vindo ao ETEC-LAB. Gerencie seus agendamentos e kits de forma eficiente.</p>
 
-            <!-- Indicadores principais -->
             <div class="stats-grid">
                 <div class="stat card">
                     <div class="stat-number text-green">3</div>
@@ -221,17 +214,14 @@
                 </div>
             </div>
 
-            <!-- Ações rápidas -->
-            <h2 class="section-title">Ações Rápidas</h2>
+           <h2 class="section-title">Ações Rápidas</h2>
             <div class="actions-row">
-                <!-- ID para o JS abrir o modal de agendamento -->
                 <button id="btn-novo-agendamento" class="btn btn-primary large">＋ Novo Agendamento</button>
-                <!-- ID para o JS abrir o modal de criação de kit -->
                 <button id="btn-create-kit-dashboard" class="btn btn-outline">🧪 Criar Kit</button>
 
             </div>
 
-            <!-- Área de cards (exemplo simplificado) -->
+
             <section class="cards-section">
                 <h3 class="section-title">Meus Kits Criados</h3>
 
@@ -254,7 +244,6 @@
                     </div>
                 </div>
 
-                <!-- Exemplo de cards de kit -->
                 <div class="kit-grid">
                     <article class="kit-card card">
                         <div class="kit-card-head">
@@ -296,8 +285,7 @@
             </section>
         </section>
 
-        <!-- ======================================================= -->
-        <!-- 2. CONTEÚDO DA ABA: KITS CRIADOS -->
+       <!-- aba de kits criados -->
         <section class="tab-content" id="kits-content">
             <h1 class="page-title">Meus Kits de Materiais Criados</h1>
             <p class="subtitle">Visão detalhada de todos os kits que você montou para suas aulas.</p>
@@ -389,8 +377,7 @@
 
         </section>
 
-        <!-- ======================================================= -->
-        <!-- 3. CONTEÚDO DA ABA: AGENDAMENTOS CRIADOS -->
+       <!-- aba de agendamentos criados -->
         <section class="tab-content" id="agendamentos-content">
             <h1 class="page-title">Agendamentos de Aulas Criados</h1>
             <p class="subtitle">Acompanhe o status e o histórico dos seus agendamentos de laboratório.</p>
@@ -471,9 +458,7 @@
                 </table>
             </div>
 
-            <!-- ======================= -->
-            <!-- MODAL: VER AGENDAMENTO -->
-            <!-- ======================= -->
+           <!-- modal ver agendamento -->
             <div id="modalVerAgendamento" class="modal hidden">
                 <div class="modal-content">
                     <h2>Detalhes do Agendamento</h2>
@@ -486,9 +471,7 @@
 
             </div>
 
-            <!-- ========================== -->
-            <!-- MODAL: EDITAR AGENDAMENTO -->
-            <!-- ========================== -->
+            <!-- modal editar agendamento -->
             <div id="modalEditarAgendamento" class="modal hidden">
                 <div class="modal-content" style="max-width: 700px;">
                     <div class="modal-header">
@@ -498,7 +481,6 @@
 
                     <form id="formEditarAgendamento">
                         <div class="modal-body">
-                            <!-- DATA -->
                             <div class="form-section">
                                 <h3>Data do Agendamento</h3>
                                 <div class="input-group">
@@ -507,11 +489,9 @@
                                 </div>
                             </div>
 
-                            <!-- HORÁRIOS (Máx. 4) -->
                             <div class="form-section">
                                 <h3>Horários (Máximo 4)</h3>
                                 <div id="editarHorariosContainer" class="time-select-grid">
-                                    <!-- Horários serão adicionados dinamicamente aqui -->
                                     <div class="horario-item-editar">
                                         <div class="time-inputs">
                                             <input type="time" class="hora-inicio" placeholder="Início" required>
@@ -530,7 +510,7 @@
                                 </div>
                             </div>
 
-                            <!-- LABORATÓRIO -->
+                            <!-- laboratório -->
                             <div class="form-section">
                                 <h3>Laboratório</h3>
                                 <div class="input-group">
@@ -549,11 +529,11 @@
                                 </div>
                             </div>
 
-                            <!-- KITS E MATERIAIS -->
+                            <!-- kits e materiais -->
                             <div class="form-section">
                                 <h3>Materiais Necessários</h3>
 
-                                <!-- Seleção de Kit Existente -->
+                                <!-- seleção de kit -->
                                 <div class="input-group">
                                     <label for="editarSelectKitExistente">Usar kit existente:</label>
                                     <select id="editarSelectKitExistente" class="form-select">
@@ -569,11 +549,10 @@
 
                                 <div class="divider">ou</div>
 
-                                <!-- Adicionar Materiais Manualmente -->
+                                <!-- adicionar materiais manualmente -->
                                 <div class="input-group">
                                     <label>Adicionar materiais manualmente:</label>
                                     <div id="editarMateriaisContainer" class="manual-materials-container">
-                                        <!-- Materiais serão adicionados aqui dinamicamente -->
                                         <p class="input-helper">Nenhum material adicionado ainda.</p>
                                     </div>
                                     <button type="button" id="btnAddMaterialEditar"
@@ -584,7 +563,6 @@
                             </div>
                         </div>
 
-                        <!-- BOTÕES DE AÇÃO -->
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" id="fecharEditar">Cancelar</button>
                             <button type="submit" class="btn btn-primary">Salvar Alterações</button>
@@ -593,9 +571,7 @@
                 </div>
             </div>
 
-            <!-- ============================= -->
-            <!-- MODAL: CANCELAR AGENDAMENTO -->
-            <!-- ============================= -->
+           <!-- modal de cancelar agendamento -->
             <div id="modalCancelarAgendamento" class="modal hidden">
                 <div class="modal-content">
 
@@ -608,9 +584,7 @@
                 </div>
             </div>
 
-            <!-- ========================== -->
-            <!-- MODAL: MOTIVO DO INDEFERIMENTO -->
-            <!-- ========================== -->
+           <!-- modal motivo do indeferimento -->
             <div id="modalMotivoAgendamento" class="modal hidden">
                 <div class="modal-content">
                     <span class="close">&times;</span>
@@ -629,8 +603,7 @@
     </footer>
 
 
-    <!-- ======================================================= -->
-    <!-- MODAL DE CRIAÇÃO DE KIT -->
+    <!-- modal criar kit -->
     <div id="new-kit-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -643,7 +616,6 @@
                     kit ficará disponível para agendamento.</p>
 
                 <form id="kit-form">
-                    <!-- 1. DETALHES DO KIT -->
                     <div class="form-section">
                         <h3>1. Informações Básicas</h3>
                         <div class="input-group">
@@ -658,22 +630,19 @@
                         </div>
                     </div>
 
-                    <!-- 2. LISTA DE MATERIAIS DO KIT (Dinâmico) -->
                     <div class="form-section">
                         <h3>2. Lista de Materiais</h3>
                         <p class="input-helper">Adicione os materiais, suas quantidades e unidades de medida. Você deve
                             adicionar pelo menos 1 item.</p>
 
-                        <!-- Cabeçalho da Lista (apenas para desktop) -->
                         <div class="kit-items-header">
                             <span>Material</span>
                             <span>Qtd.</span>
                             <span>Unidade</span>
                         </div>
 
-                        <!-- Contêiner Dinâmico para Itens -->
                         <div id="kit-items-container">
-                            <!-- Itens serão injetados pelo JS aqui -->
+                            
                         </div>
 
                         <button type="button" id="add-kit-item-btn" class="btn btn-outline small-inline">＋ Adicionar
@@ -690,9 +659,7 @@
         </div>
     </div>
 
-
-    <!-- ======================================================= -->
-    <!-- MODAL DE NOVO AGENDAMENTO (Estrutura Inicial) -->
+    <!-- modal novo agendamento -->
     <div id="new-appointment-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -704,15 +671,13 @@
                 <p class="modal-subtitle">Selecione a data, laboratório e horário para a sua aula. Os agendamentos são
                     abertos para os próximos 30 dias.</p>
 
-                <!-- 1. SELEÇÃO DE DATA (CALENDÁRIO DINÂMICO) -->
-                <div class="form-section">
+            <div class="form-section">
                     <h3>1. Escolha a Data da Aula</h3>
                     <div id="calendar-container" class="calendar-container">
-                        <!-- O calendário dinâmico será injetado aqui pelo JavaScript -->
+                         
                     </div>
                 </div>
 
-                <!-- 2. SELEÇÃO DE LABORATÓRIO E HORÁRIO -->
                 <div class="form-section">
                     <h3>2. Escolha o Laboratório e Horário (Máx. 4)</h3>
                     <div class="input-group">
@@ -727,21 +692,18 @@
                         </select>
                     </div>
 
-                    <!-- MUDANÇA AQUI: Div para os Checkboxes -->
-                    <div class="input-group">
+                <div class="input-group">
                         <label>Horários Disponíveis (Início - Fim):</label>
-                        <!-- Mensagem de erro/limite -->
                         <div id="time-limit-message" class="limit-message hidden">
                             Você pode selecionar no máximo 4 horários.
                         </div>
                         <div id="time-select-container" class="time-select-grid">
-                            <!-- Horários serão preenchidos dinamicamente como checkboxes -->
+                            
                             <p class="placeholder-msg">Selecione uma data e um laboratório.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- 3. SELEÇÃO DE KIT -->
                 <div class="form-section">
                     <h3>3. Selecione o Kit (Obrigatório)</h3>
                     <div class="input-group">
@@ -755,13 +717,11 @@
                     </div>
                 </div>
 
-                <!-- 4. Adicionar materiais manualmente -->
                 <div id="manual-materials-section" class="hidden form-section">
                     <h3>Adicionar Materiais Manualmente</h3>
                     <p class="input-helper">Digite o nome e a quantidade de cada material necessário.</p>
 
                     <div id="manual-materials-container" class="manual-materials-container">
-                        <!-- Itens aparecerão aqui dinamicamente -->
                     </div>
 
                     <button type="button" id="add-material-btn" class="btn small-inline">＋ Adicionar Material</button>
@@ -783,9 +743,7 @@
         </div>
     </div>
 
-    <!-- ===================================================== -->
-    <!-- MODAL: VER KIT -->
-    <!-- ===================================================== -->
+    <!-- modal ver kit -->
     <div id="view-kit-modal" class="modal hidden">
         <div class="modal-content">
             <h2>Visualizar Kit</h2>
@@ -803,9 +761,7 @@
         </div>
     </div>
 
-    <!-- ===================================================== -->
-    <!-- MODAL: EDITAR KIT -->
-    <!-- ===================================================== -->
+    <!-- modal editar kit -->
     <div id="edit-kit-modal" class="modal hidden">
         <div class="modal-content">
             <h2>Editar Kit</h2>
@@ -837,9 +793,7 @@
         </div>
     </div>
 
-    <!-- ===================================================== -->
-    <!-- MODAL: VER DETALHES DO AGENDAMENTO -->
-    <!-- ===================================================== -->
+    <!-- modal detalhes do agendamento -->
     <div id="view-appointment-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
@@ -884,9 +838,7 @@
         </div>
     </div>
 
-    <!-- ===================================================== -->
-    <!-- MODAL: EDITAR AGENDAMENTO -->
-    <!-- ===================================================== -->
+    <!-- modal editar agendamento -->
     <div id="edit-appointment-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
@@ -934,9 +886,7 @@
         </div>
     </div>
 
-    <!-- ===================================================== -->
-    <!-- MODAL: MOTIVO DA NEGAÇÃO -->
-    <!-- ===================================================== -->
+    <!-- modal motivo da negação -->
     <div id="denial-reason-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
