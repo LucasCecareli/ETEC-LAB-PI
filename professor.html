@@ -743,53 +743,88 @@
         </div>
     </div>
 
-    <!-- modal ver kit -->
-    <div id="view-kit-modal" class="modal hidden">
+
+    <!-- ===================================================== -->
+    <!-- MODAL: VER KIT -->
+    <!-- ===================================================== -->
+    <div id="view-kit-modal" class="modal-overlay hidden">
         <div class="modal-content">
-            <h2>Visualizar Kit</h2>
+            <div class="modal-header">
+                <h2>👁️ Visualizar Kit</h2>
+                <button id="close-view-kit" class="close-btn" aria-label="Fechar Modal">❌</button>
+            </div>
             <div class="modal-body">
-                <p><strong>Nome do Kit:</strong> <span id="view-kit-name"></span></p>
-                <p><strong>Descrição:</strong> <span id="view-kit-description"></span></p>
-                <p><strong>Itens:</strong> <span id="view-kit-items"></span></p>
-                <p><strong>Usos:</strong> <span id="view-kit-uses"></span></p>
-                <p><strong>Status:</strong> <span id="view-kit-status"></span></p>
-                <p><strong>Data de Criação:</strong> <span id="view-kit-date"></span></p>
+                <div class="kit-details">
+                    <div class="detail-row">
+                        <strong>Nome do Kit:</strong>
+                        <span id="view-kit-name"></span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Descrição:</strong>
+                        <span id="view-kit-description"></span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Itens:</strong>
+                        <span id="view-kit-items-count"></span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Usos:</strong>
+                        <span id="view-kit-uses"></span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Status:</strong>
+                        <span id="view-kit-status"></span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Data de Criação:</strong>
+                        <span id="view-kit-date"></span>
+                    </div>
+                    <div class="detail-row full-width">
+                        <strong>Materiais:</strong>
+                        <div id="view-kit-materials" class="materials-list"></div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
-                <button id="close-view-kit" class="btn btn-secondary">Fechar</button>
+                <button id="close-view-kit-btn" class="btn btn-secondary">Fechar</button>
             </div>
         </div>
     </div>
 
-    <!-- modal editar kit -->
-    <div id="edit-kit-modal" class="modal hidden">
+    <!-- ===================================================== -->
+    <!-- MODAL: EDITAR KIT -->
+    <!-- ===================================================== -->
+    <div id="edit-kit-modal" class="modal-overlay hidden">
         <div class="modal-content">
-            <h2>Editar Kit</h2>
-            <div class="modal-body">
-                <label for="edit-kit-name">Nome do Kit</label>
-                <input type="text" id="edit-kit-name" placeholder="Digite o nome do kit" />
-
-                <label for="edit-kit-description">Descrição</label>
-                <textarea id="edit-kit-description" rows="3" placeholder="Digite a descrição"></textarea>
-
-                <label for="edit-kit-items">Itens</label>
-                <input type="text" id="edit-kit-items" placeholder="Ex: Luvas, Termômetro..." />
-
-                <label for="edit-kit-uses">Usos</label>
-                <input type="number" id="edit-kit-uses" placeholder="Número de usos" />
-
-                <label for="edit-kit-status">Status</label>
-                <select id="edit-kit-status">
-                    <option value="ativo">Ativo</option>
-                    <option value="rascunho">Rascunho</option>
-                    <option value="arquivado">Arquivado</option>
-                </select>
+            <div class="modal-header">
+                <h2>✏️ Editar Kit</h2>
+                <button id="close-edit-kit" class="close-btn" aria-label="Fechar Modal">❌</button>
             </div>
-
-            <div class="modal-footer">
-                <button id="cancel-edit-kit" class="btn btn-secondary">Cancelar</button>
-                <button id="save-edit-kit" class="btn btn-primary">Salvar Alterações</button>
-            </div>
+            <form id="edit-kit-form">
+                <div class="modal-body">
+                    <div class="input-group">
+                        <label for="edit-kit-name">Nome do Kit</label>
+                        <input type="text" id="edit-kit-name" placeholder="Digite o nome do kit" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="edit-kit-description">Descrição</label>
+                        <textarea id="edit-kit-description" rows="3" placeholder="Digite a descrição"
+                            required></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label for="edit-kit-status">Status</label>
+                        <select id="edit-kit-status" required>
+                            <option value="ativo">Ativo</option>
+                            <option value="rascunho">Rascunho</option>
+                            <option value="arquivado">Arquivado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="cancel-edit-kit" class="btn btn-secondary">Cancelar</button>
+                    <button type="submit" id="save-edit-kit" class="btn btn-primary">Salvar Alterações</button>
+                </div>
+            </form>
         </div>
     </div>
 
