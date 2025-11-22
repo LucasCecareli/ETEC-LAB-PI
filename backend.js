@@ -15,11 +15,11 @@ app.use(cors({
   credentials: true
 }));
 
-// ======= Schemas =======
+// Schemas 
 const usuarioSchema = new mongoose.Schema({
   nome: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  perfil: { type: String, enum: ["Professor", "Tecnico", "Administrador"], required: true },
+  perfil: { type: String, enum: ["Professor", "Técnico", "Administrador"], required: true },
   password: { type: String, required: true },
   status: { type: String, enum: ["Ativo", "Desativado"], default: "Ativo" }
 });
@@ -38,9 +38,12 @@ const Material = mongoose.model("Material", materialSchema);
 
 const laboratorioSchema = new mongoose.Schema({
   nome: { type: String, required: true },
-  descricao: { type: String },
-  capacidade: { type: Number, required: true }
+  disponibilidade: { type: String, required: true, default: "disponivel" },
+  horarios: [{ type: String, required: true }]
+}, {
+  timestamps: true
 });
+
 const Laboratorio = mongoose.model("Laboratorio", laboratorioSchema);
 
 const kitSchema = new mongoose.Schema({
@@ -78,7 +81,7 @@ const agendamentoSchema = new mongoose.Schema({
 });
 const Agendamento = mongoose.model("Agendamento", agendamentoSchema);
 
-// ======= Conexão com o banco de dados  =======
+// ======= Conexão com o banco de dados =======
 mongoose.set("strictQuery", true);
 
 async function conectarAoMongoDB() {
@@ -91,7 +94,7 @@ async function conectarAoMongoDB() {
   }
 }
 
-// ======= Usuarios =======
+// Usuarios 
 
 // Listar usuários
 app.get("/usuarios", async (req, res) => {
@@ -99,7 +102,7 @@ app.get("/usuarios", async (req, res) => {
     const usuarios = await Usuario.find();
     res.json(usuarios);
   } catch (error) {
-    console.error("❌ Erro ao buscar usuários:", error);
+    console.error("Erro ao buscar usuários:", error);
     res.status(500).json({ error: "Erro interno ao buscar usuários" });
   }
 });
@@ -109,7 +112,7 @@ app.post("/usuarios", async (req, res) => {
   try {
     const { nome, email, perfil, password } = req.body;
 
-    console.log("📥 Dados recebidos:", req.body);
+    console.log("Dados recebidos:", req.body);
 
     if (!nome || !email || !perfil || !password) {
       return res.status(400).json({ error: "Todos os campos são obrigatórios." });
@@ -127,55 +130,45 @@ app.post("/usuarios", async (req, res) => {
     res.status(201).json({ message: "Usuário cadastrado com sucesso!" });
 
   } catch (error) {
-    console.error("💥 Erro ao cadastrar:", error);
+    console.error("Erro ao cadastrar:", error);
     res.status(500).json({ error: "Erro interno no servidor." });
   }
 });
 
-// NOVA ROTA: Editar usuário
+// edição de usuarios
 app.put("/usuarios/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { nome, email, perfil, password } = req.body;
 
-    console.log("📝 Editando usuário ID:", id);
-    console.log("📥 Dados recebidos:", { nome, email, perfil, password: password ? "***" : "não alterada" });
-
-    // Verificar se o usuário existe
     const usuarioExistente = await Usuario.findById(id);
     if (!usuarioExistente) {
       return res.status(404).json({ error: "Usuário não encontrado." });
     }
 
-    // Verificar se o email já está em uso por outro usuário
     if (email && email !== usuarioExistente.email) {
       const emailEmUso = await Usuario.findOne({ email, _id: { $ne: id } });
       if (emailEmUso) {
-        return res.status(409).json({ error: "E-mail já está em uso por outro usuário." });
+        return res.status(409).json({ error: "E-mail já está em uso." });
       }
     }
 
-    // Preparar dados para atualização
     const dadosAtualizados = {
       nome: nome || usuarioExistente.nome,
       email: email || usuarioExistente.email,
       perfil: perfil || usuarioExistente.perfil
     };
 
-    // Se foi fornecida uma nova senha, fazer hash
     if (password) {
-      if (password.length < 6) {
-        return res.status(400).json({ error: "A senha deve ter pelo menos 6 caracteres." });
-      }
       dadosAtualizados.password = await bcrypt.hash(password, 10);
     }
 
-    // Atualizar usuário
     const usuarioAtualizado = await Usuario.findByIdAndUpdate(
       id,
       dadosAtualizados,
       { new: true, runValidators: true }
     );
+
 
     console.log("✅ Usuário atualizado:", usuarioAtualizado);
     res.json({
@@ -194,26 +187,16 @@ app.put("/usuarios/:id", async (req, res) => {
   }
 });
 
-// NOVA ROTA: Desativar/Reativar usuário
-app.patch("/usuarios/:id/status", async (req, res) => {
+// deletar usuario
+app.delete("/usuarios/:id", async (req, res) => {
   try {
-    const { id } = req.params;
-    const { status } = req.body;
+    const { id } = req.params
+    console.log("Deletando usuário ID:", id)
 
-    console.log("🔄 Alterando status do usuário ID:", id, "para:", status);
-
-    if (!status || !["Ativo", "Desativado"].includes(status)) {
-      return res.status(400).json({ error: "Status inválido. Use 'Ativo' ou 'Desativado'." });
-    }
-
-    const usuario = await Usuario.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true, runValidators: true }
-    );
+    const usuario = await Usuario.findByIdAndDelete(id)
 
     if (!usuario) {
-      return res.status(404).json({ error: "Usuário não encontrado." });
+      return res.status(404).json({ error: "Usuário não encontrado." })
     }
 
     console.log("✅ Status do usuário atualizado:", usuario);
@@ -223,22 +206,28 @@ app.patch("/usuarios/:id/status", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Erro ao alterar status do usuário:", error);
-    res.status(500).json({ error: "Erro interno ao alterar status do usuário." });
+    console.error("Erro ao deletar usuário:", error)
+
+    if (error.name === 'CastError') {
+      return res.status(400).json({ error: "ID do usuário inválido." })
+    }
+
+    res.status(500).json({ error: "Erro interno ao deletar usuário." })
   }
 });
 
-// ======= Materiais =======
+
+//Materiais 
 
 // Lista todos os materiais
 app.get("/materiais", async (req, res) => {
   try {
-    console.log("📦 Recebida requisição para /materiais");
+    console.log("Recebida requisição para /materiais");
     const materiais = await Material.find();
-    console.log(`✅ Enviando ${materiais.length} materiais`);
+    console.log(`Enviando ${materiais.length} materiais`);
     res.json(materiais);
   } catch (error) {
-    console.error("❌ Erro ao buscar materiais:", error);
+    console.error("Erro ao buscar materiais:", error);
     res.status(500).json({ error: "Erro interno ao buscar materiais" });
   }
 });
@@ -248,7 +237,7 @@ app.post("/materiais", async (req, res) => {
   try {
     const { item, descricao, categoria, quantidade, unidade, quantidadeMinima } = req.body;
 
-    console.log("📥 Dados recebidos para material:", req.body);
+    console.log("Dados recebidos para material:", req.body);
 
     if (!item || !categoria || quantidade === undefined) {
       return res.status(400).json({ error: "Campos obrigatórios faltando" });
@@ -267,27 +256,25 @@ app.post("/materiais", async (req, res) => {
     res.status(201).json({ message: "Material cadastrado com sucesso!", material: novoMaterial });
 
   } catch (error) {
-    console.error("❌ Erro ao cadastrar material:", error);
+    console.error("Erro ao cadastrar material:", error);
     res.status(500).json({ error: "Erro interno ao cadastrar material" });
   }
 });
 
-// NOVA ROTA: Editar material
+// Editar material
 app.put("/materiais/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { item, descricao, categoria, quantidade, unidade, quantidadeMinima } = req.body;
 
-    console.log("📝 Editando material ID:", id);
-    console.log("📥 Dados recebidos:", req.body);
+    console.log("Editando material ID:", id);
+    console.log("Dados recebidos:", req.body);
 
-    // Verificar se o material existe
     const materialExistente = await Material.findById(id);
     if (!materialExistente) {
       return res.status(404).json({ error: "Material não encontrado." });
     }
 
-    // Atualizar material
     const materialAtualizado = await Material.findByIdAndUpdate(
       id,
       {
@@ -318,12 +305,12 @@ app.put("/materiais/:id", async (req, res) => {
   }
 });
 
-// NOVA ROTA: Deletar material
+// deletar material
 app.delete("/materiais/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    console.log("🗑️ Deletando material ID:", id);
+    console.log("Deletando material ID:", id);
 
     const material = await Material.findByIdAndDelete(id);
 
@@ -331,12 +318,56 @@ app.delete("/materiais/:id", async (req, res) => {
       return res.status(404).json({ error: "Material não encontrado." });
     }
 
-    console.log("✅ Material deletado:", material);
+    console.log("Material deletado:", material);
     res.json({ message: "Material deletado com sucesso!" });
 
   } catch (error) {
-    console.error("❌ Erro ao deletar material:", error);
+    console.error("Erro ao deletar material:", error);
     res.status(500).json({ error: "Erro interno ao deletar material." });
+  }
+});
+
+// laboratórios
+
+// buscar laboratórios
+app.get("/laboratorios", async (req, res) => {
+  try {
+    console.log("Buscando todos os laboratórios");
+
+    const laboratorios = await Laboratorio.find();
+    console.log("Laboratórios encontrados:", laboratorios.length);
+
+    res.json(laboratorios);
+
+  } catch (error) {
+    console.error("Erro ao buscar laboratórios:", error);
+    res.status(500).json({ error: "Erro interno ao buscar laboratórios" });
+  }
+});
+// atualizar laboratórios
+app.put("/laboratorios/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nome, disponibilidade } = req.body;
+
+    console.log("Atualizando laboratório ID:", id, "Dados:", req.body);
+
+    const laboratorio = await Laboratorio.findByIdAndUpdate(
+      id,
+      { nome, disponibilidade },
+      { new: true, runValidators: true }
+    );
+
+    if (!laboratorio) {
+      return res.status(404).json({ error: "Laboratório não encontrado" });
+    }
+
+    console.log("Laboratório atualizado:", laboratorio);
+    res.json(laboratorio);
+
+  } catch (error) {
+    console.error("Erro ao atualizar laboratório:", error);
+    res.status(500).json({ error: "Erro interno ao atualizar laboratório" });
   }
 });
 
@@ -345,7 +376,7 @@ app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    console.log("🔐 Tentativa de login para:", email);
+    console.log("Tentativa de login para:", email);
 
     // valida a entrada
     if (!email || !password) {
@@ -794,16 +825,15 @@ app.get("/professor/:professorId/estatisticas", async (req, res) => {
   }
 });
 
-// ======= Rota de saúde do servidor =======
 app.get("/health", (req, res) => {
   res.json({
     status: "OK",
     message: "Servidor rodando normalmente",
     timestamp: new Date().toISOString()
-  });
-});
+  })
+})
 
-// Iniciar servidor
+// iniciar servidor
 conectarAoMongoDB().then(() => {
-  app.listen(PORTA, () => console.log(`🚀 Servidor rodando na porta ${PORTA}`));
-});
+  app.listen(PORTA, () => console.log(`servidor rodando na porta ${PORTA}`))
+})
