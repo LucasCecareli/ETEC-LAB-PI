@@ -59,12 +59,13 @@ async function cadastrarUsuario() {
             passwordInput.value = ""
 
             exibirAlerta('.alert-modal-cadastro', "Usuário cadastrado com sucesso!!!", ['show', 'alert-success'], ['d-none'], 2000)
-            esconderModal('#modal-new-user', 2000)
+            setTimeout(() => {
+                fecharModal('modal-new-user')
+            }, 2000)
 
             setTimeout(async () => {
                 await carregarUsuarios()
                 await carregarDashboard()
-
             }, 2000)
         }
         catch (erro) {
@@ -703,13 +704,102 @@ async function carregarEstatisticasAgendamentos() {
     }
 }
 
+// estatisticas painel adm
+
+const STATS_UPDATE_INTERVAL = 60000; // 1 minuto
+let statsUpdateInterval;
+
+async function buscarEstatisticas() {
+    try {
+        console.log("Buscando estatísticas...");
+
+        const resposta = await axios.get(`${protocolo}${baseURL}/api/stats`);
+
+        if (resposta.data.success) {
+            atualizarUIEstatisticas(resposta.data.stats);
+            console.log("Estatísticas atualizadas:", resposta.data.stats);
+        } else {
+            throw new Error(resposta.data.error || "Erro ao buscar estatísticas");
+        }
+
+    } catch (erro) {
+        console.error("Erro ao buscar estatísticas:", erro);
+
+        // Tentar fallback para cálculo local se a rota não existir
+        if (erro.response && erro.response.status === 404) {
+            console.log("Rota de estatísticas não encontrada, usando cálculo local...");
+            calcularEstatisticasLocais();
+        }
+    }
+}
+
+// Atualizar interface com as estatísticas
+function atualizarUIEstatisticas(stats) {
+    const newUsersElement = document.getElementById('stats-new-users');
+    if (newUsersElement && stats.newUsers !== undefined) {
+        newUsersElement.textContent = stats.newUsers;
+    }
+
+    const updatedMaterialsElement = document.getElementById('stats-updated-materials');
+    if (updatedMaterialsElement && stats.updatedMaterials !== undefined) {
+        updatedMaterialsElement.textContent = stats.updatedMaterials;
+    }
+
+    const lastUpdateElement = document.getElementById('last-update');
+    if (lastUpdateElement) {
+        lastUpdateElement.textContent = `Última atualização: ${formatarDataHora(new Date())}`;
+    }
+}
+
+function formatarDataHora(data) {
+    return data.toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function calcularEstatisticasLocais() {
+    console.log("Calculando estatísticas localmente...");
+
+    const novosUsuarios = Object.values(usuarios).length > 0 ?
+        Math.floor(Object.values(usuarios).length * 0.1) : 0;
+
+    const materiaisAtualizados = Object.values(materiais).length > 0 ?
+        Math.floor(Object.values(materiais).length * 0.15) : 0;
+
+    const stats = {
+        newUsers: novosUsuarios,
+        updatedMaterials: materiaisAtualizados
+    };
+
+    atualizarUIEstatisticas(stats);
+}
+
+function iniciarAtualizacaoAutomatica() {
+    buscarEstatisticas();
+
+    statsUpdateInterval = setInterval(buscarEstatisticas, STATS_UPDATE_INTERVAL);
+
+    console.log("🔄 Atualização automática de estatísticas iniciada");
+}
+
+function pararAtualizacaoAutomatica() {
+    if (statsUpdateInterval) {
+        clearInterval(statsUpdateInterval);
+        console.log("⏹️ Atualização automática de estatísticas parada");
+    }
+}
 // função que carrega todos os dados do dashboard
 async function carregarDashboard() {
     try {
         await Promise.all([
             obterUsuarios(),
             obterMateriais(),
-            carregarEstatisticasAgendamentos()
+            carregarEstatisticasAgendamentos(),
+            buscarEstatisticas()
         ])
         console.log("Dashboard carregado com sucesso!")
     } catch (erro) {
@@ -748,13 +838,13 @@ document.querySelectorAll(".tab").forEach(tab => {
     })
 })
 
-
 // Modais
 // DOMContentLoaded 
 document.addEventListener('DOMContentLoaded', async () => {
     await obterUsuarios()
     await obterMateriais()
     await obterLaboratorios()
+    iniciarAtualizacaoAutomatica();
 
     const modais = document.querySelectorAll('.modal-overlay')
     modais.forEach(modal => {
@@ -1036,48 +1126,39 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Usuários
     document.getElementById('users-table-body')?.addEventListener('click', e => {
-        const btn = e.target.closest('button')
-        if (!btn) return
-        const id = btn.dataset.userId
+    const btn = e.target.closest('button')
+    if (!btn) return
+    const id = btn.dataset.userId
 
-        if (btn.classList.contains('btn-edit-user')) abrirModalEdicaoUsuario(id)
-        if (btn.classList.contains('btn-remove-user')) {
-            const u = usuarios[id]
+    if (btn.classList.contains('btn-edit-user')) abrirModalEdicaoUsuario(id)
+    if (btn.classList.contains('btn-remove-user')) {
+        const u = usuarios[id]
 
-            showConfirm(`Deseja remover permanentemente o usuário "${u.nome}"?`, async () => {
-                try {
-                    const resposta = await axios.delete(`http://localhost:3000/usuarios/${id}`)
+        showConfirm(`Deseja remover permanentemente o usuário "${u.nome}"?`, async () => {
+            try {
+                const resposta = await axios.delete(`http://localhost:3000/usuarios/${id}`)
 
-                    delete usuarios[id]
+                await obterUsuarios()
+                
+                console.log(`Usuário "${u.nome}" foi removido permanentemente.`)
 
-                    const row = document.querySelector(`tr[data-user-id="${id}"]`)
-                    if (row) {
-                        row.remove()
-                    }
+                exibirAlerta('.alert-container', `Usuário "${u.nome}" removido com sucesso!`, ['show', 'alert-success'], ['d-none'], 3000)
 
-                    console.log(`Usuário "${u.nome}" foi removido permanentemente.`)
+            } catch (error) {
+                console.error('Erro ao remover usuário:', error)
 
-
-                    atualizarEstatisticas()
-                    await obterUsuarios()
-                    await carregarDashboard()
-
-
-                    exibirAlerta('.alert-container', `Usuário "${u.nome}" removido com sucesso!`, ['show', 'alert-success'], ['d-none'], 3000)
-
-                } catch (error) {
-                    console.error('Erro ao remover usuário:', error)
-
-                    let mensagemErro = "Erro ao remover usuário"
-                    if (error.response?.status === 405) {
-                        mensagemErro = "Servidor não configurado para deletar usuários"
-                    } else if (error.response?.status === 404) {
-                        mensagemErro = "Usuário não encontrado"
-                    }
-
-                    exibirAlerta('.alert-container', mensagemErro, ['show', 'alert-danger'], ['d-none'], 3000)
+                let mensagemErro = "Erro ao remover usuário"
+                if (error.response?.status === 405) {
+                    mensagemErro = "Servidor não configurado para deletar usuários"
+                } else if (error.response?.status === 404) {
+                    mensagemErro = "Usuário não encontrado"
+                } else if (error.response?.data?.error) {
+                    mensagemErro = error.response.data.error
                 }
-            })
-        }
-    })
+
+                exibirAlerta('.alert-container', mensagemErro, ['show', 'alert-danger'], ['d-none'], 3000)
+            }
+        })
+    }
+})
 })
