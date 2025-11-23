@@ -11,6 +11,7 @@
 
     
     <script src="js/tecnico.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 </head>
 
@@ -129,36 +130,155 @@
     <main class="container main-content">
 
         <section class="tab-content active" id="visao-geral">
-            <h1 class="page-title">Painel do Técnico</h1>
-            <p class="subtitle">Bem-vindo ao painel administrativo do técnico. Acompanhe os agendamentos, materiais e
-                histórico.</p>
+
+            <h2 class="page-title">Dashboard do Técnico</h2>
+            <p id="legenda-aba" class="subtitle">Bem-vindo ao painel administrativo do técnico. Acompanhe os
+                agendamentos, materiais e histórico.</p>
 
             <div class="stats-grid">
                 <div class="stat card">
-                    <div class="stat-number text-green">20</div>
-                    <div class="stat-label">Agendamentos Pendentes</div>
+                    <div id="stat-number-agendamentos" class="stat-number">0</div>
+                    <div id="stat-name-cards-dashboard" class="stat-label">Agendamentos Pendentes</div>
                 </div>
 
                 <div class="stat card">
-                    <div class="stat-number text-amber">18</div>
+                    <div class="stat-number text-amber" id="stat-total-materiais">0</div>
                     <div class="stat-label">Materiais Disponíveis</div>
                 </div>
 
                 <div class="stat card">
-                    <div class="stat-number text-blue">47</div>
-                    <div class="stat-label">Aulas Realizadas este Mês</div>
+                    <div class="stat-number text-blue" id="stat-total-agendamentos">0</div>
+                    <div class="stat-label">Aulas realizadas este Mês</div>
                 </div>
             </div>
 
-            <h2 class="section-title">Ações Rápidas</h2>
+            <!-- Ações Rápidas -->
+
+            <h3 id="section-title-acoes" class="section-title">Ações Rápidas</h3>
             <div class="actions-row">
-                <button id="btn-aprovar-agendamento" class="btn btn-primary large">Aprovar Agendamento</button>
-                <button id="btn-add-material" class="btn btn-outline">🧪 Adicionar Material</button>
+                <button onclick="abrirModal('modal-aprovar-agendamento')" id="btn-aprovar-agendamento"
+                    class="btn btn-primary large">
+                    Aprovar Agendamento</button>
+                <button onclick="abrirModal('modal-new-material')" id="btn-add-material" class="btn btn-outline">🧪
+                    Adicionar Material</button>
                 <button id="btn-view-reports" class="btn btn-outline">📋 Ver Histórico</button>
             </div>
 
+
+            <!-- Modais Ações Rápidas -->
+
+            <!-- Modal Aprovar Agendamento -->
+
+            <div id="modal-aprovar-agendamento" class="modal-overlay" aria-hidden="true" style="display: none;">
+                <div class="modal-content large-modal">
+                    <div class="modal-header">
+                        <h3 class="modal-title-red">Aprovar Agendamento</h3>
+                        <button class="close-btn" data-close="modal-aprovar-agendamento">&times;</button>
+                    </div>
+
+                    <div class="modal-body">
+                        <p class="modal-subtitle-text">Adicione um novo material ao banco de dados do laboratório</p>
+
+                    </div>
+
+                    <div class="modal-footer modal-footer-aprovar">
+                        <button type="button" class="btn btn-light btn-cancelar"
+                            id="btn-cancelar-aprovar-agendamento" data-close="modal-aprovar-agendamento">Cancelar</button>
+                    </div>
+
+
+                </div>
+            </div>
+
+
+            <!-- Fim Modal Aprovar Agendamento -->
+
+            <!-- Modal Adicionar Material -->
+
+            <div id="modal-new-material" class="modal-overlay" aria-hidden="true" style="display: none;">
+                <div class="modal-content large-modal">
+                    <div class="modal-header">
+                        <h3 class="modal-title-red">Cadastrar Novo Material</h3>
+                        <button class="close-btn" data-close="modal-new-material">&times;</button>
+                    </div>
+
+                    <div class="modal-body">
+                        <p class="modal-subtitle-text">Adicione um novo material ao banco de dados do laboratório</p>
+
+                        <form id="form-new-material">
+                            <div class="input-group">
+                                <label for="material-name">Nome do Material</label>
+                                <input id="material-name" type="text" placeholder="Ex: Ácido Sulfúrico" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="material-description">Descrição/Especificação</label>
+                                <input id="material-description" type="text" placeholder="Ex: H₂SO₄ 98% P.A.">
+                            </div>
+
+                            <div class="input-group">
+                                <label for="material-category">Categoria</label>
+                                <select id="material-category" required>
+                                    <option value="" disabled selected>Selecione a categoria</option>
+                                    <option value="reagente">Reagente</option>
+                                    <option value="vidraria">Vidraria</option>
+                                </select>
+                            </div>
+
+                            <div class="input-group-row">
+                                <div class="input-group">
+                                    <label for="material-quantity">Quantidade Inicial</label>
+                                    <input id="material-quantity" type="number" value="0" min="0" required>
+                                </div>
+                                <div class="input-group">
+                                    <label for="material-unit">Unidade</label>
+                                    <select id="material-unit" required>
+                                        <option value="un">Un(unidade)</option>
+                                        <option value="ml">ml(mililitros)</option>
+                                        <option value="g">g(gramas)</option>
+                                        <option value="cm">cm(centimetros)</option>
+                                        <option value="mm">mm(milimetros)</option>
+                                        <option value="cx">cx(caixa)</option>
+                                        <option value="outro">outro</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="input-group" id="custom-unit-group" style="display: none; margin-top: -10px;">
+                                <label for="custom-unit-text">Especifique a Unidade</label>
+                                <input id="custom-unit-text" type="text" placeholder="Ex: Pacote, Rolo, Placa">
+                            </div>
+
+                            <div class="input-group">
+                                <label for="material-min-quantity">Quantidade Mínima (Estoque Baixo)</label>
+                                <input id="material-min-quantity" type="number" value="0" min="0" required>
+                                <small class="input-helper">Sistema alertará quando o estoque atingir esta
+                                    quantidade</small>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="modal-footer modal-footer-cadastro">
+                        <button type="button" class="btn btn-light btn-cancelar"
+                            data-close="modal-new-material">Cancelar</button>
+                        <button type="button" form="form-new-material" class="btn btn-primary btn-red"
+                            onclick="cadastrarMaterial()">Cadastrar
+                            Material</button>
+                    </div>
+
+
+                </div>
+            </div>
+
+
+            <!-- Fim Modal Adicionar Material -->
+
+
+
+
+            <!-- exemplos rápidos (cards) -->
+
             <section class="cards-section">
-                <h3 class="section-title">Atividades Recentes</h3>
+                <h3 id="section-title-atividades" class="section-title">Atividades Recentes</h3>
                 <div class="mini-stats-grid">
                     <div class="mini-stat card">
                         <div class="mini-number">5</div>
@@ -185,12 +305,11 @@
         <section id="agendamentos" class="tab-content">
 
             <div class="content-header">
-                <h1 class="page-title">Agendamentos</h1>
-                <p class="subtitle">Consulte os agendamentos.</p>
+                <h2 class="page-title">Agendamentos</h2>
+                <p id="legenda-aba" class="subtitle">Consulte os agendamentos.</p>
                 <div class="content-actions">
                     <div class="filters-row">
-                        <input type="text" id="filter-search" class="filter-input"
-                            placeholder="🔍 Buscar professor..." />
+                        <input type="text" id="filter-search" class="filter-input" placeholder="Buscar professor..." />
 
                         <select id="filter-date" class="filter-select">
                             <option value="all">Todas as datas</option>
@@ -219,228 +338,9 @@
 
         </section>
 
-        <!-- materiais -->
-        <section class="tab-content" id="materiais">
-            <h1 class="page-title">Materiais</h1>
-            <p class="subtitle">Cadastro e inventário de materiais e kits.</p>
 
-            <div class="kits-header">
-                <div class="kits-stats">
-                    <span>Total de Itens: <strong id="total-materiais">0</strong></span>
-                    <span>Itens críticos: <strong class="text-amber" id="itens-criticos">0</strong></span>
-                </div>
-            </div>
+        <!--  MODAL DE CONFIRMAÇÃO ABA AGENDAMENTOS  -->
 
-            <div class="kit-table-container card">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Item</th>
-                            <th>Quantidade</th>
-                            <th>Unidade</th>
-                            <th>Laboratório</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    
-                    <tbody id="material-table-body">
-                        
-                    </tbody>
-                </table>
-            </div>
-        </section>
-        
-
-        <!-- histórico -->
-        <section class="tab-content" id="historico">
-            <h1 class="page-title">Histórico</h1>
-            <p class="subtitle">Veja o histórico de aulas concluídas.</p>
-            
-            <section class="tab-content" id="historico">
-                <h1 class="page-title">Histórico</h1>
-                <p class="subtitle">Veja o histórico de aulas concluídas.</p>
-
-                <!-- filtros -->
-                <div class="filters card">
-                    <div class="filters-header">
-                        <h3>Buscar professor...</h3>
-                        <div class="search-filter">
-                            <div class="search-wrap">
-                                <input type="text" id="search-teacher" placeholder="Digite o nome do professor...">
-                                <button class="search-btn">🔍</button>
-                            </div>
-                            <select id="filter-status">
-                                <option value="all">Sem filtro</option>
-                                <option value="completed">Concluída</option>
-                                <option value="cancelled">Cancelada</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- lista de histórico -->
-                <div class="history-list">
-                    <!-- Item 1 -->
-                    <div class="history-item card">
-                        <div class="history-header">
-                            <div class="teacher-info">
-                                <h3>Prof. Carlos Santos</h3>
-                                <span class="class-info">3º Química B</span>
-                            </div>
-                            <div class="status-badge status-completed">
-                                Concluída
-                            </div>
-                        </div>
-
-                        <div class="history-details">
-                            <div class="date-time">
-                                <strong>Data do Agendamento: 10/10/2025</strong>
-                                <div class="time-slot">
-                                    <strong>Horário</strong>
-                                    <span>08:00 - 10:00</span>
-                                </div>
-                            </div>
-
-                            <div class="materials-used">
-                                <strong>Materiais Utilizados</strong>
-                                <ul>
-                                    <li>Bequer 250mL</li>
-                                    <li>Reagentes</li>
-                                    <li>Vidraria</li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div class="history-actions">
-                            <button class="btn btn-outline btn-view-details">Ver Detalhes</button>
-                        </div>
-                    </div>
-
-                    <!-- Item 2 -->
-                    <div class="history-item card">
-                        <div class="history-header">
-                            <div class="teacher-info">
-                                <h3>Prof. Ana Costa</h3>
-                                <span class="class-info">2º Química A</span>
-                            </div>
-                            <div class="status-badge status-completed">
-                                Concluída
-                            </div>
-                        </div>
-
-                        <div class="history-details">
-                            <div class="date-time">
-                                <strong>Data do Agendamento: 12/10/2025</strong>
-                                <div class="time-slot">
-                                    <strong>Horário</strong>
-                                    <span>14:00 - 16:00</span>
-                                </div>
-                            </div>
-
-                            <div class="materials-used">
-                                <strong>Materiais Utilizados</strong>
-                                <ul>
-                                    <li>Balança Analítica</li>
-                                    <li>Pipetas</li>
-                                    <li>Reagentes Químicos</li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div class="history-actions">
-                            <button class="btn btn-outline btn-view-details">Ver Detalhes</button>
-                        </div>
-                    </div>
-
-                    <!-- Item 3 -->
-                    <div class="history-item card">
-                        <div class="history-header">
-                            <div class="teacher-info">
-                                <h3>Prof. Roberto Silva</h3>
-                                <span class="class-info">1º Química C</span>
-                            </div>
-                            <div class="status-badge status-cancelled">
-                                Cancelada
-                            </div>
-                        </div>
-
-                        <div class="history-details">
-                            <div class="date-time">
-                                <strong>Data do Agendamento: 15/10/2025</strong>
-                                <div class="time-slot">
-                                    <strong>Horário</strong>
-                                    <span>10:00 - 12:00</span>
-                                </div>
-                            </div>
-
-                            <div class="materials-used">
-                                <strong>Materiais Reservados</strong>
-                                <ul>
-                                    <li>Microscópios</li>
-                                    <li>Lâminas</li>
-                                    <li>Corantes</li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div class="history-actions">
-                            <button class="btn btn-outline btn-view-details">Ver Detalhes</button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-
-        </section>
-
-        <!--  modal detalhes do agendamento  -->
-        <div id="modal-appointment-details" class="modal-overlay" aria-hidden="true" style="display:none;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 id="appointment-details-title">Detalhes do Agendamento</h3>
-                    <button class="close-modal" data-close="modal-appointment-details"><span>&times;</span></button>
-                </div>
-                <div class="modal-body" id="appointment-details-body">
-                    <p><strong>Solicitante:</strong> <span id="det-nome"></span></p>
-                    <p><strong>Email:</strong> <span id="det-email"></span></p>
-                    <p><strong>Laboratório:</strong> <span id="det-lab"></span></p>
-                    <p><strong>Data / Horário:</strong> <span id="det-datahora"></span></p>
-                    <p><strong>Finalidade:</strong> <span id="det-finalidade"></span></p>
-                    <p><strong>Observações:</strong></p>
-                    <p id="det-observacoes"></p>
-                </div>
-                <div class="modal-footer modal-footer-cadastro">
-                    <button class="btn btn-light btn-cancelar" data-close="modal-appointment-details">Fechar</button>
-                    <button id="btn-modal-approve" class="btn btn-primary btn-red">Aprovar</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- modal-confirmação  -->
-        <div id="modal-new-material" class="modal-overlay" aria-hidden="true" style="display: none;">
-            </div>
-
-        <div id="modal-edit-lab" class="modal-overlay" aria-hidden="true" style="display: none;">
-            </div>
-
-        <div id="modal-edit-material" class="modal-overlay" aria-hidden="true" style="display: none;">
-            </div>
-
-        <div id="modal-confirm" class="modal-overlay" aria-hidden="true" style="display: none;">
-            <div class="modal-content modal-small">
-                <div class="modal-header">
-                    <h3>Confirmação</h3>
-                    <button class="close-modal" data-close="modal-confirm"><span>&times;</span></button>
-                </div>
-                <p id="confirm-message" class="text-center mb-4">Tem certeza que deseja realizar esta ação?</p>
-                <div class="modal-actions justify-center">
-                    <button id="btn-confirm-no" class="btn btn-secondary">Não</button>
-                    <button id="btn-confirm-yes" class="btn btn-danger">Sim</button>
-                </div>
-            </div>
-        </div>
-
-        <!--  modal confirmação da aba agendamentos  -->
         <div id="confirmation-modal" class="modal-overlay" style="display:none;">
             <div class="modal-content">
                 <p id="modal-message"></p>
@@ -510,8 +410,116 @@
 
         <div id="toast-approval" class="toast" style="display:none;"></div>
 
-        <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
-        <script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
+
+        <!-- --- MATERIAIS --- -->
+        <section class="tab-content" id="materiais">
+            <h2 class="page-title">Materiais</h2>
+            <p class="subtitle">Cadastro e inventário de materiais e kits.</p>
+
+            <div class="kits-header">
+                <div class="kits-stats">
+                    <span>Total de Itens: <strong id="total-materiais">0</strong></span>
+                    <span>Itens críticos: <strong class="text-amber" id="itens-criticos">0</strong></span>
+                </div>
+            </div>
+
+            <div class="kit-table-container card">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Quantidade</th>
+                            <th>Unidade</th>
+                            <th>Laboratório</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <!-- TABELA VAZIA - JavaScript vai preencher -->
+                    <tbody id="material-table-body">
+                        <!-- Os materiais serão carregados dinamicamente via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        <!-- --- FIM MATERIAIS --- -->
+
+        <!-- MODAL: EDITAR MATERIAL -->
+
+        <div id="modal-edit-material" class="modal-overlay" aria-hidden="true" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="edit-material-title">Editar Material</h3>
+                    <!-- Botão de Fechar no canto superior direito -->
+                    <button class="close-modal" data-close="modal-edit-material">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="form-edit-material" class="modal-form">
+                    <input type="hidden" id="edit-material-id">
+
+                    <div class="input-group">
+                        <label for="edit-material-name">Nome do Material</label>
+                        <input type="text" id="edit-material-name" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label for="edit-material-quantity">Quantidade Atual</label>
+                            <input type="number" id="edit-material-quantity" required min="0">
+                        </div>
+                        <div class="input-group">
+                            <label for="edit-material-unit">Unidade</label>
+                            <select id="edit-material-unit" required>
+                                <option value="unidade">Un(unidade)</option>
+                                <option value="ml">ml(mililitros)</option>
+                                <option value="l">l(litros)</option>
+                                <option value="g">g(gramas)</option>
+                                <option value="kg">kg(quilogramas)</option>
+                                <option value="caixa">cx(caixa)</option>
+                                <option value="outro">Outro...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Campo de Unidade Personalizada (Exemplo de visibilidade JS) -->
+                    <div class="input-group" id="custom-edit-unit-group" style="display: none;">
+                        <label for="custom-edit-unit-text">Especifique a Unidade</label>
+                        <input type="text" id="custom-edit-unit-text" placeholder="Ex: Pacote, Metro, Kit">
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary"
+                            data-close="modal-edit-material">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- MODAL: CONFIRMAÇÃO GENÉRICA (Remoção) -->
+        <!-- Modal de confirmação (apenas 1) -->
+        <div id="modal-confirm" class="modal-overlay" aria-hidden="true" style="display: none;">
+            <div class="modal-content modal-small">
+                <div class="modal-header">
+                    <h3>Confirmação</h3>
+                    <button class="close-modal" data-close="modal-confirm"><span>&times;</span></button>
+                </div>
+                <p id="confirm-message" class="text-center mb-4">Tem certeza que deseja realizar esta ação?</p>
+                <div class="modal-actions justify-center">
+                    <button id="btn-confirm-no" class="btn btn-secondary">Não</button>
+                    <button id="btn-confirm-yes" class="btn btn-danger">Sim, Remover</button>
+                </div>
+            </div>
+        </div>
+        <!-- --- FIM MATERIAIS --- -->
+
+        <!-- --- HISTÓRICO --- -->
+        <section class="tab-content" id="historico">
+            <h2 class="page-title">Histórico</h2>
+            <p id="legenda-aba" class="subtitle">Veja o histórico de aulas concluídas.</p>
+
+        </section>
+
 </body>
 
 </html>

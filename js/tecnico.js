@@ -1,45 +1,331 @@
 // tecnico.js
 // Conteúdo: seu JS original (modals, materiais, usuários) + Agendamentos integrados
 
-// --- DADOS DE AGENDAMENTOS (SIMULAÇÃO) ---
-const agendamentos = {
-    'a1': {
-        id: 'a1',
-        data: '2025-11-05',
-        horario: '09:00 - 11:00',
-        dataAgendamento: '2025-10-29',
-        solicitante: 'Prof. Ricardo Alves',
-        email: 'ricardo.alves@etec.edu.br',
-        status: 'Pendente', // 'Pendente' | 'Aprovado' | 'Negado'
-        turma: '3º Química B',
-        materiais: ['Erlenmeyer 250ml', 'Provetas', 'Solução de AgNO₃']
-    },
-    'a2': {
-        id: 'a2',
-        data: '2025-11-05',
-        horario: '13:00 - 15:00',
-        dataAgendamento: '2025-10-30',
-        solicitante: 'Profª. Laura Mendes',
-        email: 'laura.mendes@etec.edu.br',
-        status: 'Pendente',
-        turma: 'Técnicos',
-        materiais: ['Luvas de Segurança', 'Óculos de Proteção']
-    },
-    'a3': {
-        id: 'a3',
-        data: '2025-11-07',
-        horario: '08:00 - 10:00',
-        dataAgendamento: '2025-10-30',
-        solicitante: 'Téc. Fernando',
-        email: 'fernando@etec.edu.br',
-        status: 'Pendente',
-        turma: 'Técnicos',
-        materiais: ['Luvas de Segurança', 'Óculos de Proteção']
+const protocolo = "http://";
+const baseURL = "127.0.0.1:3000";
+
+// Função para atualizar as estatísticas
+function atualizarEstatisticasMateriais() {
+    const totalMateriais = Object.keys(materiais).length;
+
+    // Atualizar stats do dashboard
+    const statTotalMateriais = document.getElementById('stat-total-materiais');
+    if (statTotalMateriais) {
+        statTotalMateriais.textContent = totalMateriais;
+    }
+
+    // Atualizar stats da seção de materiais
+    const statsMateriais = document.querySelector('#materiais .kits-stats');
+    if (statsMateriais) {
+        statsMateriais.innerHTML = `
+            <span>Total de Itens: <strong>${totalMateriais}</strong></span>
+            <span>Itens críticos: <strong class="text-amber">0</strong></span>
+        `;
     }
 }
 
-// ---------------------------------------------------------------------------------
-// Lógica principal de Tabs (fora do DOMContentLoaded — mantém seu comportamento)
+
+// Aba Materiais Funcional
+
+// Materiais 
+
+// Verifica se o material já existe
+async function verificarMaterialExistente(nome, descricao) {
+    try {
+        const resposta = await axios.get("http://localhost:3000/materiais");
+        const todosMateriais = resposta.data;
+
+        // Verificar duplicata exata (mesmo nome E mesma descrição/ambas vazias)
+        const duplicataExata = todosMateriais.find(material => {
+            const mesmoNome = material.item.toLowerCase() === nome.toLowerCase();
+            const mesmaDescricao = material.descricao.toLowerCase() === (descricao || "").toLowerCase();
+            return mesmoNome && mesmaDescricao;
+        });
+
+        if (duplicataExata) {
+            return duplicataExata;
+        }
+
+        // Verificar se existe material com mesmo nome mas descrição diferente
+        const mesmoNomeDescricaoDiferente = todosMateriais.find(material =>
+            material.item.toLowerCase() === nome.toLowerCase() &&
+            material.descricao.toLowerCase() !== (descricao || "").toLowerCase()
+        );
+
+        if (mesmoNomeDescricaoDiferente) {
+            const descricaoExistente = mesmoNomeDescricaoDiferente.descricao || "(sem descrição)";
+            const novaDescricao = descricao || "(sem descrição)";
+
+            const confirmar = confirm(
+                `⚠️ Atenção!\n\nJá existe um material com o nome "${mesmoNomeDescricaoDiferente.item}" mas com descrição diferente.\n\n` +
+                `Existente: ${descricaoExistente}\n` +
+                `Novo: ${novaDescricao}\n\n` +
+                `Deseja cadastrar mesmo assim?`
+            );
+            return confirmar ? null : mesmoNomeDescricaoDiferente;
+        }
+
+        return null;
+
+    } catch (erro) {
+        console.error("❌ Erro ao verificar duplicatas:", erro);
+        return null;
+    }
+}
+
+// cadastro de materiais
+async function cadastrarMaterial() {
+    const nome = document.getElementById("material-name").value.trim();
+    const descricao = document.getElementById("material-description").value.trim();
+    const categoria = document.getElementById("material-category").value;
+    const quantidade = parseInt(document.getElementById("material-quantity").value);
+    const unidadeSelect = document.getElementById("material-unit");
+    const unidade = unidadeSelect.value === 'outro'
+        ? document.getElementById("custom-unit-text").value.trim()
+        : unidadeSelect.value;
+    const quantidadeMinima = parseInt(document.getElementById("material-min-quantity").value);
+
+    // Validações básicas - DESCRIÇÃO NÃO É MAIS OBRIGATÓRIA
+    if (!nome || !categoria || isNaN(quantidade) || !unidade || isNaN(quantidadeMinima)) {
+        alert("Por favor, preencha todos os campos obrigatórios.");
+        return;
+    }
+
+    if (quantidade < 0 || quantidadeMinima < 0) {
+        alert("Quantidade e quantidade mínima não podem ser negativas.");
+        return;
+    }
+
+    // Validação da unidade personalizada
+    if (unidadeSelect.value === 'outro' && !unidade) {
+        alert("Por favor, especifique a unidade personalizada.");
+        return;
+    }
+
+    try {
+        console.log("📤 Enviando dados do material:", {
+            nome, descricao, categoria, quantidade, unidade, quantidadeMinima
+        });
+
+        // Verificação de duplicatas (atualizada para descrição opcional)
+        const materialExistente = await verificarMaterialExistente(nome, descricao);
+        if (materialExistente) {
+            alert(`❌ Material já cadastrado!\n\nItem: ${materialExistente.item}\nDescrição: ${materialExistente.descricao || '(sem descrição)'}\nQuantidade atual: ${materialExistente.quantidade} ${materialExistente.unidade}`);
+            return;
+        }
+
+        const resposta = await axios.post("http://localhost:3000/materiais", {
+            item: nome,
+            descricao: descricao || "", // Se vazio, envia string vazia
+            categoria: categoria,
+            quantidade: quantidade,
+            unidade: unidade,
+            quantidadeMinima: quantidadeMinima
+        });
+
+        console.log("✅ Material cadastrado:", resposta.data);
+        alert("Material cadastrado com sucesso!");
+
+        // Recarregar a lista de materiais
+        await carregarMateriais();
+
+        // Limpar formulário e fechar modal
+        document.getElementById("form-new-material").reset();
+        fecharModal("modal-new-material");
+
+    } catch (erro) {
+        console.error("❌ Erro ao cadastrar material:", erro);
+
+        let mensagemErro = "Erro ao cadastrar material.";
+
+        if (erro.response) {
+            console.error("Status:", erro.response.status);
+            console.error("Dados:", erro.response.data);
+
+            switch (erro.response.status) {
+                case 400:
+                    mensagemErro = "Dados inválidos. Verifique as informações.";
+                    break;
+                case 500:
+                    mensagemErro = "Erro interno do servidor. Tente novamente.";
+                    break;
+                default:
+                    mensagemErro = `Erro ${erro.response.status}: ${erro.response.data?.error || 'Erro no servidor'}`;
+            }
+        } else if (erro.request) {
+            mensagemErro = "Erro de conexão. Verifique se o servidor está rodando.";
+        } else {
+            mensagemErro = "Erro de configuração: " + erro.message;
+        }
+
+        alert(mensagemErro);
+    }
+}
+
+async function carregarMateriais() {
+    try {
+        const resposta = await axios.get("http://localhost:3000/materiais");
+        console.log("Materiais carregados:", resposta.data);
+
+        // Converter array para objeto com IDs
+        materiais = {};
+        resposta.data.forEach(material => {
+            materiais[material._id] = material;
+        });
+
+        // Atualizar a tabela
+        atualizarTabelaMateriais();
+        atualizarEstatisticasMateriais();
+
+        return materiais;
+    } catch (erro) {
+        console.error("❌ Erro ao carregar materiais:", erro);
+        alert("Erro ao carregar materiais do servidor.");
+        return {};
+    }
+}
+
+function atualizarTabelaMateriais() {
+    const tbody = document.getElementById('material-table-body');
+    if (!tbody) return;
+
+    tbody.innerHTML = ''; // Limpar tabela
+
+    Object.keys(materiais).forEach(materialId => {
+        const material = materiais[materialId];
+        const linha = criarLinhaMaterial(materialId, material);
+        tbody.appendChild(linha);
+    });
+}
+
+function criarLinhaMaterial(materialId, material) {
+    const tr = document.createElement('tr');
+    tr.setAttribute('data-material-id', materialId);
+
+    tr.innerHTML = `
+        <td data-label="Item" class="material-item-name">${material.item}</td>
+        <td data-label="Quantidade" class="material-quantity">${material.quantidade}</td>
+        <td data-label="Unidade" class="material-unit">${material.unidade}</td>
+        <td data-label="Laboratorio">${material.laboratorio || 'Depósito Química'}</td>
+        <td data-label="Ações" class="kit-actions-compact actions-cell">
+            <button class="btn btn-light btn-edit-material" data-material-id="${materialId}">
+                ✏️ Editar
+            </button>
+            <button class="btn btn-remove-material" data-material-id="${materialId}">
+                🗑️ Remover
+            </button>
+        </td>
+    `;
+
+    return tr;
+}
+
+
+
+// Função para abrir modal de edição de material
+const abrirModalEdicaoMaterial = (materialId) => {
+    const material = materiais[materialId];
+    if (!material) {
+        console.error("Material não encontrado:", materialId);
+        return;
+    }
+
+    console.log("📝 Editando material:", material);
+
+    document.getElementById('edit-material-id').value = materialId;
+    document.getElementById('edit-material-name').value = material.item;
+    document.getElementById('edit-material-quantity').value = material.quantidade;
+
+    const select = document.getElementById('edit-material-unit');
+    const customGroup = document.getElementById('custom-edit-unit-group');
+    const customInput = document.getElementById('custom-edit-unit-text');
+
+    if (select.querySelector(`option[value="${material.unidade}"]`)) {
+        select.value = material.unidade;
+        customGroup.style.display = 'none';
+        customInput.removeAttribute('required');
+    } else {
+        select.value = 'outro';
+        customInput.value = material.unidade;
+        customGroup.style.display = 'block';
+        customInput.setAttribute('required', 'required');
+    }
+
+    abrirModal('modal-edit-material');
+};
+
+// Configurar formulário de edição de material
+const setupFormEditMaterial = () => {
+    const form = document.getElementById('form-edit-material');
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const materialId = document.getElementById('edit-material-id').value;
+
+        const dadosAtualizados = {
+            item: document.getElementById('edit-material-name').value,
+            quantidade: parseInt(document.getElementById('edit-material-quantity').value),
+            unidade: document.getElementById('edit-material-unit').value === 'outro'
+                ? document.getElementById('custom-edit-unit-text').value
+                : document.getElementById('edit-material-unit').value
+        };
+
+        try {
+            const resposta = await axios.put(`http://localhost:3000/materiais/${materialId}`, dadosAtualizados);
+
+            // Atualizar localmente
+            materiais[materialId] = { ...materiais[materialId], ...dadosAtualizados };
+            atualizarTabelaMateriais();
+
+            console.log("✅ Material atualizado:", resposta.data);
+            alert("Material atualizado com sucesso!");
+            fecharModal('modal-edit-material');
+        } catch (erro) {
+            console.error("❌ Erro ao atualizar material:", erro);
+            alert("Erro ao atualizar material.");
+        }
+    });
+};
+
+
+// Função para carregar todos os dados do dashboard
+async function carregarDashboard() {
+    try {
+        await Promise.all([
+            carregarUsuarios(),
+            carregarMateriais(),
+            carregarEstatisticasAgendamentos()
+        ]);
+        console.log("✅ Dashboard carregado com sucesso!");
+    } catch (erro) {
+        console.error("❌ Erro ao carregar dashboard:", erro);
+    }
+}
+
+// ======================= FUNÇÕES GERAIS =======================
+
+// Abrir modal genérico
+const abrirModal = (modalId) => {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+};
+
+// Fechar modal genérico
+const fecharModal = (modalId) => {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    }
+};
+
+// Lógica principal de Tabs 
 const tabs = document.querySelectorAll(".tab");
 const tabContents = document.querySelectorAll(".tab-content");
 
@@ -61,236 +347,8 @@ tabs.forEach((tab) => {
     });
 });
 
-// === BOTÃO "VER HISTÓRICO" ===
-document.addEventListener("DOMContentLoaded", () => {
-    const btnVerHistorico = document.getElementById("btn-view-reports");
-    const tabHistorico = document.querySelector('.tab[data-tab="historico"]');
-
-    if (btnVerHistorico && tabHistorico) {
-        btnVerHistorico.addEventListener("click", () => {
-            tabHistorico.click(); // Abre a aba Histórico
-        });
-    }
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-
-    // ---------- Funções genéricas de modal (reaproveitadas) ----------
-    const fecharModalGenerico = (modalId) => {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.style.display = 'none';
-            modal.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = '';
-        }
-    };
-    const abrirModalGenerico = (modalId) => {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.style.display = 'flex';
-            modal.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden';
-        }
-    };
-})
-
-// LÓGICA GERAL DE MODAIS (Aprovar Agendamento e Adicionar Material)
-
-// A. Modal "Aprovar Agendamento"
-
-// ⬇️⬇️ COPIE E COLE ESTE TRECHO AQUI ⬇️⬇️
-const btnAbrirModalAprovar = document.getElementById('btn-aprovar-agendamento');
-const modalAprovar = document.getElementById('modal-approve-agendamento');
-
-if (btnAbrirModalAprovar && modalAprovar) {
-    btnAbrirModalAprovar.addEventListener('click', () => {
-        // 1. Abre o modal genérico
-        abrirModalGenerico('modal-approve-agendamento');
-
-        // 2. Carrega os cards de agendamentos pendentes (função que já existe no final do seu JS)
-        renderizarCardsPendentes();
-    });
-}
-// ⬆️⬆️ FIM DO TRECHO ⬆️⬆️
-
-// B. Modal "Novo Material"
-const btnAbrirMaterial = document.getElementById('btn-add-material');
-const modalMaterial = document.getElementById('modal-new-material');
-const btnsFecharMaterial = document.querySelectorAll('[data-close="modal-new-material"]');
-const formNewMaterial = document.getElementById('form-new-material');
-
-if (btnAbrirMaterial) {
-    btnAbrirMaterial.addEventListener('click', () => abrirModalGenerico('modal-new-material'));
-}
-btnsFecharMaterial.forEach(button => {
-    button.addEventListener('click', () => fecharModalGenerico('modal-new-material'));
-});
-if (modalMaterial) {
-    modalMaterial.addEventListener('click', (event) => {
-        if (event.target === modalMaterial) {
-            fecharModalGenerico('modal-new-material');
-        }
-    });
-}
-
-// Unidade personalizada no novo material
-const selectUnit = document.getElementById('material-unit');
-const customUnitGroup = document.getElementById('custom-unit-group');
-const customUnitText = document.getElementById('custom-unit-text');
-
-if (selectUnit && customUnitGroup && customUnitText) {
-    selectUnit.addEventListener('change', () => {
-        if (selectUnit.value === 'outro') {
-            customUnitGroup.style.display = 'block';
-            customUnitText.setAttribute('required', 'required');
-        } else {
-            customUnitGroup.style.display = 'none';
-            customUnitText.removeAttribute('required');
-            customUnitText.value = '';
-        }
-    });
-}
-
-if (formNewMaterial && selectUnit && customUnitText) {
-    formNewMaterial.addEventListener('submit', (event) => {
-        event.preventDefault();
-        console.log(`Novo Material cadastrado com sucesso!`);
-        formNewMaterial.reset();
-        fecharModalGenerico('modal-new-material');
-    });
-}
-
-// LÓGICA DE MATERIAIS 
-
-const modalEditMaterial = document.getElementById('modal-edit-material');
-const formEditMaterial = document.getElementById('form-edit-material');
-const btnsFecharEditMaterial = document.querySelectorAll('[data-close="modal-edit-material"]');
-
-btnsFecharEditMaterial.forEach(button => {
-    button.addEventListener('click', () => fecharModalGenerico('modal-edit-material'));
-});
-if (modalEditMaterial) {
-    modalEditMaterial.addEventListener('click', (event) => {
-        if (event.target === modalEditMaterial) {
-            fecharModalGenerico('modal-edit-material');
-        }
-    });
-}
-
-const selectEditUnit = document.getElementById('edit-material-unit');
-const customEditUnitGroup = document.getElementById('custom-edit-unit-group');
-const customEditUnitText = document.getElementById('custom-edit-unit-text');
-
-if (selectEditUnit && customEditUnitGroup && customEditUnitText) {
-    selectEditUnit.addEventListener('change', () => {
-        if (selectEditUnit.value === 'outro') {
-            customEditUnitGroup.style.display = 'block';
-            customEditUnitText.setAttribute('required', 'required');
-        } else {
-            customEditUnitGroup.style.display = 'none';
-            customEditUnitText.removeAttribute('required');
-            customEditUnitText.value = '';
-        }
-    });
-}
-
-const abrirModalEdicaoMaterial = (materialId) => {
-    const materialData = materiais[materialId];
-    if (materialData && modalEditMaterial) {
-        document.getElementById('edit-material-id').value = materialId;
-        document.getElementById('edit-material-name').value = materialData.item;
-        document.getElementById('edit-material-quantity').value = materialData.quantidade;
-        if (document.getElementById('edit-material-unit').querySelector(`option[value="${materialData.unidade}"]`)) {
-            document.getElementById('edit-material-unit').value = materialData.unidade;
-            customEditUnitGroup.style.display = 'none';
-            customEditUnitText.removeAttribute('required');
-        } else {
-            document.getElementById('edit-material-unit').value = 'outro';
-            customEditUnitText.value = materialData.unidade;
-            customEditUnitGroup.style.display = 'block';
-            customEditUnitText.setAttribute('required', 'required');
-        }
-        abrirModalGenerico('modal-edit-material');
-    }
-};
-
-if (formEditMaterial) {
-    formEditMaterial.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const id = document.getElementById('edit-material-id').value;
-        const nome = document.getElementById('edit-material-name').value;
-        const quantidade = document.getElementById('edit-material-quantity').value;
-        let unidadeFinal;
-        const unidadeSelecionada = selectEditUnit.value;
-        if (unidadeSelecionada === 'outro') {
-            unidadeFinal = customEditUnitText.value;
-        } else {
-            unidadeFinal = unidadeSelecionada;
-        }
-        materiais[id].item = nome;
-        materiais[id].quantidade = parseInt(quantidade);
-        materiais[id].unidade = unidadeFinal;
-        const row = document.querySelector(`tr[data-material-id="${id}"]`);
-        if (row) {
-            row.querySelector('.material-item-name').textContent = nome;
-            row.querySelector('.material-quantity').textContent = quantidade;
-            row.querySelector('.material-unit').textContent = unidadeFinal;
-        }
-        console.log(`Material ${nome} atualizado com sucesso!`);
-        fecharModalGenerico('modal-edit-material');
-    });
-}
-
-// Modal confirmar remoção (reutilizado)
-const modalConfirm = document.getElementById('modal-confirm');
-const confirmMessage = document.getElementById('confirm-message');
-const btnConfirmYes = document.getElementById('btn-confirm-yes');
-const btnConfirmNo = document.getElementById('btn-confirm-no');
-let currentRemovalAction = null;
-const showConfirmModal = (message, onConfirm) => {
-    confirmMessage.textContent = message;
-    currentRemovalAction = onConfirm;
-    abrirModalGenerico('modal-confirm');
-};
-if (btnConfirmYes) {
-    btnConfirmYes.addEventListener('click', () => {
-        if (currentRemovalAction) currentRemovalAction();
-        fecharModalGenerico('modal-confirm');
-    });
-}
-if (btnConfirmNo) {
-    btnConfirmNo.addEventListener('click', () => fecharModalGenerico('modal-confirm'));
-}
-if (modalConfirm) {
-    modalConfirm.addEventListener('click', (event) => {
-        if (event.target === modalConfirm) fecharModalGenerico('modal-confirm');
-    });
-}
-
-// Material table events
-const materialTableBody = document.getElementById('material-table-body');
-if (materialTableBody) {
-    materialTableBody.addEventListener('click', (event) => {
-        if (event.target.closest('.btn-edit-material')) {
-            const materialId = event.target.closest('button').getAttribute('data-material-id');
-            abrirModalEdicaoMaterial(materialId);
-        }
-        if (event.target.closest('.btn-remove-material')) {
-            const materialId = event.target.closest('button').getAttribute('data-material-id');
-            const materialName = materiais[materialId].item;
-            showConfirmModal(`Tem certeza que deseja remover o material "${materialName}"?`, () => {
-                delete materiais[materialId];
-                const rowToRemove = document.querySelector(`tr[data-material-id="${materialId}"]`);
-                if (rowToRemove) rowToRemove.remove();
-                console.log(`Material "${materialName}" removido.`);
-            });
-        }
-    });
-}
-
-
-// 4. LÓGICA DE AGENDAMENTOS (ADICIONADA)
-// AGENDAMENTOS (CARDS) 
+// LÓGICA DE AGENDAMENTOS
+// AGENDAMENTOS 
 // Dados simulados (substituir pelos que vêm do backend ou JSON)
 const appointments = [
     {
@@ -322,7 +380,6 @@ const searchInput = document.getElementById("filter-search");
 // Função para renderizar os cards
 function renderAppointmentCards(data) {
     cardsContainer.innerHTML = "";
-    // }
     data.forEach(item => {
         // Cria o card
         const card = document.createElement("div");
@@ -361,9 +418,8 @@ function renderAppointmentCards(data) {
     });
 
     totalAgendamentos.textContent = data.length;
-    (opcional); agendamentosHoje.textContent = data.length;
 }
-// ===================== BOTÕES DE AÇÃO DOS CARDS =====================
+//  BOTÕES DE AÇÃO DOS CARDS 
 cardsContainer.addEventListener("click", (e) => {
     const card = e.target.closest(".appointment-card");
     if (!card) return;
@@ -416,127 +472,45 @@ searchInput.addEventListener("input", () => {
 // Render inicial
 renderAppointmentCards(appointments);
 
-
-// modal detalhes
-const modalAppointmentDetails = document.getElementById('modal-appointment-details');
-const detNome = document.getElementById('det-nome');
-const detEmail = document.getElementById('det-email');
-const detLab = document.getElementById('det-lab');
-const detDataHora = document.getElementById('det-datahora');
-const detFinalidade = document.getElementById('det-finalidade');
-const detObs = document.getElementById('det-observacoes');
-const btnModalApprove = document.getElementById('btn-modal-approve');
-
-let currentAppointmentInModal = null;
-
-const openAppointmentDetails = (id) => {
-    const ap = agendamentos[id];
-    if (!ap) return;
-    currentAppointmentInModal = id;
-    document.getElementById('appointment-details-title').textContent = `Agendamento — ${ap.solicitante}`;
-    detNome.textContent = ap.solicitante;
-    detEmail.textContent = ap.email;
-    detLab.textContent = ap.laboratorio;
-    detDataHora.textContent = `${ap.data} · ${ap.horario}`;
-    detFinalidade.textContent = ap.finalidade;
-    detObs.textContent = ap.observacoes || '-';
-    abrirModalGenerico('modal-appointment-details');
-};
-
-if (btnModalApprove) {
-    btnModalApprove.addEventListener('click', () => {
-        if (!currentAppointmentInModal) return;
-        const id = currentAppointmentInModal;
-        showConfirmModal(`Aprovar o agendamento de "${agendamentos[id].solicitante}"?`, () => {
-            agendamentos[id].status = 'Aprovado';
-            updateAppointmentRow(id);
-            fecharModalGenerico('modal-appointment-details');
-        });
-    });
-}
-
-// fechar modal detalhes clicando no overlay / botão close
-const closeButtons = document.querySelectorAll('[data-close="modal-appointment-details"], #modal-appointment-details .close-modal');
-closeButtons.forEach(btn => btn.addEventListener('click', () => fecharModalGenerico('modal-appointment-details')));
-
 // filtros (pesquisar e filtrar por lab)
 if (searchInput) {
     searchInput.addEventListener('input', () => {
         renderAppointments({ q: searchInput.value, lab: filterLab ? filterLab.value : '' });
     });
 }
-if (filterLab) {
-    filterLab.addEventListener('change', () => {
-        renderAppointments({ q: searchInput ? searchInput.value : '', lab: filterLab.value });
-    });
-}
-
-// 5. Pequenas melhorias de usabilidade: fechar modais com botões [data-close]
-
-document.querySelectorAll('[data-close]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        const target = e.currentTarget.getAttribute('data-close');
-        if (target) fecharModalGenerico(target);
-    });
-});
-
-// Fechar ao clicar fora em modals genéricos (já usado em outros pontos)
-document.querySelectorAll('.modal-overlay').forEach(modal => {
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            fecharModalGenerico(modal.id);
-        }
-    });
-});
 
 // Funcionalidade para a tela de histórico
-document.addEventListener('DOMContentLoaded', function () {
-    // Filtro de busca de professor
-    const searchTeacher = document.getElementById('search-teacher');
-    const filterStatus = document.getElementById('filter-status');
-    const historyItems = document.querySelectorAll('.history-item');
+// Filtro de busca de professor
+const searchTeacher = document.getElementById('search-teacher');
+const filterStatus = document.getElementById('filter-status');
+const historyItems = document.querySelectorAll('.history-item');
 
-    if (searchTeacher) {
-        searchTeacher.addEventListener('input', filterHistory);
-    }
+if (searchTeacher) {
+    searchTeacher.addEventListener('input', filterHistory);
+}
 
-    if (filterStatus) {
-        filterStatus.addEventListener('change', filterHistory);
-    }
+if (filterStatus) {
+    filterStatus.addEventListener('change', filterHistory);
+}
 
-    function filterHistory() {
-        const searchTerm = searchTeacher ? searchTeacher.value.toLowerCase() : '';
-        const statusFilter = filterStatus ? filterStatus.value : 'all';
+function filterHistory() {
+    const searchTerm = searchTeacher ? searchTeacher.value.toLowerCase() : '';
+    const statusFilter = filterStatus ? filterStatus.value : 'all';
 
-        historyItems.forEach(item => {
-            const teacherName = item.querySelector('.teacher-info h3').textContent.toLowerCase();
-            const status = item.querySelector('.status-badge').classList.contains('status-completed') ? 'completed' : 'cancelled';
+    historyItems.forEach(item => {
+        const teacherName = item.querySelector('.teacher-info h3').textContent.toLowerCase();
+        const status = item.querySelector('.status-badge').classList.contains('status-completed') ? 'completed' : 'cancelled';
 
-            const matchesSearch = teacherName.includes(searchTerm);
-            const matchesStatus = statusFilter === 'all' || status === statusFilter;
+        const matchesSearch = teacherName.includes(searchTerm);
+        const matchesStatus = statusFilter === 'all' || status === statusFilter;
 
-            if (matchesSearch && matchesStatus) {
-                item.style.display = 'block';
-            } else {
-                item.style.display = 'none';
-            }
-        });
-    }
-
-    // Botão "Ver Detalhes"
-    const viewDetailsButtons = document.querySelectorAll('.btn-view-details');
-    viewDetailsButtons.forEach(button => {
-        button.addEventListener('click', function () {
-            const historyItem = this.closest('.history-item');
-            const teacherName = historyItem.querySelector('.teacher-info h3').textContent;
-            const className = historyItem.querySelector('.class-info').textContent;
-            const date = historyItem.querySelector('.date-time strong').textContent.replace('Data do Agendamento: ', '');
-            const time = historyItem.querySelector('.time-slot span').textContent;
-
-            alert(`Detalhes do Agendamento:\n\nProfessor: ${teacherName}\nTurma: ${className}\nData: ${date}\nHorário: ${time}`);
-        });
+        if (matchesSearch && matchesStatus) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
     });
-});
+}
 
 // Simulação de dados — use depois sua integração real
 const agendamentosPendentes = [
@@ -576,57 +550,352 @@ function carregarAgendamentos() {
     });
 }
 
-function toggleSelecionado(card) {
-    const id = parseInt(card.dataset.id);
-    const index = selectedCards.indexOf(id);
-    if (index >= 0) {
-        selectedCards.splice(index, 1);
-        card.classList.remove('selected');
-    } else {
-        selectedCards.push(id);
-        card.classList.add('selected');
-    }
-    approveSelectedBtn.disabled = selectedCards.length === 0;
-}
+// function toggleSelecionado(card) {
+//     const id = parseInt(card.dataset.id);
+//     const index = selectedCards.indexOf(id);
+//     if (index >= 0) {
+//         selectedCards.splice(index, 1);
+//         card.classList.remove('selected');
+//     } else {
+//         selectedCards.push(id);
+//         card.classList.add('selected');
+//     }
+//     approveSelectedBtn.disabled = selectedCards.length === 0;
+// }
 
-function aprovarAgendamento(id) {
-    mostrarToast();
-    setTimeout(() => {
-        const index = agendamentosPendentes.findIndex(a => a.id === id);
-        if (index >= 0) {
-            agendamentosPendentes.splice(index, 1);
-            carregarAgendamentos();
-        }
-    }, 1000);
-}
+// function aprovarAgendamento(id) {
+//     mostrarToast();
+//     setTimeout(() => {
+//         const index = agendamentosPendentes.findIndex(a => a.id === id);
+//         if (index >= 0) {
+//             agendamentosPendentes.splice(index, 1);
+//             carregarAgendamentos();
+//         }
+//     }, 1000);
+// }
 
-approveSelectedBtn.addEventListener('click', () => {
-    selectedCards.forEach(id => aprovarAgendamento(id));
-    selectedCards = [];
-    multipleSelectMode = false;
-    selectMultipleBtn.textContent = 'Selecionar múltiplos';
-    approveSelectedBtn.disabled = true;
-});
+// approveSelectedBtn.addEventListener('click', () => {
+//     selectedCards.forEach(id => aprovarAgendamento(id));
+//     selectedCards = [];
+//     multipleSelectMode = false;
+//     selectMultipleBtn.textContent = 'Selecionar múltiplos';
+//     approveSelectedBtn.disabled = true;
+// });
 
-selectMultipleBtn.addEventListener('click', () => {
-    multipleSelectMode = !multipleSelectMode;
-    selectMultipleBtn.textContent = multipleSelectMode ? 'Cancelar seleção' : 'Selecionar múltiplos';
-    selectedCards = [];
-    approveSelectedBtn.disabled = true;
-});
+// selectMultipleBtn.addEventListener('click', () => {
+//     multipleSelectMode = !multipleSelectMode;
+//     selectMultipleBtn.textContent = multipleSelectMode ? 'Cancelar seleção' : 'Selecionar múltiplos';
+//     selectedCards = [];
+//     approveSelectedBtn.disabled = true;
+// });
 
-function mostrarToast() {
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2500);
-}
+// function mostrarToast() {
+//     toast.classList.add('show');
+//     setTimeout(() => toast.classList.remove('show'), 2500);
+// }
 
 // Abertura e fechamento do modal
-btnApprove.addEventListener('click', () => {
-    modalApprove.style.display = 'block';
-    carregarAgendamentos();
-});
+// btnApprove.addEventListener('click', () => {
+//     modalApprove.style.display = 'block';
+//     carregarAgendamentos();
+// });
 
-closeApprove.addEventListener('click', () => {
-    modalApprove.style.display = 'none';
+// closeApprove.addEventListener('click', () => {
+//     modalApprove.style.display = 'none';
+// });
+
+const setupFormEditUsuario = () => {
+    const form = document.getElementById('form-edit-user');
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const usuarioId = document.getElementById('edit-user-id').value;
+        const novaSenha = document.getElementById('edit-user-password').value;
+        const confirmarSenha = document.getElementById('edit-user-confirm-password').value;
+
+        // Validação de senha
+        if (novaSenha || confirmarSenha) {
+            if (novaSenha !== confirmarSenha) {
+                alert("❌ As senhas não coincidem. Por favor, verifique.");
+                return;
+            }
+
+            if (novaSenha.length < 6) {
+                alert("❌ A senha deve ter pelo menos 6 caracteres.");
+                return;
+            }
+        }
+
+        const dadosAtualizados = {
+            nome: document.getElementById('edit-user-name').value,
+            email: document.getElementById('edit-user-email').value,
+            perfil: document.getElementById('edit-user-profile').value
+        };
+
+        // Adiciona a senha apenas se foi preenchida
+        if (novaSenha) {
+            dadosAtualizados.password = novaSenha;
+        }
+
+        try {
+            // Enviar para o backend
+            const resposta = await axios.put(`http://localhost:3000/usuarios/${usuarioId}`, dadosAtualizados);
+
+            // Atualizar localmente
+            usuarios[usuarioId] = { ...usuarios[usuarioId], ...dadosAtualizados };
+            atualizarTabelaUsuarios();
+
+            console.log("✅ Usuário atualizado:", resposta.data);
+            alert("✅ Usuário atualizado com sucesso!");
+
+            // Limpar campos de senha
+            document.getElementById('edit-user-password').value = '';
+            document.getElementById('edit-user-confirm-password').value = '';
+
+            fecharModal('modal-edit-user');
+        } catch (erro) {
+            console.error("❌ Erro ao atualizar usuário:", erro);
+
+            let mensagemErro = "Erro ao atualizar usuário.";
+            if (erro.response) {
+                switch (erro.response.status) {
+                    case 400:
+                        mensagemErro = "Dados inválidos. Verifique as informações.";
+                        break;
+                    case 404:
+                        mensagemErro = "Usuário não encontrado.";
+                        break;
+                    case 500:
+                        mensagemErro = "Erro interno do servidor.";
+                        break;
+                }
+            }
+            alert(mensagemErro);
+        }
+    });
+};
+
+
+
+document.addEventListener('DOMContentLoaded', async () => {
+
+    // ======================= MODAIS =======================
+
+    await carregarMateriais()
+
+    // ===== Modais simples =====
+    const modais = document.querySelectorAll('.modal-overlay');
+    modais.forEach(modal => {
+        modal.addEventListener('click', (e) => { if (e.target === modal) fecharModal(modal.id); });
+        modal.querySelectorAll('[data-close]').forEach(btn => {
+            btn.addEventListener('click', () => fecharModal(btn.dataset.close));
+        });
+        setupFormEditUsuario();
+    });
+
+
+    // Fechar todos modais com ESC
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay[aria-hidden="false"]').forEach(m => fecharModal(m.id));
+        }
+    });
+
+    // ===== Seleção de unidade "Outro" =====
+    const setupUnitSelect = (selectId, customGroupId, customInputId) => {
+        const select = document.getElementById(selectId);
+        const customGroup = document.getElementById(customGroupId);
+        const customInput = document.getElementById(customInputId);
+
+        if (select && customGroup && customInput) {
+            select.addEventListener('change', () => {
+                if (select.value === 'outro') {
+                    customGroup.style.display = 'block';
+                    customInput.setAttribute('required', 'required');
+                } else {
+                    customGroup.style.display = 'none';
+                    customInput.removeAttribute('required');
+                    customInput.value = '';
+                }
+            });
+
+            // Inicializar estado
+            if (select.value !== 'outro') {
+                customGroup.style.display = 'none';
+                customInput.removeAttribute('required');
+            }
+        }
+        // Configurar formulários de edição
+        setupFormEditUsuario();
+        setupFormEditMaterial();
+    };
+    setupUnitSelect('material-unit', 'custom-unit-group', 'custom-unit-text');
+    setupUnitSelect('edit-material-unit', 'custom-edit-unit-group', 'custom-edit-unit-text');
+
+    // ================== FORMULÁRIOS ==================
+
+    // --- Novo Material ---
+    const formNewMaterial = document.getElementById('form-new-material');
+    if (formNewMaterial) {
+        formNewMaterial.addEventListener('submit', e => {
+            e.preventDefault();
+            console.log("Novo Material cadastrado com sucesso!");
+            formNewMaterial.reset();
+            fecharModal('modal-new-material');
+        });
+    }
+
+    // ================== MODAIS DE EDIÇÃO DADOS ==================
+
+    // ================== FORMULÁRIOS DE EDIÇÃO ==================
+    const setupFormEdit = (formId, dataObj, updateRowCallback) => {
+        const form = document.getElementById(formId);
+        if (!form) return;
+
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            const id = form.querySelector('[id$="-id"]').value;
+            const fields = Array.from(form.querySelectorAll('[id^="edit-"]')).filter(f => !f.id.endsWith('-id') && !f.id.endsWith('-title'));
+
+            fields.forEach(f => {
+                const key = f.id.replace(/edit-[^-]+-?/, '');
+                dataObj[id][key] = f.value;
+            });
+
+            updateRowCallback && updateRowCallback(id, dataObj[id]);
+            console.log(`${formId} atualizado com sucesso!`);
+            fecharModal(form.closest('.modal-overlay').id);
+        });
+    };
+
+
+    // --- Editar Material ---
+    const formEditMaterial = document.getElementById('form-edit-material')
+    if (formEditMaterial) {
+        formEditMaterial.addEventListener('submit', async (e) => {
+            e.preventDefault()
+
+            const materialId = document.getElementById('edit-material-id').value
+            const dadosAtualizados = {
+                item: document.getElementById('edit-material-name').value,
+                quantidade: parseInt(document.getElementById('edit-material-quantity').value),
+                unidade: document.getElementById('edit-material-unit').value === 'outro'
+                    ? document.getElementById('custom-edit-unit-text').value
+                    : document.getElementById('edit-material-unit').value
+            }
+
+            try {
+                const resposta = await axios.put(`http://localhost:3000/materiais/${materialId}`, dadosAtualizados)
+
+                materiais[materialId] = { ...materiais[materialId], ...dadosAtualizados }
+
+                const row = document.querySelector(`tr[data-material-id="${materialId}"]`)
+                if (row) {
+                    row.querySelector('.material-item-name').textContent = dadosAtualizados.item
+                    row.querySelector('.material-quantity').textContent = dadosAtualizados.quantidade
+                    row.querySelector('.material-unit').textContent = dadosAtualizados.unidade
+                }
+
+                exibirAlerta('.alert-modal-edit-material', "Material atualizado com sucesso!!!", ['show', 'alert-success'], ['d-none'], 2000)
+
+                setTimeout(() => {
+                    fecharModal('modal-edit-material')
+                }, 2000)
+
+            } catch (erro) {
+                console.error("Erro ao atualizar material:", erro)
+                exibirAlerta('.alert-modal-edit-material', "Erro ao atualizar material.", ['show', 'alert-danger'], ['d-none'], 2000)
+            }
+        })
+    }
+
+    // Confirmação Editar Material
+    const modalConfirm = document.getElementById('modal-confirm')
+    const confirmMessage = document.getElementById('confirm-message')
+    let currentAction = null
+    let currentActionParams = null
+
+    const showConfirm = (msg, action, params = null) => {
+        confirmMessage.textContent = msg
+        currentAction = action
+        currentActionParams = params
+        abrirModal('modal-confirm')
+    }
+
+    document.getElementById('btn-confirm-yes')?.addEventListener('click', async () => {
+        if (currentAction) {
+            fecharModal('modal-confirm')
+            await currentAction(currentActionParams)
+        }
+    })
+
+    document.getElementById('btn-confirm-no')?.addEventListener('click', () => fecharModal('modal-confirm'))
+
+    modalConfirm?.addEventListener('click', e => {
+        if (e.target === modalConfirm) fecharModal('modal-confirm')
+    })
+    // Eventos de tabela Materiais
+    document.getElementById('material-table-body')?.addEventListener('click', e => {
+        const btn = e.target.closest('button')
+        if (!btn) return
+        const id = btn.dataset.materialId
+
+        if (btn.classList.contains('btn-edit-material')) abrirModalEdicaoMaterial(id)
+        if (btn.classList.contains('btn-remove-material')) {
+            showConfirm(`Deseja remover o material "${materiais[id].item}"?`, async () => {
+                try {
+                    const resposta = await axios.delete(`http://localhost:3000/materiais/${id}`)
+
+                    delete materiais[id]
+
+                    document.querySelector(`tr[data-material-id="${id}"]`)?.remove()
+
+                    atualizarEstatisticasMateriais()
+
+                    console.log(`Material "${materiais[id]?.item || id}" removido com sucesso.`)
+
+                    exibirAlerta('.alert-modal-novo-material', "Material removido com sucesso!", ['show', 'alert-success'], ['d-none'], 2000)
+
+                } catch (error) {
+                    console.error('Erro ao remover material:', error)
+
+                    let mensagemErro = "Erro ao remover material"
+                    if (error.response?.status === 404) {
+                        mensagemErro = "Material não encontrado"
+                    } else if (error.response?.data?.error) {
+                        mensagemErro = error.response.data.error
+                    }
+
+                    exibirAlerta('.alert-modal-novo-material', mensagemErro, ['show', 'alert-danger'], ['d-none'], 3000)
+                }
+            })
+        }
+    })
+
+    // LÓGICA GERAL DE MODAIS (Aprovar Agendamento e Adicionar Material)
+
+    // A. Modal "Aprovar Agendamento"
+
+
+
+    // B. Modal "Novo Material"
+
+
+
+    // Unidade personalizada no novo material
+
+    // BOTÃO "VER HISTÓRICO"
+
+    const btnVerHistorico = document.getElementById("btn-view-reports");
+    const tabHistorico = document.querySelector('.tab[data-tab="historico"]');
+
+    if (btnVerHistorico && tabHistorico) {
+        btnVerHistorico.addEventListener("click", () => {
+            tabHistorico.click(); // Abre a aba Histórico
+        });
+    }
+
+
 });
 
