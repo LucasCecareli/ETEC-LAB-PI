@@ -6,24 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Painel do Técnico — ETEC-LAB</title>
 
-    <!-- CSS do tecnico -->
+    
     <link rel="stylesheet" href="css/tecnico.css">
 
-    <!-- JS do tecnico  -->
+    
     <script src="js/tecnico.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 </head>
 
 <body>
-    <!-- TOP BAR GOV SP (mantido do seu início) -->
     <section class="govsp-topo">
         <link rel="stylesheet" type="text/css"
             href="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/css/sao-paulo/topo-padrao-govsp.min.css">
         <link rel="stylesheet" type="text/css"
             href="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/css/sao-paulo/barra-contraste-govsp.min.css">
         <div id="govsp-topbarGlobal" class="blu-e">
-            <!-- (conteúdo do topo) -->
             <div id="topbarGlobal">
                 <div id="topbarLink" class="govsp-black">
                     <div class="govsp-portal">
@@ -34,7 +32,6 @@
                     </div>
                 </div>
                 <nav class="govsp-navbar govsp-navbar-expand-lg">
-                    <!-- ícones sociais e controles de acessibilidade ... -->
                     <a class="govsp-social" href="https://www.flickr.com/governosp/" target="_blank">
                         <img class="govsp-icon-social"
                             src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/images/sao-paulo/i-flickr.png"
@@ -96,7 +93,7 @@
                 </nav>
             </div>
             <div class="govsp-kebab">
-                <!-- dropdown mobile (mantido) -->
+                
             </div>
         </div>
 
@@ -110,7 +107,6 @@
             src="https://etecjuliodemesquita.cps.sp.gov.br/wp-content/themes/tema-cps/js/sao-paulo/script-scroll.js"></script>
     </section>
 
-    <!--  HEADER CPS (logo ETEC)  -->
     <header id="cps-header">
         <div class="cps-header__container">
             <div class="cps-header__logo">
@@ -124,23 +120,20 @@
         </div>
     </header>
 
-    <!--  NAV TABS  -->
     <nav class="tabs container">
-        <button class="tab active" data-tab="visao-geral">📊 Dashboard</button>
+        <button class="tab active" data-tab="visao-geral">📊 Painel</button>
         <button class="tab" data-tab="agendamentos">📅 Agendamentos</button>
         <button class="tab" data-tab="materiais">🧪 Materiais</button>
         <button class="tab" data-tab="historico">📋 Histórico</button>
     </nav>
 
-    <!--  CONTEÚDO PRINCIPAL  -->
     <main class="container main-content">
 
-        <!-- --- VISÃO GERAL --- -->
         <section class="tab-content active" id="visao-geral">
+
             <h2 class="page-title">Dashboard do Técnico</h2>
             <p id="legenda-aba" class="subtitle">Bem-vindo ao painel administrativo do técnico. Acompanhe os
-                agendamentos, materiais e
-                histórico.</p>
+                agendamentos, materiais e histórico.</p>
 
             <div class="stats-grid">
                 <div class="stat card">
@@ -170,6 +163,7 @@
                     Adicionar Material</button>
                 <button id="btn-view-reports" class="btn btn-outline">📋 Ver Histórico</button>
             </div>
+
 
             <!-- Modais Ações Rápidas -->
 
@@ -282,6 +276,7 @@
 
 
             <!-- exemplos rápidos (cards) -->
+
             <section class="cards-section">
                 <h3 id="section-title-atividades" class="section-title">Atividades Recentes</h3>
                 <div class="mini-stats-grid">
@@ -306,7 +301,7 @@
         </section>
 
 
-        <!--  AGENDAMENTOS  -->
+        <!--  agendamentos  -->
         <section id="agendamentos" class="tab-content">
 
             <div class="content-header">
@@ -343,7 +338,9 @@
 
         </section>
 
+
         <!--  MODAL DE CONFIRMAÇÃO ABA AGENDAMENTOS  -->
+
         <div id="confirmation-modal" class="modal-overlay" style="display:none;">
             <div class="modal-content">
                 <p id="modal-message"></p>
@@ -354,10 +351,10 @@
             </div>
         </div>
 
-        <!--  MENSAGEM DE FEEDBACK ABA AGENDAMENTOS  -->
+        <!--  mensagem de feedback da aba de agendamentos  -->
         <div id="toast" class="toast"></div>
 
-        <!--  MODAL: Aprovar Agendamentos  -->
+        <!--  modal aprovar agendamento  -->
         <div id="modal-approve-agendamento" class="modal-overlay" aria-hidden="true" style="display:none;">
             <div class="modal-content large-modal">
                 <div class="modal-header">
@@ -366,7 +363,6 @@
                 </div>
 
                 <div class="modal-body">
-                    <!-- Botão Selecionar Múltiplos -->
                     <div class="multiple-select-header">
                         <button id="select-multiple-btn" class="btn btn-outline">
                             <span class="checkbox-placeholder"></span>
@@ -377,10 +373,9 @@
                         </span>
                     </div>
 
-                    <!-- Container dos Cards de Agendamentos -->
+                    <!-- container dos cards de agendamentos -->
                     <div id="agendamentos-pendentes-container" class="agendamentos-pendentes-container">
-                        <!-- Os cards serão gerados dinamicamente via JavaScript -->
-                    </div>
+                        </div>
                 </div>
 
                 <div class="modal-footer modal-footer-cadastro">
@@ -394,7 +389,7 @@
             </div>
         </div>
 
-        <!--  MODAL: Confirmação de Aprovação  -->
+        <!--  modal confirmar aprovação  -->
         <div id="modal-confirm-approval" class="modal-overlay" aria-hidden="true" style="display:none;">
             <div class="modal-content">
                 <div class="modal-header">
@@ -413,7 +408,6 @@
             </div>
         </div>
 
-        <!--  TOAST DE FEEDBACK  -->
         <div id="toast-approval" class="toast" style="display:none;"></div>
 
 

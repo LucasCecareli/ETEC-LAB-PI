@@ -1,4 +1,134 @@
+document.addEventListener('DOMContentLoaded', function () {
+    // Sobrescrever a função problemática com uma versão segura
+    if (typeof window.mudaTamanho === 'function') {
+        // Guardar a função original
+        const originalMudaTamanho = window.mudaTamanho;
+
+        // Substituir por uma versão segura
+        window.mudaTamanho = function (elemento, incremento) {
+            const elementoAlvo = document.querySelector(elemento);
+            if (!elementoAlvo) {
+                console.warn('Elemento não encontrado:', elemento);
+                return;
+            }
+
+            // Chamar a função original se o elemento existir
+            return originalMudaTamanho.call(this, elemento, incremento);
+        };
+
+        console.log('✅ Função mudaTamanho corrigida com sucesso!');
+    } else {
+        console.warn('⚠️ Função mudaTamanho não encontrada');
+    }
+});
+
+const API_BASE_URL = 'http://localhost:3000';
+
+// Recuperar usuário do localStorage
+let usuarioLogado = JSON.parse(localStorage.getItem('user'));
+
+// Verificar se está logado e é professor
+if (!usuarioLogado || usuarioLogado.perfil !== 'Professor') {
+    window.location.href = 'index.html';
+    throw new Error('Acesso não autorizado');
+}
+
+console.log('👤 Professor logado:', usuarioLogado);
+
+// Função para fazer requisições à API
+async function apiRequest(endpoint, options = {}) {
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers,
+            },
+            ...options,
+        });
+
+        if (!response.ok) {
+            // Tenta obter mais detalhes do erro
+            let errorDetails = '';
+            try {
+                const errorData = await response.json();
+                errorDetails = errorData.error || errorData.message || '';
+            } catch (e) {
+                // Se não conseguir parsear JSON, usa o texto da resposta
+                errorDetails = await response.text();
+            }
+
+            throw new Error(`Erro ${response.status}: ${response.statusText}. ${errorDetails}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('❌ Erro na requisição API:', error);
+        console.error('🔍 Endpoint:', endpoint);
+        console.error('📦 Options:', options);
+        throw error;
+    }
+}
+
+// Funções específicas para Kits
+const kitAPI = {
+    // Criar kit
+    criarKit: (kitData) => apiRequest('/kits', {
+        method: 'POST',
+        body: JSON.stringify(kitData)
+    }),
+
+    // Listar kits do professor
+    listarKitsProfessor: (professorId) => apiRequest(`/kits/professor/${professorId}`),
+
+    // Listar todos os kits (para seleção)
+    listarKits: () => apiRequest('/kits'),
+
+    // Editar kit
+    editarKit: (id, dados) => apiRequest(`/kits/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(dados)
+    }),
+
+    // Deletar kit
+    deletarKit: (id) => apiRequest(`/kits/${id}`, {
+        method: 'DELETE'
+    })
+};
+
+// Funções específicas para Agendamentos
+const agendamentoAPI = {
+    // Criar agendamento
+    criarAgendamento: (agendamentoData) => apiRequest('/agendamentos', {
+        method: 'POST',
+        body: JSON.stringify(agendamentoData)
+    }),
+
+    // Listar agendamentos do professor
+    listarAgendamentosProfessor: (professorId) => apiRequest(`/agendamentos/professor/${professorId}`),
+
+    // Editar agendamento
+    editarAgendamento: (id, dados) => apiRequest(`/agendamentos/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(dados)
+    }),
+
+    // Cancelar agendamento
+    cancelarAgendamento: (id) => apiRequest(`/agendamentos/${id}/cancelar`, {
+        method: 'PATCH'
+    })
+};
+
+// Funções para estatísticas
+const estatisticasAPI = {
+    getEstatisticasProfessor: (professorId) => apiRequest(`/professor/${professorId}/estatisticas`)
+};
+
+// Dados globais
+let kitsData = [];
+let agendamentosData = [];
+
 document.addEventListener('DOMContentLoaded', () => {
+
     // =======================================================
     // 1. LÓGICA DE TROCA DE ABAS
     // =======================================================
@@ -37,10 +167,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnSchedule = document.getElementById('modal-schedule-btn');
     const calendarContainer = document.getElementById('calendar-container');
 
-    let selectedDate = null; // Variável para armazenar a data selecionada
+    let selectedDate = null;
     const MAX_SCHEDULES = 4;
 
-    // NOVO: Função para resetar o estado do formulário de agendamento
+    // Função para resetar o estado do formulário de agendamento
     const resetAppointmentState = () => {
         labSelect.value = "";
         selectedDate = null;
@@ -54,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderManualMaterials();
     };
 
-    // Função de fechar o modal (agora apenas esconde e chama o reset)
+    // Função de fechar o modal
     const closeAppointmentModal = () => {
         appointmentModal.style.display = 'none';
         resetAppointmentState();
@@ -64,8 +194,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnNovoAgendamento) {
         btnNovoAgendamento.addEventListener('click', () => {
             appointmentModal.style.display = 'flex';
-            resetAppointmentState(); // Garante o reset antes de abrir
-            generateCalendar(); // Chama a função para gerar o calendário ao abrir
+            resetAppointmentState();
+            generateCalendar();
         });
     }
 
@@ -76,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnCancelAppointmentModal.addEventListener('click', closeAppointmentModal);
     }
 
-    // Fecha o modal ao clicar no overlay (fora do conteúdo)
+    // Fecha o modal ao clicar no overlay
     appointmentModal.addEventListener('click', (e) => {
         if (e.target === appointmentModal) {
             closeAppointmentModal();
@@ -90,12 +220,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 
     function generateCalendar() {
-        calendarContainer.innerHTML = ''; // Limpa o conteúdo anterior
+        calendarContainer.innerHTML = '';
 
         let currentDate = new Date();
         let currentMonth = -1;
 
-        // Garante que o calendário esteja limpo e pronto para a nova seleção
         selectedDate = null;
         timeSelectContainer.innerHTML = '<p class="placeholder-msg">Selecione uma data e um laboratório.</p>';
 
@@ -103,18 +232,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const date = new Date(currentDate);
             date.setDate(currentDate.getDate() + i);
 
+            // CORREÇÃO: Garantir que a data seja calculada corretamente
             const dayOfMonth = date.getDate();
             const dayOfWeekIndex = date.getDay();
             const month = date.getMonth();
+            const year = date.getFullYear();
 
             const dayName = daysOfWeek[dayOfWeekIndex];
 
-            // Rastreia a mudança de mês e insere um separador
+            // Rastreia a mudança de mês
             if (month !== currentMonth) {
                 currentMonth = month;
                 const monthLabel = document.createElement('div');
                 monthLabel.classList.add('current-month-label');
-                monthLabel.textContent = `${monthNames[month]} de ${date.getFullYear()}`;
+                monthLabel.textContent = `${monthNames[month]} de ${year}`;
                 calendarContainer.appendChild(monthLabel);
             }
 
@@ -122,19 +253,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const dayElement = document.createElement('div');
             dayElement.classList.add('calendar-day');
 
-            // Adiciona classe para fim de semana (Sáb/Dom - 0 e 6)
+            // Adiciona classe para fim de semana
             if (dayOfWeekIndex === 0 || dayOfWeekIndex === 6) {
                 dayElement.classList.add('weekend');
             }
 
             // Conteúdo do dia
             dayElement.innerHTML = `
-                <span class="day-number">${dayOfMonth}</span>
-                <span class="day-name">${dayName}</span>
-            `;
+            <span class="day-number">${dayOfMonth}</span>
+            <span class="day-name">${dayName}</span>
+        `;
 
-            // Adiciona a data como atributo para fácil acesso
-            dayElement.dataset.date = date.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+            // CORREÇÃO: Usar formato de data consistente YYYY-MM-DD
+            const formattedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayOfMonth).padStart(2, '0')}`;
+            dayElement.dataset.date = formattedDate;
 
             // Adiciona listener para seleção
             dayElement.addEventListener('click', handleDateSelection);
@@ -154,21 +286,26 @@ document.addEventListener('DOMContentLoaded', () => {
         // Adiciona a classe de seleção ao dia clicado
         selectedDay.classList.add('day-selected');
 
-        // Armazena a data selecionada e reseta a seleção de laboratório/horário
-        selectedDate = selectedDay.dataset.date;
+        // CORREÇÃO: Garantir que a data seja tratada corretamente sem problemas de fuso horário
+        const dateString = selectedDay.dataset.date; // Formato YYYY-MM-DD
+        const [year, month, day] = dateString.split('-');
+
+        // Criar data no fuso horário local para garantir que seja o dia correto
+        const localDate = new Date(year, month - 1, day);
+        const formattedDate = localDate.toISOString().split('T')[0]; // Manter formato YYYY-MM-DD
+
+        selectedDate = formattedDate;
         labSelect.value = "";
         timeSelectContainer.innerHTML = '<p class="placeholder-msg">Selecione um laboratório.</p>';
         btnSchedule.disabled = true;
         timeLimitMessage.classList.add('hidden');
 
-        console.log(`Data selecionada: ${selectedDate}`);
+        console.log(`Data selecionada: ${selectedDate} (original: ${dateString})`);
     }
 
     // =======================================================
-    // 4. LÓGICA DE SELEÇÃO DE LABORATÓRIO E HORÁRIO MÚLTIPLO (Agendamento)
+    // 4. LÓGICA DE SELEÇÃO DE LABORATÓRIO E HORÁRIO MÚLTIPLO
     // =======================================================
-
-    // Simulação de Horários Disponíveis por Laboratório (Geral)
     const availableTimes = [
         '07:10 - 08:00',
         '08:00 - 08:50',
@@ -188,7 +325,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     labSelect.addEventListener('change', () => {
         if (selectedDate && labSelect.value) {
-            // Em um app real, aqui você faria uma requisição para checar a disponibilidade do Lab/Data
             renderTimeCheckboxes(availableTimes);
         } else if (selectedDate) {
             timeSelectContainer.innerHTML = '<p class="placeholder-msg">Selecione um laboratório.</p>';
@@ -211,15 +347,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 <input type="checkbox" id="${itemId}" value="${time}" data-time="${time}">
             `;
 
-            const checkbox = checkboxItem.querySelector('input');
 
-            // Adiciona o listener de seleção para cada checkbox
+            const checkbox = checkboxItem.querySelector('input');
             checkbox.addEventListener('change', handleTimeSelection);
 
             timeSelectContainer.appendChild(checkboxItem);
         });
 
-        // Verifica a necessidade de desabilitar horários imediatamente (se houver seleção anterior)
+
         handleTimeSelection();
     }
 
@@ -228,10 +363,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedTimes = Array.from(timeCheckboxes).filter(cb => cb.checked);
         const selectedCount = selectedTimes.length;
 
-        // 1. Aplica a limitação de 1 a 4
+        // Aplica a limitação de 1 a 4
         if (selectedCount >= MAX_SCHEDULES) {
             timeLimitMessage.classList.remove('hidden');
-            // Desabilita os não selecionados para evitar ultrapassar o limite
             timeCheckboxes.forEach(cb => {
                 const parent = cb.closest('.checkbox-item');
                 if (!cb.checked) {
@@ -241,7 +375,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         } else {
             timeLimitMessage.classList.add('hidden');
-            // Habilita todos os não selecionados (se o limite não foi atingido)
             timeCheckboxes.forEach(cb => {
                 const parent = cb.closest('.checkbox-item');
                 cb.disabled = false;
@@ -249,7 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // 2. Atualiza a classe visual dos itens
+        // Atualiza a classe visual dos itens
         timeCheckboxes.forEach(cb => {
             const parent = cb.closest('.checkbox-item');
             if (cb.checked) {
@@ -259,7 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // 3. Habilita o botão Agendar
+        // Habilita o botão Agendar
         if (selectedDate && labSelect.value && selectedCount >= 1 && selectedCount <= MAX_SCHEDULES) {
             btnSchedule.disabled = false;
         } else {
@@ -267,55 +400,76 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
-    btnSchedule.addEventListener('click', () => {
+    btnSchedule.addEventListener('click', async () => {
         const selectedTimes = Array.from(
             document.querySelectorAll('#time-select-container input[type="checkbox"]:checked')
         ).map(cb => cb.value);
 
         const selectedKit = document.getElementById('kit-select').value;
-        let materialsToUse = [];
+        let kitId = null;
+        let kitNome = null;
+        let materiaisManuais = [];
 
         if (selectedKit === 'Nenhum') {
-            // Inclui materiais manuais, validando nome e quantidade mínima
-            materialsToUse = manualMaterials
+            materiaisManuais = manualMaterials
                 .filter(mat => mat.name.trim() !== '' && mat.quantity >= 1)
-                .map(mat => ({ name: mat.name.trim(), quantity: mat.quantity, unit: 'unidade' })); // Adicionado unidade padrão
+                .map(mat => ({
+                    nome: mat.name.trim(),
+                    quantidade: mat.quantity,
+                    unidade: 'unidade'
+                }));
         } else {
-            // Aqui, em um sistema real, você buscaria os itens do Kit no banco
-            materialsToUse = [`Kit: ${selectedKit}`];
+            const kitSelecionado = kitsData.find(kit => kit.nome === selectedKit);
+            if (kitSelecionado) {
+                kitId = kitSelecionado._id;
+                kitNome = kitSelecionado.nome;
+            }
         }
 
-
         if (selectedTimes.length === 0 || selectedTimes.length > MAX_SCHEDULES) {
-            console.error("Erro de validação: Número de horários incorreto.");
+            showNotification("Selecione entre 1 e 4 horários.", "error");
             return;
         }
 
-        const agendamento = {
+        // CORREÇÃO: Garantir que a data seja válida
+        if (!selectedDate) {
+            showNotification("Por favor, selecione uma data válida.", "error");
+            return;
+        }
+
+        const agendamentoData = {
             data: selectedDate,
             laboratorio: labSelect.value,
             horarios: selectedTimes,
-            kit: selectedKit,
-            materiais_solicitados: materialsToUse
+            professorId: usuarioLogado.id,
+            professorNome: usuarioLogado.nome,
+            kitId: kitId,
+            kitNome: kitNome,
+            materiaisManuais: materiaisManuais
         };
 
-        console.log('Agendamento Enviado:', agendamento);
-        // Usamos uma mensagem personalizada em vez de alert() conforme a regra
-        const messageBox = document.createElement('div');
-        messageBox.className = 'limit-message';
-        messageBox.style.marginTop = '15px';
-        messageBox.style.backgroundColor = '#d1f7d6';
-        messageBox.style.borderColor = '#1b9b46';
-        messageBox.style.color = '#1b9b46';
-        messageBox.textContent = `Agendamento criado para ${agendamento.data} no ${agendamento.laboratorio} nos horários: ${agendamento.horarios.join(', ')}.`;
+        console.log('📤 Dados do agendamento a serem enviados:', agendamentoData);
 
-        document.querySelector('.modal-body').prepend(messageBox);
-        setTimeout(() => messageBox.remove(), 5000); // Remove a mensagem após 5 segundos
+        try {
+            const response = await agendamentoAPI.criarAgendamento(agendamentoData);
 
-        closeAppointmentModal();
+            if (response.success) {
+                showNotification(`Agendamento criado com sucesso para ${agendamentoData.data}!`, 'success');
+                closeAppointmentModal();
+                await carregarAgendamentosDoProfessor();
+            }
+
+        } catch (error) {
+            console.error('Erro detalhado ao criar agendamento:', error);
+
+            // CORREÇÃO: Mensagem mais específica para conflitos
+            if (error.message.includes('409')) {
+                showNotification('Conflito de agendamento: algum dos horários já está reservado. Por favor, escolha outros horários.', 'error');
+            } else {
+                showNotification('Erro ao criar agendamento. Tente novamente.', 'error');
+            }
+        }
     });
-
 
     // =======================================================
     // 5. LÓGICA DO MODAL DE CRIAÇÃO DE KIT
@@ -332,14 +486,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const kitNameInput = document.getElementById('kit-name');
     const kitDescriptionInput = document.getElementById('kit-description');
 
-    let kitItems = []; // Array para armazenar os objetos dos itens do kit
+    let kitItems = [];
 
-    // --- Funções de Abertura/Fechamento ---
+    // Funções de Abertura/Fechamento
     const openKitModal = () => {
         kitModal.style.display = 'flex';
-        kitItems = []; // Reseta a lista de itens
+        kitItems = [];
         kitForm.reset();
-        addNewKitItem(); // Garante que haja pelo menos 1 item ao abrir
+        addNewKitItem();
         checkKitFormValidity();
     };
 
@@ -347,7 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
         kitModal.style.display = 'none';
         kitItems = [];
         kitForm.reset();
-        renderKitItems(); // Renderiza vazio
+        renderKitItems();
     };
 
     if (btnCreateKitDashboard) {
@@ -368,8 +522,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Lógica de Itens Dinâmicos ---
-
+    // Lógica de Itens Dinâmicos
     function renderKitItems() {
         kitItemsContainer.innerHTML = '';
 
@@ -384,7 +537,6 @@ document.addEventListener('DOMContentLoaded', () => {
             itemElement.classList.add('kit-item-row');
             itemElement.dataset.id = item.id;
 
-            // Usando placeholders e values para preencher o formulário
             itemElement.innerHTML = `
                 <div class="kit-item-name">
                     <input type="text" data-field="name" value="${item.name}" placeholder="Nome do Material (Ex: Béquer 50ml)" required>
@@ -404,7 +556,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 <button type="button" class="btn btn-danger btn-delete-item" data-id="${item.id}" aria-label="Remover item">🗑️</button>
             `;
 
-            // Adiciona listeners de input para atualizar o array kitItems em tempo real
             itemElement.querySelectorAll('input, select').forEach(input => {
                 input.addEventListener('input', updateKitItem);
             });
@@ -412,10 +563,8 @@ document.addEventListener('DOMContentLoaded', () => {
             kitItemsContainer.appendChild(itemElement);
         });
 
-        // Adiciona listeners para os botões de exclusão
         kitItemsContainer.querySelectorAll('.btn-delete-item').forEach(btn => {
             btn.addEventListener('click', deleteKitItem);
-            // Desabilita o botão de delete se for o último item
             if (kitItems.length === 1) {
                 btn.disabled = true;
                 btn.style.opacity = '0.5';
@@ -447,7 +596,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const itemIndex = kitItems.findIndex(item => item.id === itemId);
         if (itemIndex > -1) {
-            // Converte quantidade para número e garante mínimo de 1
             if (field === 'quantity') {
                 value = parseInt(value) || 1;
                 if (value < 1) value = 1;
@@ -460,25 +608,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function deleteKitItem(event) {
         const itemId = parseInt(event.currentTarget.dataset.id);
-        // Só permite exclusão se houver mais de 1 item
         if (kitItems.length > 1) {
             kitItems = kitItems.filter(item => item.id !== itemId);
             renderKitItems();
-        } else {
-            console.warn("Não é possível excluir o último item do kit. O kit deve ter pelo menos um item.");
         }
     }
 
-    // Adicionar novo item
     btnAddKitItem.addEventListener('click', addNewKitItem);
 
-    // --- Lógica de Validação e Envio (Kit) ---
-
+    // Lógica de Validação e Envio (Kit)
     function checkKitFormValidity() {
         const isNameValid = kitNameInput.value.trim().length > 0;
         const isDescriptionValid = kitDescriptionInput.value.trim().length > 0;
 
-        // Verifica se há pelo menos um item válido
         const validItems = kitItems.filter(item => item.name.trim() !== '' && item.quantity >= 1);
         const hasValidItem = validItems.length >= 1;
 
@@ -486,76 +628,68 @@ document.addEventListener('DOMContentLoaded', () => {
         btnSaveKit.disabled = !isFormValid;
     }
 
-    // Listeners para validação dos campos principais
     kitNameInput.addEventListener('input', checkKitFormValidity);
     kitDescriptionInput.addEventListener('input', checkKitFormValidity);
 
-    // Submissão do Formulário
-    kitForm.addEventListener('submit', (event) => {
+    kitForm.addEventListener('submit', async (event) => {
         event.preventDefault();
 
         const kitData = {
-            name: kitNameInput.value.trim(),
-            description: kitDescriptionInput.value.trim(),
-            // Filtra e limpa os dados antes de salvar
-            items: kitItems
+            nome: kitNameInput.value.trim(),
+            descricao: kitDescriptionInput.value.trim(),
+            professorId: usuarioLogado.id,
+            professorNome: usuarioLogado.nome,
+            materiais: kitItems
                 .filter(item => item.name.trim() !== '' && item.quantity >= 1)
-                .map(item => ({ name: item.name.trim(), quantity: item.quantity, unit: item.unit }))
+                .map(item => ({
+                    nome: item.name.trim(),
+                    quantidade: item.quantity,
+                    unidade: item.unit
+                }))
         };
 
-        if (kitData.items.length === 0) {
-            // Usamos um console error para simular o erro em vez de alert()
-            console.error('O kit deve ter pelo menos um item válido.');
+        if (kitData.materiais.length === 0) {
+            showNotification('O kit deve ter pelo menos um item válido.', 'error');
             return;
         }
 
-        // Simulação do envio (código real de Firebase/Backend aqui)
-        console.log('Kit Criado (Dados Finais):', kitData);
+        try {
+            const response = await kitAPI.criarKit(kitData);
+            showNotification(`Kit "${kitData.nome}" criado com sucesso!`, 'success');
+            closeKitModal();
 
-        const messageBox = document.createElement('div');
-        messageBox.className = 'limit-message';
-        messageBox.style.marginTop = '15px';
-        messageBox.style.backgroundColor = '#d1f7d6';
-        messageBox.style.borderColor = '#1b9b46';
-        messageBox.style.color = '#1b9b46';
-        messageBox.textContent = `Kit "${kitData.name}" criado com sucesso! (${kitData.items.length} itens registrados)`;
+            await carregarKitsDoProfessor();
 
-        document.querySelector('#new-kit-modal .modal-body').prepend(messageBox);
-        setTimeout(() => messageBox.remove(), 5000); // Remove a mensagem após 5 segundos
-
-
-        // Fechar o modal
-        closeKitModal();
+        } catch (error) {
+            showNotification('Erro ao criar kit. Tente novamente.', 'error');
+            console.error('Erro ao criar kit:', error);
+        }
     });
 
-    // Chamada inicial
     renderKitItems();
 
     // =======================================================
-    // 6. LÓGICA DE ADIÇÃO MANUAL DE MATERIAIS (Quando "Nenhum kit" é selecionado)
+    // 6. LÓGICA DE ADIÇÃO MANUAL DE MATERIAIS
     // =======================================================
-
     const kitSelect = document.getElementById('kit-select');
     const manualSection = document.getElementById('manual-materials-section');
     const addMaterialBtn = document.getElementById('add-material-btn');
     const materialsContainer = document.getElementById('manual-materials-container');
 
-    let manualMaterials = []; // Armazena os itens adicionados manualmente
+    let manualMaterials = [];
 
-    // Exibe/esconde a seção conforme a escolha do usuário
     if (kitSelect) {
         kitSelect.addEventListener('change', () => {
             if (kitSelect.value === 'Nenhum') {
                 manualSection.classList.remove('hidden');
             } else {
                 manualSection.classList.add('hidden');
-                manualMaterials = []; // Limpa os materiais se um kit for selecionado
+                manualMaterials = [];
                 renderManualMaterials();
             }
         });
     }
 
-    // Função para renderizar os materiais manuais
     function renderManualMaterials() {
         materialsContainer.innerHTML = '';
 
@@ -577,7 +711,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <button type="button" class="btn-remove-material" aria-label="Remover material">🗑️</button>
         `;
 
-            // Atualiza os valores no array quando o usuário digita
             row.querySelectorAll('input').forEach(input => {
                 input.addEventListener('input', (e) => {
                     const field = e.target.dataset.field;
@@ -589,7 +722,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
 
-            // Botão de remoção
             row.querySelector('.btn-remove-material').addEventListener('click', () => {
                 manualMaterials = manualMaterials.filter(m => m.id !== mat.id);
                 renderManualMaterials();
@@ -599,7 +731,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Adiciona novo material manual
     if (addMaterialBtn) {
         addMaterialBtn.addEventListener('click', () => {
             const newMaterial = {
@@ -613,82 +744,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // =======================================================
-    // 7. LÓGICA DOS BOTÕES VER, EDITAR E REMOVER KITS
+    // 7. LÓGICA DOS BOTÕES VER, EDITAR E REMOVER KITS (ATUALIZADO)
     // =======================================================
-
-    // Dados de exemplo para os kits (simulando um banco de dados)
-    let kitsData = [
-        {
-            id: 1,
-            name: "Kit Titulação Básica",
-            description: "Kit completo para aulas de titulação ácido-base com indicadores.",
-            items: 8,
-            uses: 5,
-            status: "ativo",
-            createdDate: "10/01/2025",
-            materials: [
-                { name: "Béquer 50ml", quantity: 8, unit: "unidade" },
-                { name: "Pipeta", quantity: 8, unit: "unidade" },
-                { name: "Indicador Fenolftaleína", quantity: 1, unit: "frasco" }
-            ]
-        },
-        {
-            id: 2,
-            name: "Kit Síntese Orgânica",
-            description: "Materiais para síntese de compostos orgânicos simples.",
-            items: 12,
-            uses: 3,
-            status: "ativo",
-            createdDate: "08/01/2025",
-            materials: [
-                { name: "Balão de Fundo Redondo", quantity: 12, unit: "unidade" },
-                { name: "Condensador", quantity: 12, unit: "unidade" },
-                { name: "Termômetro", quantity: 12, unit: "unidade" }
-            ]
-        },
-        {
-            id: 3,
-            name: "Kit Medidas Elétricas",
-            description: "Instrumentos para medições elétricas básicas.",
-            items: 15,
-            uses: 15,
-            status: "ativo",
-            createdDate: "20/12/2024",
-            materials: [
-                { name: "Multímetro Digital", quantity: 15, unit: "unidade" },
-                { name: "Fios Jumper", quantity: 45, unit: "unidade" },
-                { name: "Protoboard", quantity: 15, unit: "unidade" }
-            ]
-        },
-        {
-            id: 4,
-            name: "Kit Desmontagem PC",
-            description: "Ferramentas para desmontagem e manutenção de computadores.",
-            items: 5,
-            uses: 0,
-            status: "rascunho",
-            createdDate: "01/03/2025",
-            materials: [
-                { name: "Chave Phillips", quantity: 15, unit: "unidade" },
-                { name: "Pulseira Anti-estática", quantity: 15, unit: "unidade" },
-                { name: "Alicate", quantity: 15, unit: "unidade" }
-            ]
-        },
-        {
-            id: 5,
-            name: "Kit Introdução à Biologia",
-            description: "Materiais para aulas introdutórias de biologia celular.",
-            items: 22,
-            uses: 22,
-            status: "arquivado",
-            createdDate: "01/10/2024",
-            materials: [
-                { name: "Microscópio Óptico", quantity: 15, unit: "unidade" },
-                { name: "Lâminas e Lamínulas", quantity: 150, unit: "conjunto" },
-                { name: "Corantes Biológicos", quantity: 8, unit: "kit" }
-            ]
-        }
-    ];
 
     // Modais
     const viewKitModal = document.getElementById('view-kit-modal');
@@ -697,7 +754,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Função para formatar materiais para exibição
     function formatMaterialsForDisplay(materials) {
         return materials.map(material =>
-            `${material.name} (${material.quantity} ${material.unit})`
+            `${material.nome} (${material.quantidade} ${material.unidade})`
         ).join(', ');
     }
 
@@ -712,122 +769,161 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // =======================================================
-    // 7.1 FUNCIONALIDADE VER KIT
+    // 7.1 FUNCIONALIDADE VER KIT (ATUALIZADO)
     // =======================================================
 
     function setupViewKitButtons() {
-        document.querySelectorAll('.kit-actions-compact .btn-light:first-child').forEach(button => {
-            button.addEventListener('click', function () {
-                const row = this.closest('tr');
-                const kitName = row.querySelector('td[data-label="Nome do Kit"]').textContent;
+        document.addEventListener('click', function (e) {
+            const target = e.target.closest('.kit-actions-compact .btn-light');
+            if (!target) return;
+
+            if (target.textContent.includes('👁️')) {
+                const row = e.target.closest('tr');
+                if (!row) return;
+
+                const kitNameCell = row.querySelector('td[data-label="Nome do Kit"]');
+                if (!kitNameCell) return;
+
+                const kitName = kitNameCell.textContent;
 
                 // Encontrar o kit nos dados
-                const kit = kitsData.find(k => k.name === kitName);
+                const kit = kitsData.find(k => k.nome === kitName);
                 if (kit) {
                     openViewKitModal(kit);
                 }
-            });
+            }
         });
     }
 
     function openViewKitModal(kit) {
         // Preencher os dados no modal
-        document.getElementById('view-kit-name').textContent = kit.name;
-        document.getElementById('view-kit-description').textContent = kit.description;
-        document.getElementById('view-kit-items').textContent = `${kit.items} itens`;
-        document.getElementById('view-kit-uses').textContent = kit.uses;
+        document.getElementById('view-kit-name').textContent = kit.nome;
+        document.getElementById('view-kit-description').textContent = kit.descricao;
+        document.getElementById('view-kit-items-count').textContent = `${kit.materiais ? kit.materiais.length : 0} itens`;
+        document.getElementById('view-kit-uses').textContent = kit.usos || 0;
         document.getElementById('view-kit-status').textContent = formatStatusForDisplay(kit.status);
-        document.getElementById('view-kit-date').textContent = kit.createdDate;
+        document.getElementById('view-kit-date').textContent = new Date(kit.dataCriacao).toLocaleDateString('pt-BR');
+
+        // Preencher materiais
+        const materialsContainer = document.getElementById('view-kit-materials');
+        materialsContainer.innerHTML = '';
+
+        if (kit.materiais && kit.materiais.length > 0) {
+            kit.materiais.forEach(material => {
+                const materialElement = document.createElement('div');
+                materialElement.className = 'material-item';
+                materialElement.textContent = `${material.nome} (${material.quantidade} ${material.unidade})`;
+                materialsContainer.appendChild(materialElement);
+            });
+        } else {
+            materialsContainer.innerHTML = '<p class="input-helper">Nenhum material cadastrado.</p>';
+        }
 
         // Mostrar o modal
         viewKitModal.classList.remove('hidden');
     }
 
-    // Fechar modal Ver Kit
-    document.getElementById('close-view-kit').addEventListener('click', function () {
-        viewKitModal.classList.add('hidden');
-    });
-
     // =======================================================
-    // 7.2 FUNCIONALIDADE EDITAR KIT
+    // 7.2 FUNCIONALIDADE EDITAR KIT (ATUALIZADO)
     // =======================================================
 
     function setupEditKitButtons() {
-        document.querySelectorAll('.kit-actions-compact .btn-light:nth-child(2)').forEach(button => {
-            button.addEventListener('click', function () {
-                const row = this.closest('tr');
-                const kitName = row.querySelector('td[data-label="Nome do Kit"]').textContent;
+        document.addEventListener('click', function (e) {
+            const target = e.target.closest('.kit-actions-compact .btn-light');
+            if (!target) return;
+
+            if (target.textContent.includes('✏️')) {
+                const row = e.target.closest('tr');
+                if (!row) return;
+
+                const kitNameCell = row.querySelector('td[data-label="Nome do Kit"]');
+                if (!kitNameCell) return;
+
+                const kitName = kitNameCell.textContent;
 
                 // Encontrar o kit nos dados
-                const kit = kitsData.find(k => k.name === kitName);
+                const kit = kitsData.find(k => k.nome === kitName);
                 if (kit) {
                     openEditKitModal(kit);
                 }
-            });
+            }
         });
     }
 
     function openEditKitModal(kit) {
         // Preencher os dados no formulário de edição
-        document.getElementById('edit-kit-name').value = kit.name;
-        document.getElementById('edit-kit-description').value = kit.description;
-        document.getElementById('edit-kit-items').value = kit.materials.map(m => m.name).join(', ');
-        document.getElementById('edit-kit-uses').value = kit.uses;
+        document.getElementById('edit-kit-name').value = kit.nome;
+        document.getElementById('edit-kit-description').value = kit.descricao;
         document.getElementById('edit-kit-status').value = kit.status;
+
+        // Armazenar o ID do kit para referência
+        document.getElementById('edit-kit-form').dataset.kitId = kit._id;
 
         // Mostrar o modal
         editKitModal.classList.remove('hidden');
     }
 
     // Salvar edição do kit
-    document.getElementById('save-edit-kit').addEventListener('click', function () {
+    document.getElementById('save-edit-kit').addEventListener('click', async function () {
+        const kitId = document.getElementById('edit-kit-form').dataset.kitId;
         const kitName = document.getElementById('edit-kit-name').value;
         const kitDescription = document.getElementById('edit-kit-description').value;
-        const kitItems = document.getElementById('edit-kit-items').value;
-        const kitUses = parseInt(document.getElementById('edit-kit-uses').value);
         const kitStatus = document.getElementById('edit-kit-status').value;
 
-        // Encontrar e atualizar o kit nos dados
-        const kitIndex = kitsData.findIndex(k => k.name === kitName);
-        if (kitIndex !== -1) {
-            kitsData[kitIndex].description = kitDescription;
-            kitsData[kitIndex].uses = kitUses;
-            kitsData[kitIndex].status = kitStatus;
-
-            // Atualizar a tabela
-            updateKitTable();
-
-            // Mostrar mensagem de sucesso
-            showNotification('Kit atualizado com sucesso!', 'success');
+        if (!kitName || !kitDescription) {
+            showNotification('Por favor, preencha todos os campos obrigatórios!', 'error');
+            return;
         }
 
-        // Fechar modal
-        editKitModal.classList.add('hidden');
-    });
+        try {
+            const dadosAtualizados = {
+                nome: kitName,
+                descricao: kitDescription,
+                status: kitStatus
+            };
 
-    // Cancelar edição
-    document.getElementById('cancel-edit-kit').addEventListener('click', function () {
-        editKitModal.classList.add('hidden');
+            const response = await kitAPI.editarKit(kitId, dadosAtualizados);
+
+            if (response.success) {
+                showNotification('Kit atualizado com sucesso!', 'success');
+                editKitModal.classList.add('hidden');
+
+                // Recarregar a lista de kits
+                await carregarKitsDoProfessor();
+            }
+
+        } catch (error) {
+            console.error('Erro ao atualizar kit:', error);
+            showNotification('Erro ao atualizar kit. Tente novamente.', 'error');
+        }
     });
 
     // =======================================================
-    // 7.3 FUNCIONALIDADE REMOVER KIT - ATUALIZADA
+    // 7.3 FUNCIONALIDADE REMOVER KIT (ATUALIZADO)
     // =======================================================
 
     function setupRemoveKitButtons() {
-        document.querySelectorAll('.btn-remover').forEach(button => {
-            button.addEventListener('click', function () {
-                const row = this.closest('tr');
-                const kitName = row.querySelector('td[data-label="Nome do Kit"]').textContent;
+        document.addEventListener('click', function (e) {
+            const target = e.target.closest('.btn-remover');
+            if (!target) return;
 
-                // Mostrar modal de confirmação igual ao dos agendamentos
-                showRemoveKitConfirmation(kitName, row);
-            });
+            const row = e.target.closest('tr');
+            if (!row) return;
+
+            const kitNameCell = row.querySelector('td[data-label="Nome do Kit"]');
+            if (!kitNameCell) return;
+
+            const kitName = kitNameCell.textContent;
+
+            // Encontrar o kit nos dados
+            const kit = kitsData.find(k => k.nome === kitName);
+            if (kit) {
+                showRemoveKitConfirmation(kit);
+            }
         });
     }
 
-    function showRemoveKitConfirmation(kitName, row) {
-        // Criar modal de confirmação similar ao dos agendamentos
+    function showRemoveKitConfirmation(kit) {
         const modal = document.createElement('div');
         modal.className = 'modal';
         modal.style.cssText = `
@@ -847,13 +943,13 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="modal-content" style="background: white; border-radius: 12px; padding: 24px; max-width: 400px; width: 90%;">
                 <h3 style="margin: 0 0 16px 0; color: var(--text-primary);">Remover Kit</h3>
                 <p style="margin: 0 0 24px 0; color: var(--text-secondary);">
-                    Tem certeza de que deseja remover o kit "<strong>${kitName}</strong>"?
+                    Tem certeza de que deseja remover o kit "<strong>${kit.nome}</strong>"?
                 </p>
                 <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 12px;">
                     <button class="btn-secondary" style="background: #f2f2f3; border: 1px solid #ddd; padding: 10px 20px; border-radius: 8px; cursor: pointer;">
                         Não
                     </button>
-                    <button class="btn-danger" style="background: #b9080f; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                    <button class="btn-danger confirm-remove" style="background: #b9080f; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;">
                         Sim, remover
                     </button>
                 </div>
@@ -864,15 +960,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Configurar botões do modal
         const btnNao = modal.querySelector('.btn-secondary');
-        const btnSim = modal.querySelector('.btn-danger');
+        const btnSim = modal.querySelector('.confirm-remove');
 
         btnNao.addEventListener('click', function () {
             document.body.removeChild(modal);
         });
 
-        btnSim.addEventListener('click', function () {
-            removeKit(kitName);
-            document.body.removeChild(modal);
+        btnSim.addEventListener('click', async function () {
+            try {
+                const response = await kitAPI.deletarKit(kit._id);
+
+                if (response.success) {
+                    showNotification('Kit removido com sucesso!', 'success');
+                    document.body.removeChild(modal);
+
+                    // Recarregar a lista de kits
+                    await carregarKitsDoProfessor();
+                }
+            } catch (error) {
+                console.error('Erro ao remover kit:', error);
+                showNotification('Erro ao remover kit. Tente novamente.', 'error');
+                document.body.removeChild(modal);
+            }
         });
 
         // Fechar modal ao clicar fora
@@ -883,110 +992,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function removeKit(kitName) {
-        // Remover o kit dos dados
-        kitsData = kitsData.filter(k => k.name !== kitName);
-
-        // Atualizar a tabela
-        updateKitTable();
-
-        // Mostrar mensagem de sucesso
-        showNotification('Kit removido com sucesso!', 'success');
-    }
-
-    // =======================================================
-    // 7.4 ATUALIZAR TABELA DE KITS - COM NOVO ESTILO DO BOTÃO REMOVER
-    // =======================================================
-
-    function updateKitTable() {
-        const tbody = document.querySelector('#kits-content tbody');
-        tbody.innerHTML = '';
-
-        kitsData.forEach(kit => {
-            const row = document.createElement('tr');
-
-            // Mapear status para classes CSS
-            const statusClass = {
-                'ativo': 'status-active',
-                'rascunho': 'status-draft',
-                'arquivado': 'status-disabled'
-            }[kit.status] || 'status-draft';
-
-            row.innerHTML = `
-            <td data-label="Nome do Kit">${kit.name}</td>
-            <td data-label="Itens">${kit.items}</td>
-            <td data-label="Usos">${kit.uses}</td>
-            <td data-label="Status"><span class="badge ${statusClass}">${formatStatusForDisplay(kit.status)}</span></td>
-            <td data-label="Criado em">${kit.createdDate}</td>
-            <td data-label="Ações" class="kit-actions-compact">
-                <button class="btn btn-light">👁️ Ver</button>
-                <button class="btn btn-light">✏️ Editar</button>
-                <button class="btn-remover" style="background: #b9080f; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.875rem;">
-                    🗑️ Remover
-                </button>
-            </td>
-        `;
-
-            tbody.appendChild(row);
-        });
-
-        // Reconfigurar os event listeners dos botões
-        setupViewKitButtons();
-        setupEditKitButtons();
-        setupRemoveKitButtons();
-    }
-
-    // =======================================================
-    // 7.5 FUNÇÃO DE NOTIFICAÇÃO
-    // =======================================================
-
-    function showNotification(message, type = 'info') {
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.textContent = message;
-
-        // Estilos da notificação
-        notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 20px;
-        border-radius: 8px;
-        color: white;
-        font-weight: 600;
-        z-index: 10000;
-        animation: slideIn 0.3s ease-out;
-    `;
-
-        // Cores baseadas no tipo
-        const colors = {
-            success: '#1b9b46',
-            error: '#b9080f',
-            info: '#2b6ef6',
-            warning: '#db8a00'
-        };
-
-        notification.style.backgroundColor = colors[type] || colors.info;
-
-        document.body.appendChild(notification);
-
-        // Remover após 3 segundos
-        setTimeout(() => {
-            notification.style.animation = 'slideOut 0.3s ease-in';
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
-            }, 300);
-        }, 3000);
-    }
-
-
-
-    // Inicializar funcionalidades dos kits
-    setupViewKitButtons();
-    setupEditKitButtons();
-    setupRemoveKitButtons();
+    // Cancelar edição
+    document.getElementById('cancel-edit-kit').addEventListener('click', function () {
+        editKitModal.classList.add('hidden');
+    });
 
     // Fechar modais ao clicar fora
     viewKitModal.addEventListener('click', function (e) {
@@ -1002,7 +1011,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // =======================================================
-    // 8. LÓGICA DOS BOTÕES VER, EDITAR E CANCELAR AGENDAMENTOS
+    // 8. LÓGICA DOS BOTÕES VER, EDITAR E CANCELAR AGENDAMENTOS (ATUALIZADO)
     // =======================================================
 
     // Modais de agendamento
@@ -1075,126 +1084,258 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // =======================================================
-    // 8.2 MODAL EDITAR AGENDAMENTO - NOVA VERSÃO ORGANIZADA
-    // =======================================================
+    function setupAgendamentoButtons() {
+        document.addEventListener('click', function (e) {
+            const target = e.target.closest('.kit-actions-compact button');
+            if (!target) return;
 
-    function setupModalEditarAgendamento() {
-        // Configurar botões da tabela de agendamentos - Editar
-        document.querySelectorAll('#agendamentos-content .kit-actions-compact button').forEach(botao => {
-            botao.addEventListener('click', function (e) {
-                e.preventDefault();
-                const linha = this.closest('tr');
-                const acao = this.textContent.trim();
+            const linha = target.closest('tr');
+            if (!linha) return;
 
-                // Pegando dados da linha
-                const dataHora = linha.cells[0].textContent;
-                const lab = linha.cells[1].textContent;
-                const kit = linha.cells[2].textContent;
-                const status = linha.cells[3].textContent.trim();
+            const acao = target.textContent.trim();
 
-                // 👁️ VER
-                if (acao.includes('👁️')) {
-                    document.getElementById('verAgendamentoInfo').innerHTML = `
-                    <p><strong>Data e Hora:</strong> ${dataHora}</p>
-                    <p><strong>Laboratório:</strong> ${lab}</p>
-                    <p><strong>Kit/Material:</strong> ${kit}</p>
-                    <p><strong>Status:</strong> ${status}</p>
-                    <p><strong>Professor:</strong> Você</p>
-                    <p><strong>Data do Agendamento:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
-                `;
-                    abrirModal(modalVerAgendamento);
-                }
+            // Pegando dados da linha com verificações de segurança
+            const dataHoraCell = linha.cells[0];
+            const labCell = linha.cells[1];
+            const kitCell = linha.cells[2];
+            const statusCell = linha.cells[3];
 
-                // ✏️ EDITAR - NOVA VERSÃO ORGANIZADA
-                if (acao.includes('✏️')) {
-                    // Extrair data e hora do texto
-                    const [data, horario] = dataHora.split(' (');
-                    const horaFormatada = horario ? horario.replace(')', '') : '';
+            if (!dataHoraCell || !labCell || !kitCell || !statusCell) return;
 
-                    // Preencher formulário com dados atuais de forma organizada
-                    document.getElementById('editarData').value = data || '';
-                    document.getElementById('editarHora').value = horaFormatada || '';
-                    document.getElementById('editarLab').value = lab || '';
-                    document.getElementById('editarKit').value = kit || '';
+            const dataHora = dataHoraCell.textContent;
+            const lab = labCell.textContent;
+            const kit = kitCell.textContent;
+            const status = statusCell.textContent.trim();
 
-                    abrirModal(modalEditarAgendamento);
-                }
+            console.log('🔍 Buscando agendamento:', { dataHora, lab, kit, status });
 
-                // ❌ CANCELAR
-                if (acao.includes('❌')) {
-                    abrirModal(modalCancelarAgendamento);
+            // MÉTODO MELHORADO: Encontrar o agendamento nos dados
+            let agendamento = null;
 
-                    // Configurar confirmação de cancelamento
-                    document.getElementById('confirmarCancelamento').onclick = function () {
-                        linha.remove();
-                        showNotification('Agendamento cancelado com sucesso!', 'success');
-                        fecharModal(modalCancelarAgendamento);
-                    };
-                }
+            // Tentativa 1: Buscar por data completa e laboratório
+            const dataPart = dataHora.split(' (')[0];
+            agendamento = agendamentosData.find(a =>
+                a.data === dataPart &&
+                a.laboratorio === lab
+            );
 
-                // ❓ MOTIVO
-                if (acao.includes('❓')) {
-                    document.getElementById('motivoTexto').textContent =
-                        "O laboratório estava indisponível na data solicitada devido a manutenção programada.";
-                    abrirModal(modalMotivoAgendamento);
-                }
-            });
-        });
+            // Tentativa 2: Se não encontrou, buscar apenas por laboratório e kit
+            if (!agendamento) {
+                agendamento = agendamentosData.find(a =>
+                    a.laboratorio === lab &&
+                    a.kitNome === kit
+                );
+            }
 
-        // Submissão do formulário de edição
-        document.getElementById('formEditarAgendamento').addEventListener('submit', function (e) {
-            e.preventDefault();
+            // Tentativa 3: Se ainda não encontrou, buscar por qualquer correspondência
+            if (!agendamento) {
+                agendamento = agendamentosData.find(a =>
+                    a.laboratorio.includes(lab) || lab.includes(a.laboratorio)
+                );
+            }
 
-            // Coletar dados do formulário
-            const novaData = document.getElementById('editarData').value;
-            const novoHorario = document.getElementById('editarHora').value;
-            const novoLab = document.getElementById('editarLab').value;
-            const novoKit = document.getElementById('editarKit').value;
-
-            // Validar dados
-            if (!novaData || !novoHorario || !novoLab || !novoKit) {
-                showNotification('Por favor, preencha todos os campos!', 'error');
+            if (!agendamento) {
+                console.error('❌ Agendamento não encontrado para:', { dataHora, lab, kit });
+                console.log('📋 Agendamentos disponíveis:', agendamentosData.map(a => ({
+                    data: a.data,
+                    laboratorio: a.laboratorio,
+                    kitNome: a.kitNome,
+                    id: a._id
+                })));
+                showNotification('Erro: Agendamento não encontrado.', 'error');
                 return;
             }
 
-            // Aqui você implementaria a lógica para atualizar o agendamento no banco de dados
-            console.log('Agendamento atualizado:', {
-                data: novaData,
-                horario: novoHorario,
-                laboratorio: novoLab,
-                kit: novoKit
-            });
+            console.log('✅ Agendamento encontrado:', agendamento._id);
 
-            showNotification('Agendamento atualizado com sucesso!', 'success');
-            fecharModal(modalEditarAgendamento);
+            // 👁️ VER
+            if (acao.includes('👁️')) {
+                openViewAgendamentoModal(agendamento);
+            }
 
-            // Atualizar a interface (em uma implementação real, você recarregaria os dados)
-            // updateAgendamentosTable();
-        });
+            // ✏️ EDITAR
+            if (acao.includes('✏️')) {
+                openEditAgendamentoModal(agendamento);
+            }
 
-        // Botão "Não" do modal de cancelamento
-        document.getElementById('fecharCancelar').addEventListener('click', function () {
-            fecharModal(modalCancelarAgendamento);
+            // ❌ CANCELAR
+            if (acao.includes('❌')) {
+                openCancelAgendamentoModal(agendamento);
+            }
+
+            // ❓ MOTIVO
+            if (acao.includes('❓')) {
+                openMotivoAgendamentoModal(agendamento);
+            }
         });
     }
 
     // =======================================================
-    // 8.3 ATUALIZAR ESTILOS DO MODAL EDITAR AGENDAMENTO
+    // 8.2 MODAL VER AGENDAMENTO (ATUALIZADO)
     // =======================================================
 
-
-
-    // Inicializar botões de agendamento
-    setupModalEditarAgendamento();
-    setupBotoesFecharAgendamentos();
-
-    // Inicializar a tabela de kits
-    updateKitTable();
-
+    function openViewAgendamentoModal(agendamento) {
+        document.getElementById('verAgendamentoInfo').innerHTML = `
+            <p><strong>Data:</strong> ${agendamento.data}</p>
+            <p><strong>Horários:</strong> ${agendamento.horarios.join(', ')}</p>
+            <p><strong>Laboratório:</strong> ${agendamento.laboratorio}</p>
+            <p><strong>Kit/Material:</strong> ${agendamento.kitNome || 'Materiais manuais'}</p>
+            <p><strong>Status:</strong> ${agendamento.status}</p>
+            <p><strong>Professor:</strong> ${agendamento.professorNome}</p>
+            <p><strong>Data do Agendamento:</strong> ${new Date(agendamento.dataCriacao).toLocaleDateString('pt-BR')}</p>
+        `;
+        abrirModal(modalVerAgendamento);
+    }
 
     // =======================================================
-    // 8.4 NOVA LÓGICA DO MODAL EDITAR AGENDAMENTO - VERSÃO COMPLETA
+    // 8.3 MODAL EDITAR AGENDAMENTO (ATUALIZADO)
+    // =======================================================
+
+    function openEditAgendamentoModal(agendamento) {
+        // Preencher dados básicos
+        document.getElementById('editarData').value = agendamento.data;
+        document.getElementById('editarLab').value = agendamento.laboratorio;
+
+        // Preencher horários
+        const horariosContainer = document.getElementById('editarHorariosContainer');
+        horariosContainer.innerHTML = '';
+
+        agendamento.horarios.forEach(horario => {
+            const [inicio, fim] = horario.split(' - ');
+            adicionarHorarioEditar(inicio, fim);
+        });
+
+        // Preencher materiais
+        if (agendamento.kitNome) {
+            document.getElementById('editarSelectKitExistente').value = agendamento.kitNome;
+        } else {
+            document.getElementById('editarSelectKitExistente').value = '';
+            // Preencher materiais manuais se existirem
+            if (agendamento.materiaisManuais && agendamento.materiaisManuais.length > 0) {
+                materiaisManuais = [...agendamento.materiaisManuais];
+                renderizarMateriaisEditar();
+            }
+        }
+
+        // Armazenar ID do agendamento
+        document.getElementById('formEditarAgendamento').dataset.agendamentoId = agendamento._id;
+
+        abrirModal(modalEditarAgendamento);
+    }
+
+    // =======================================================
+    // 8.4 MODAL CANCELAR AGENDAMENTO (ATUALIZADO)
+    // =======================================================
+
+    function openCancelAgendamentoModal(agendamento) {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    `;
+
+        modal.innerHTML = `
+        <div class="modal-content" style="background: white; border-radius: 12px; padding: 24px; max-width: 400px; width: 90%;">
+            <h3 style="margin: 0 0 16px 0; color: var(--text-primary);">Cancelar Agendamento</h3>
+            <p style="margin: 0 0 24px 0; color: var(--text-secondary);">
+                Tem certeza de que deseja cancelar este agendamento?
+            </p>
+            <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 12px;">
+                <button class="btn-secondary" style="background: #f2f2f3; border: 1px solid #ddd; padding: 10px 20px; border-radius: 8px; cursor: pointer;">
+                    Não
+                </button>
+                <button class="btn-danger confirm-cancel" style="background: #b9080f; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                    Sim, cancelar
+                </button>
+            </div>
+        </div>
+    `;
+
+        document.body.appendChild(modal);
+
+        // Configurar botões do modal
+        const btnNao = modal.querySelector('.btn-secondary');
+        const btnSim = modal.querySelector('.confirm-cancel');
+
+        btnNao.addEventListener('click', function () {
+            document.body.removeChild(modal);
+        });
+
+        btnSim.addEventListener('click', async function () {
+            try {
+                console.log('🔄 Iniciando cancelamento do agendamento:', agendamento._id);
+
+                // Desabilitar botão para evitar múltiplos cliques
+                btnSim.disabled = true;
+                btnSim.textContent = 'Cancelando...';
+                btnSim.style.opacity = '0.7';
+
+                const response = await agendamentoAPI.cancelarAgendamento(agendamento._id);
+
+                if (response.success) {
+                    showNotification('Agendamento cancelado com sucesso!', 'success');
+                    document.body.removeChild(modal);
+
+                    // REMOVER LOCALMENTE para feedback imediato
+                    const index = agendamentosData.findIndex(a => a._id === agendamento._id);
+                    if (index > -1) {
+                        agendamentosData.splice(index, 1);
+                        console.log('✅ Agendamento removido localmente');
+                    }
+
+                    // Pequeno delay para garantir processamento no backend
+                    await new Promise(resolve => setTimeout(resolve, 800));
+
+                    // FORÇAR recarregamento completo do servidor
+                    console.log('🔄 Forçando recarregamento completo...');
+                    await carregarAgendamentosDoProfessor();
+
+                    // Atualizar estatísticas
+                    await atualizarEstatisticasDashboard();
+
+                } else {
+                    throw new Error('Resposta não sucedida da API');
+                }
+            } catch (error) {
+                console.error('❌ Erro detalhado ao cancelar agendamento:', error);
+                showNotification('Erro ao cancelar agendamento. Tente novamente.', 'error');
+
+                // Re-habilitar botão em caso de erro
+                btnSim.disabled = false;
+                btnSim.textContent = 'Sim, cancelar';
+                btnSim.style.opacity = '1';
+            }
+        });
+
+        // Fechar modal ao clicar fora
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) {
+                document.body.removeChild(modal);
+            }
+        });
+    }
+
+    // =======================================================
+    // 8.5 MODAL MOTIVO AGENDAMENTO (ATUALIZADO)
+    // =======================================================
+
+    function openMotivoAgendamentoModal(agendamento) {
+        document.getElementById('motivoTexto').textContent =
+            agendamento.motivoNegacao || "Nenhum motivo específico informado.";
+        abrirModal(modalMotivoAgendamento);
+    }
+
+    // =======================================================
+    // 9. NOVA LÓGICA DO MODAL EDITAR AGENDAMENTO - VERSÃO COMPLETA
     // =======================================================
 
     function setupModalEditarAgendamentoCompleto() {
@@ -1313,39 +1454,6 @@ document.addEventListener('DOMContentLoaded', () => {
             timeLimitMessage.classList.add('hidden');
         }
 
-        // Preencher formulário com dados do agendamento
-        function preencherFormularioEditar(agendamento) {
-            limparFormularioEditar();
-
-            // Preencher data
-            document.getElementById('editarData').value = agendamento.data || '';
-
-            // Preencher horários
-            if (agendamento.horarios && agendamento.horarios.length > 0) {
-                horariosContainer.innerHTML = '';
-                horariosCount = 0;
-
-                agendamento.horarios.forEach(horario => {
-                    const [inicio, fim] = horario.split(' - ');
-                    adicionarHorarioEditar(inicio, fim);
-                });
-            }
-
-            // Preencher laboratório
-            document.getElementById('editarLab').value = agendamento.laboratorio || '';
-
-            // Preencher materiais
-            if (agendamento.kit && agendamento.kit !== 'Nenhum') {
-                selectKitExistente.value = agendamento.kit;
-            } else if (agendamento.materiais_solicitados) {
-                materiaisManuais = agendamento.materiais_solicitados.map(mat => ({
-                    nome: typeof mat === 'string' ? mat.replace('Kit: ', '') : mat.name,
-                    quantidade: mat.quantity || 1
-                }));
-                renderizarMateriaisEditar();
-            }
-        }
-
         // Event Listeners
         btnAddHorario.addEventListener('click', () => adicionarHorarioEditar());
         btnAddMaterial.addEventListener('click', adicionarMaterialEditar);
@@ -1366,8 +1474,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Submit do formulário
-        formEditar.addEventListener('submit', function (e) {
+        formEditar.addEventListener('submit', async function (e) {
             e.preventDefault();
+
+            const agendamentoId = this.dataset.agendamentoId;
 
             // Coletar dados do formulário
             const data = document.getElementById('editarData').value;
@@ -1382,73 +1492,56 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // Coletar materiais
-            let materiais = [];
+            let kitId = null;
+            let kitNome = null;
+            let materiaisManuaisEnvio = [];
+
             if (kitExistente) {
-                materiais = [`Kit: ${kitExistente}`];
+                const kitSelecionado = kitsData.find(kit => kit.nome === kitExistente);
+                if (kitSelecionado) {
+                    kitId = kitSelecionado._id;
+                    kitNome = kitSelecionado.nome;
+                }
             } else {
-                materiais = materiaisManuais
+                materiaisManuaisEnvio = materiaisManuais
                     .filter(mat => mat.nome.trim() !== '')
                     .map(mat => ({
-                        name: mat.nome.trim(),
-                        quantity: mat.quantidade,
-                        unit: 'unidade'
+                        nome: mat.nome.trim(),
+                        quantidade: mat.quantidade,
+                        unidade: 'unidade'
                     }));
             }
 
             // Validar
-            if (!data || !laboratorio || horarios.length === 0 || (!kitExistente && materiais.length === 0)) {
+            if (!data || !laboratorio || horarios.length === 0 || (!kitExistente && materiaisManuaisEnvio.length === 0)) {
                 showNotification('Por favor, preencha todos os campos obrigatórios!', 'error');
                 return;
             }
 
-            // Criar objeto do agendamento atualizado
-            const agendamentoAtualizado = {
-                data: data,
-                laboratorio: laboratorio,
-                horarios: horarios,
-                kit: kitExistente || 'Nenhum',
-                materiais_solicitados: materiais
-            };
+            try {
+                const dadosAtualizados = {
+                    data: data,
+                    laboratorio: laboratorio,
+                    horarios: horarios,
+                    kitId: kitId,
+                    kitNome: kitNome,
+                    materiaisManuais: materiaisManuaisEnvio
+                };
 
-            console.log('Agendamento atualizado:', agendamentoAtualizado);
+                const response = await agendamentoAPI.editarAgendamento(agendamentoId, dadosAtualizados);
 
-            // Aqui você implementaria a lógica para salvar no banco de dados
-            showNotification('Agendamento atualizado com sucesso!', 'success');
-            fecharModal(modalEditar);
+                if (response.success) {
+                    showNotification('Agendamento atualizado com sucesso!', 'success');
+                    fecharModal(modalEditar);
 
-            // Em uma implementação real, você atualizaria a interface aqui
-            // updateAgendamentosTable();
-        });
-
-        // Configurar botões da tabela de agendamentos - Editar
-        document.querySelectorAll('#agendamentos-content .kit-actions-compact button').forEach(botao => {
-            botao.addEventListener('click', function (e) {
-                e.preventDefault();
-                const linha = this.closest('tr');
-                const acao = this.textContent.trim();
-
-                if (acao.includes('✏️')) {
-                    // Simular dados do agendamento (em um sistema real, você buscaria do banco)
-                    const dataHora = linha.cells[0].textContent;
-                    const lab = linha.cells[1].textContent;
-                    const kit = linha.cells[2].textContent;
-
-                    // Extrair data e horários do texto
-                    const [data, horarioTexto] = dataHora.split(' (');
-                    const horarios = horarioTexto ? [horarioTexto.replace(')', '')] : [];
-
-                    const agendamento = {
-                        data: data || '',
-                        laboratorio: lab || '',
-                        kit: kit || '',
-                        horarios: horarios,
-                        materiais_solicitados: kit !== 'Nenhum' ? [`Kit: ${kit}`] : []
-                    };
-
-                    preencherFormularioEditar(agendamento);
-                    abrirModal(modalEditar);
+                    // Recarregar a lista de agendamentos
+                    await carregarAgendamentosDoProfessor();
                 }
-            });
+
+            } catch (error) {
+                console.error('Erro ao atualizar agendamento:', error);
+                showNotification('Erro ao atualizar agendamento. Tente novamente.', 'error');
+            }
         });
 
         // Botão cancelar
@@ -1462,7 +1555,314 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Inicializar o modal de edição completo
+    // =======================================================
+    // 10. FUNÇÕES DE CARREGAMENTO DE DADOS
+    // =======================================================
+
+    async function carregarKitsDoProfessor() {
+        try {
+            const professorId = usuarioLogado?.id || 'professor-temporario';
+            const response = await kitAPI.listarKitsProfessor(professorId);
+
+            if (response.success) {
+                kitsData = response.kits;
+
+                // DEBUG: Verificar estrutura dos kits
+                console.log('📦 Kits carregados:', kitsData);
+                if (kitsData.length > 0) {
+                    console.log('🔍 Primeiro kit:', kitsData[0]);
+                    console.log('📝 Propriedades do primeiro kit:', Object.keys(kitsData[0]));
+                }
+
+                atualizarTabelaKits();
+                atualizarDropdownKits();
+            }
+        } catch (error) {
+            console.error('Erro ao carregar kits:', error);
+            showNotification('Erro ao carregar kits.', 'error');
+        }
+    }
+
+    async function carregarAgendamentosDoProfessor() {
+        try {
+            const professorId = usuarioLogado?.id || 'professor-temporario';
+            console.log('🔄 Carregando agendamentos para professor:', professorId);
+
+            const response = await agendamentoAPI.listarAgendamentosProfessor(professorId);
+
+            if (response.success) {
+                agendamentosData = response.agendamentos;
+                console.log('✅ Agendamentos carregados:', agendamentosData.length);
+
+                // DEBUG: Verificar status dos agendamentos
+                agendamentosData.forEach((agendamento, index) => {
+                    console.log(`📋 Agendamento ${index + 1}:`, {
+                        data: agendamento.data,
+                        laboratorio: agendamento.laboratorio,
+                        status: agendamento.status,
+                        id: agendamento._id
+                    });
+                });
+
+                debugAgendamentos();
+
+                atualizarTabelaAgendamentos();
+            } else {
+                console.error('❌ Erro na resposta da API:', response);
+                showNotification('Erro ao carregar agendamentos.', 'error');
+            }
+        } catch (error) {
+            console.error('❌ Erro ao carregar agendamentos:', error);
+            showNotification('Erro ao carregar agendamentos.', 'error');
+        }
+    }
+
+    // Função para debug - mostrar todos os agendamentos
+    function debugAgendamentos() {
+        console.log('🐛 DEBUG - Agendamentos atuais:', agendamentosData.length);
+        agendamentosData.forEach((agendamento, index) => {
+            console.log(`  ${index + 1}. ID: ${agendamento._id}, Data: ${agendamento.data}, Lab: ${agendamento.laboratorio}, Status: ${agendamento.status}`);
+        });
+    }
+
+    // Função para atualizar estatísticas do dashboard
+    async function atualizarEstatisticasDashboard() {
+        try {
+            const professorId = usuarioLogado?.id || 'professor-temporario';
+            const response = await estatisticasAPI.getEstatisticasProfessor(professorId);
+
+            if (response.success) {
+                const stats = response.estatisticas;
+
+                // Atualizar os números no dashboard
+                const aulasConfirmadasElement = document.querySelector('.stat-number.text-green');
+                const aulasPendentesElement = document.querySelector('.stat-number.text-amber');
+                const kitsCriadosElement = document.querySelector('.stat-number.text-blue');
+
+                if (aulasConfirmadasElement) aulasConfirmadasElement.textContent = stats.aulasConfirmadas || 0;
+                if (aulasPendentesElement) aulasPendentesElement.textContent = stats.aulasPendentes || 0;
+                if (kitsCriadosElement) kitsCriadosElement.textContent = stats.kitsCriados || 0;
+
+                console.log('📊 Estatísticas atualizadas:', stats);
+            }
+        } catch (error) {
+            console.error('❌ Erro ao atualizar estatísticas:', error);
+        }
+    }
+
+    // Função para atualizar dropdown de kits no agendamento
+    function atualizarDropdownKits() {
+        const kitSelect = document.getElementById('kit-select');
+        const editKitSelect = document.getElementById('editarSelectKitExistente');
+
+        if (kitSelect) {
+            // Limpa opções exceto "Nenhum"
+            while (kitSelect.children.length > 1) {
+                kitSelect.removeChild(kitSelect.lastChild);
+            }
+
+            // Adiciona kits do banco apenas se existirem
+            if (kitsData && kitsData.length > 0) {
+                kitsData.forEach(kit => {
+                    const option = document.createElement('option');
+                    option.value = kit.nome;
+                    option.textContent = kit.nome;
+                    kitSelect.appendChild(option);
+                });
+            }
+        }
+
+        // Repete para o dropdown de edição se existir
+        if (editKitSelect) {
+            while (editKitSelect.children.length > 1) {
+                editKitSelect.removeChild(editKitSelect.lastChild);
+            }
+
+            if (kitsData && kitsData.length > 0) {
+                kitsData.forEach(kit => {
+                    const option = document.createElement('option');
+                    option.value = kit.nome;
+                    option.textContent = kit.nome;
+                    editKitSelect.appendChild(option);
+                });
+            }
+        }
+    }
+
+    function atualizarTabelaAgendamentos() {
+        const tbody = document.querySelector('#agendamentos-content tbody');
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+
+        // Ordenar agendamentos por data (mais recentes primeiro)
+        const agendamentosOrdenados = [...agendamentosData].sort((a, b) => {
+            return new Date(b.dataCriacao) - new Date(a.dataCriacao);
+        });
+
+        agendamentosOrdenados.forEach(agendamento => {
+            const row = document.createElement('tr');
+
+            // Formatar data e horários
+            const dataFormatada = agendamento.data;
+            const horariosFormatados = agendamento.horarios.join(', ');
+
+            // Determinar status e ações
+            let statusBadge = '';
+            let acoes = '';
+
+            switch (agendamento.status) {
+                case 'confirmado':
+                    statusBadge = '<span class="badge status-active">Confirmado</span>';
+                    acoes = '<button class="btn btn-light">👁️ Ver</button>';
+                    break;
+                case 'pendente':
+                    statusBadge = '<span class="badge status-draft">Pendente</span>';
+                    acoes = '<button class="btn btn-light">👁️ Ver</button><button class="btn btn-light">✏️ Editar</button><button class="btn-danger btn-remover">❌ Cancelar</button>';
+                    break;
+                case 'negado':
+                    statusBadge = '<span class="badge status-denied">Negado</span>';
+                    acoes = '<button class="btn btn-light">👁️ Ver</button><button class="btn btn-light">❓ Motivo</button>';
+                    break;
+                case 'cancelado':
+                    statusBadge = '<span class="badge status-disabled">Cancelado</span>';
+                    acoes = '<button class="btn btn-light">👁️ Ver</button>';
+                    break;
+                default:
+                    statusBadge = '<span class="badge status-draft">Pendente</span>';
+                    acoes = '<button class="btn btn-light">👁️ Ver</button><button class="btn btn-light">✏️ Editar</button><button class="btn-danger btn-remover">❌ Cancelar</button>';
+            }
+
+            row.innerHTML = `
+            <td data-label="Data e Hora">${dataFormatada} (${horariosFormatados})</td>
+            <td data-label="Laboratório">${agendamento.laboratorio}</td>
+            <td data-label="Kit/Material Solicitado">${agendamento.kitNome || 'Materiais manuais'}</td>
+            <td data-label="Status">${statusBadge}</td>
+            <td data-label="Ações" class="kit-actions-compact">${acoes}</td>
+        `;
+
+            tbody.appendChild(row);
+        });
+
+        console.log('📊 Tabela de agendamentos atualizada. Total:', agendamentosData.length);
+        console.log('📋 Agendamentos:', agendamentosData.map(a => ({
+            data: a.data,
+            status: a.status,
+            laboratorio: a.laboratorio
+        })));
+    }
+
+    function atualizarTabelaKits() {
+        const tbody = document.querySelector('#kits-content tbody');
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+
+        kitsData.forEach(kit => {
+            const row = document.createElement('tr');
+
+            // Mapear status para classes CSS
+            const statusClass = {
+                'ativo': 'status-active',
+                'rascunho': 'status-draft',
+                'arquivado': 'status-disabled'
+            }[kit.status] || 'status-draft';
+
+            row.innerHTML = `
+            <td data-label="Nome do Kit">${kit.nome}</td>
+            <td data-label="Itens">${kit.materiais ? kit.materiais.length : 0}</td>
+            <td data-label="Usos">${kit.usos || 0}</td>
+            <td data-label="Status"><span class="badge ${statusClass}">${formatStatusForDisplay(kit.status)}</span></td>
+            <td data-label="Criado em">${new Date(kit.dataCriacao).toLocaleDateString('pt-BR')}</td>
+            <td data-label="Ações" class="kit-actions-compact">
+                <button class="btn btn-light">👁️ Ver</button>
+                <button class="btn btn-light">✏️ Editar</button>
+                <button class="btn-remover" style="background: #b9080f; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.875rem;">
+                    🗑️ Remover
+                </button>
+            </td>
+        `;
+
+            tbody.appendChild(row);
+        });
+    }
+
+    // =======================================================
+    // 11. FUNÇÃO DE NOTIFICAÇÃO
+    // =======================================================
+
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.textContent = message;
+
+        notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        z-index: 10000;
+        animation: slideIn 0.3s ease-out;
+    `;
+
+        const colors = {
+            success: '#1b9b46',
+            error: '#b9080f',
+            info: '#2b6ef6',
+            warning: '#db8a00'
+        };
+
+        notification.style.backgroundColor = colors[type] || colors.info;
+
+        document.body.appendChild(notification);
+
+        // Remover após 3 segundos
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease-in';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
+    }
+
+    // =======================================================
+    // 12. INICIALIZAÇÃO FINAL
+    // =======================================================
+
+    // Inicializar funcionalidades dos kits
+    setupViewKitButtons();
+    setupEditKitButtons();
+    setupRemoveKitButtons();
+
+    // Inicializar botões de agendamento
+    setupAgendamentoButtons();
+    setupBotoesFecharAgendamentos();
     setupModalEditarAgendamentoCompleto();
 
+    // Carregar dados iniciais
+    carregarKitsDoProfessor();
+    carregarAgendamentosDoProfessor();
+    atualizarEstatisticasDashboard();
+
+    // Atualizar nome do professor na interface
+    const professorNomeElement = document.getElementById('professor-nome');
+    if (professorNomeElement) {
+        professorNomeElement.textContent = usuarioLogado.nome;
+    }
+
+    window.addEventListener('error', function (e) {
+        console.error('❌ Erro global capturado:', e.error);
+        console.error('📄 Em:', e.filename, 'linha:', e.lineno);
+    });
+
+    // Tratamento de promises não capturadas
+    window.addEventListener('unhandledrejection', function (e) {
+        console.error('❌ Promise rejeitada não capturada:', e.reason);
+        e.preventDefault();
+    });
 });
