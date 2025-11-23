@@ -87,7 +87,7 @@ mongoose.set("strictQuery", true);
 async function conectarAoMongoDB() {
   try {
     await mongoose.connect(process.env.CONEXAO_BD);
-    console.log("Conexão com MongoDB estabelecida!");
+    console.log("conexão com o banco estabelecida!");
   } catch (error) {
     console.error("Erro ao conectar MongoDB:", error);
     process.exit(1);
@@ -170,14 +170,14 @@ app.put("/usuarios/:id", async (req, res) => {
     );
 
 
-    console.log("✅ Usuário atualizado:", usuarioAtualizado);
+    console.log("Usuário atualizado:", usuarioAtualizado);
     res.json({
       message: "Usuário atualizado com sucesso!",
       usuario: usuarioAtualizado
     });
 
   } catch (error) {
-    console.error("❌ Erro ao atualizar usuário:", error);
+    console.error("Erro ao atualizar usuário:", error);
 
     if (error.name === 'ValidationError') {
       return res.status(400).json({ error: "Dados inválidos para atualização." });
@@ -199,9 +199,9 @@ app.delete("/usuarios/:id", async (req, res) => {
       return res.status(404).json({ error: "Usuário não encontrado." })
     }
 
-    console.log("✅ Status do usuário atualizado:", usuario);
+    console.log("Usuário deletado:", usuario.nome);
     res.json({
-      message: `Usuário ${status === 'Ativo' ? 'reativado' : 'desativado'} com sucesso!`,
+      message: "Usuário deletado com sucesso!",
       usuario
     });
 
@@ -288,14 +288,14 @@ app.put("/materiais/:id", async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    console.log("✅ Material atualizado:", materialAtualizado);
+    console.log("Material atualizado:", materialAtualizado);
     res.json({
       message: "Material atualizado com sucesso!",
       material: materialAtualizado
     });
 
   } catch (error) {
-    console.error("❌ Erro ao atualizar material:", error);
+    console.error("Erro ao atualizar material:", error);
 
     if (error.name === 'ValidationError') {
       return res.status(400).json({ error: "Dados inválidos para atualização." });
@@ -391,7 +391,7 @@ app.post("/login", async (req, res) => {
 
     // verifica se existe
     if (!usuario) {
-      console.log("❌ Usuário não encontrado:", email);
+      console.log("Usuário não encontrado:", email);
       return res.status(401).json({
         success: false,
         error: "Credenciais inválidas."
@@ -400,7 +400,7 @@ app.post("/login", async (req, res) => {
 
     // verifica se está ativo
     if (usuario.status !== "Ativo") {
-      console.log("❌ Usuário inativo:", email);
+      console.log("Usuário inativo:", email);
       return res.status(401).json({
         success: false,
         error: "Usuário desativado. Contate o administrador."
@@ -410,14 +410,14 @@ app.post("/login", async (req, res) => {
     // verifica a senha usando bcrypt
     const senhaValida = await bcrypt.compare(password, usuario.password);
     if (!senhaValida) {
-      console.log("❌ Senha inválida para:", email);
+      console.log("Senha inválida para:", email);
       return res.status(401).json({
         success: false,
         error: "Credenciais inválidas."
       });
     }
 
-    console.log("✅ Login bem-sucedido para:", email, "Perfil:", usuario.perfil);
+    console.log("Login bem-sucedido para:", email, "Perfil:", usuario.perfil);
 
     // retorna sucesso com informações do usuário
     res.json({
@@ -434,7 +434,7 @@ app.post("/login", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Erro no processo de login:", error);
+    console.error("Erro no processo de login:", error);
     res.status(500).json({
       success: false,
       error: "Erro interno do servidor."
@@ -449,7 +449,7 @@ app.post("/kits", async (req, res) => {
   try {
     const { nome, descricao, professorId, professorNome, materiais } = req.body;
 
-    console.log("📦 Criando novo kit:", { nome, professorNome });
+    console.log("Criando novo kit:", { nome, professorNome });
 
     if (!nome || !descricao || !professorId || !materiais || materiais.length === 0) {
       return res.status(400).json({
@@ -469,7 +469,7 @@ app.post("/kits", async (req, res) => {
 
     await novoKit.save();
 
-    console.log("✅ Kit criado com sucesso:", novoKit._id);
+    console.log(" Kit criado com sucesso:", novoKit._id);
     res.status(201).json({
       success: true,
       message: "Kit criado com sucesso!",
@@ -477,7 +477,7 @@ app.post("/kits", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Erro ao criar kit:", error);
+    console.error("Erro ao criar kit:", error);
     res.status(500).json({ error: "Erro interno ao criar kit" });
   }
 });
@@ -487,7 +487,7 @@ app.get("/kits/professor/:professorId", async (req, res) => {
   try {
     const { professorId } = req.params;
 
-    console.log("📦 Buscando kits do professor:", professorId);
+    console.log("Buscando kits do professor:", professorId);
 
     const kits = await Kit.find({ professorId }).sort({ dataCriacao: -1 });
 
@@ -497,7 +497,7 @@ app.get("/kits/professor/:professorId", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Erro ao buscar kits:", error);
+    console.error("Erro ao buscar kits:", error);
     res.status(500).json({ error: "Erro interno ao buscar kits" });
   }
 });
@@ -513,7 +513,7 @@ app.get("/kits", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Erro ao buscar kits:", error);
+    console.error("Erro ao buscar kits:", error);
     res.status(500).json({ error: "Erro interno ao buscar kits" });
   }
 });
@@ -524,7 +524,7 @@ app.put("/kits/:id", async (req, res) => {
     const { id } = req.params;
     const { nome, descricao, materiais, status } = req.body;
 
-    console.log("📝 Editando kit ID:", id);
+    console.log("Editando kit ID:", id);
 
     const kit = await Kit.findByIdAndUpdate(
       id,
@@ -541,7 +541,7 @@ app.put("/kits/:id", async (req, res) => {
       return res.status(404).json({ error: "Kit não encontrado." });
     }
 
-    console.log("✅ Kit atualizado:", kit._id);
+    console.log("Kit atualizado:", kit._id);
     res.json({
       success: true,
       message: "Kit atualizado com sucesso!",
@@ -549,7 +549,7 @@ app.put("/kits/:id", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Erro ao atualizar kit:", error);
+    console.error("Erro ao atualizar kit:", error);
     res.status(500).json({ error: "Erro interno ao atualizar kit" });
   }
 });
@@ -559,7 +559,7 @@ app.delete("/kits/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    console.log("🗑️ Deletando kit ID:", id);
+    console.log("Deletando kit ID:", id);
 
     const kit = await Kit.findByIdAndDelete(id);
 
@@ -567,14 +567,14 @@ app.delete("/kits/:id", async (req, res) => {
       return res.status(404).json({ error: "Kit não encontrado." });
     }
 
-    console.log("✅ Kit deletado:", id);
+    console.log("Kit deletado:", id);
     res.json({
       success: true,
       message: "Kit deletado com sucesso!"
     });
 
   } catch (error) {
-    console.error("❌ Erro ao deletar kit:", error);
+    console.error("Erro ao deletar kit:", error);
     res.status(500).json({ error: "Erro interno ao deletar kit" });
   }
 });
@@ -595,7 +595,7 @@ app.post("/agendamentos", async (req, res) => {
       materiaisManuais
     } = req.body;
 
-    console.log("📅 Criando novo agendamento:", { data, laboratorio, professorNome });
+    console.log("Criando novo agendamento:", { data, laboratorio, professorNome });
 
     if (!data || !laboratorio || !horarios || horarios.length === 0 || !professorId) {
       return res.status(400).json({
@@ -638,7 +638,7 @@ app.post("/agendamentos", async (req, res) => {
       await Kit.findByIdAndUpdate(kitId, { $inc: { usos: 1 } });
     }
 
-    console.log("✅ Agendamento criado com sucesso:", novoAgendamento._id);
+    console.log("Agendamento criado com sucesso:", novoAgendamento._id);
     res.status(201).json({
       success: true,
       message: "Agendamento criado com sucesso!",
@@ -646,7 +646,7 @@ app.post("/agendamentos", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Erro ao criar agendamento:", error);
+    console.error("Erro ao criar agendamento:", error);
     res.status(500).json({ error: "Erro interno ao criar agendamento" });
   }
 });
@@ -656,7 +656,7 @@ app.get("/agendamentos/professor/:professorId", async (req, res) => {
   try {
     const { professorId } = req.params;
 
-    console.log("📅 Buscando agendamentos do professor:", professorId);
+    console.log("Buscando agendamentos do professor:", professorId);
 
     const agendamentos = await Agendamento.find({ professorId }).sort({ data: 1, horarios: 1 });
 
@@ -666,7 +666,7 @@ app.get("/agendamentos/professor/:professorId", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Erro ao buscar agendamentos:", error);
+    console.error("Erro ao buscar agendamentos:", error);
     res.status(500).json({ error: "Erro interno ao buscar agendamentos" });
   }
 });
@@ -685,7 +685,7 @@ app.get("/agendamentos", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Erro ao buscar agendamentos:", error);
+    console.error("Erro ao buscar agendamentos:", error);
     res.status(500).json({ error: "Erro interno ao buscar agendamentos" });
   }
 });
@@ -696,7 +696,7 @@ app.put("/agendamentos/:id", async (req, res) => {
     const { id } = req.params;
     const { data, laboratorio, horarios, kitId, kitNome, materiaisManuais } = req.body;
 
-    console.log("📝 Editando agendamento ID:", id);
+    console.log("Editando agendamento ID:", id);
 
     const agendamento = await Agendamento.findByIdAndUpdate(
       id,
@@ -715,7 +715,7 @@ app.put("/agendamentos/:id", async (req, res) => {
       return res.status(404).json({ error: "Agendamento não encontrado." });
     }
 
-    console.log("✅ Agendamento atualizado:", agendamento._id);
+    console.log("Agendamento atualizado:", agendamento._id);
     res.json({
       success: true,
       message: "Agendamento atualizado com sucesso!",
@@ -723,7 +723,7 @@ app.put("/agendamentos/:id", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Erro ao atualizar agendamento:", error);
+    console.error("Erro ao atualizar agendamento:", error);
     res.status(500).json({ error: "Erro interno ao atualizar agendamento" });
   }
 });
@@ -733,7 +733,7 @@ app.patch("/agendamentos/:id/cancelar", async (req, res) => {
   try {
     const { id } = req.params;
 
-    console.log("❌ Cancelando agendamento ID:", id);
+    console.log("Cancelando agendamento ID:", id);
 
     const agendamento = await Agendamento.findByIdAndUpdate(
       id,
@@ -745,7 +745,7 @@ app.patch("/agendamentos/:id/cancelar", async (req, res) => {
       return res.status(404).json({ error: "Agendamento não encontrado." });
     }
 
-    console.log("✅ Agendamento cancelado:", id);
+    console.log("Agendamento cancelado:", id);
     res.json({
       success: true,
       message: "Agendamento cancelado com sucesso!",
@@ -753,7 +753,7 @@ app.patch("/agendamentos/:id/cancelar", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Erro ao cancelar agendamento:", error);
+    console.error("Erro ao cancelar agendamento:", error);
     res.status(500).json({ error: "Erro interno ao cancelar agendamento" });
   }
 });
@@ -764,7 +764,7 @@ app.patch("/agendamentos/:id/status", async (req, res) => {
     const { id } = req.params;
     const { status, motivoNegacao } = req.body;
 
-    console.log("🔄 Atualizando status do agendamento ID:", id, "para:", status);
+    console.log("Atualizando status do agendamento ID:", id, "para:", status);
 
     const agendamento = await Agendamento.findByIdAndUpdate(
       id,
@@ -779,7 +779,7 @@ app.patch("/agendamentos/:id/status", async (req, res) => {
       return res.status(404).json({ error: "Agendamento não encontrado." });
     }
 
-    console.log("✅ Status do agendamento atualizado:", id);
+    console.log("Status do agendamento atualizado:", id);
     res.json({
       success: true,
       message: `Agendamento ${status} com sucesso!`,
@@ -787,7 +787,7 @@ app.patch("/agendamentos/:id/status", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Erro ao atualizar status do agendamento:", error);
+    console.error("Erro ao atualizar status do agendamento:", error);
     res.status(500).json({ error: "Erro interno ao atualizar status do agendamento" });
   }
 });
@@ -796,7 +796,7 @@ app.patch("/agendamentos/:id/status", async (req, res) => {
 app.get("/professor/:professorId/estatisticas", async (req, res) => {
   try {
     const { professorId } = req.params;
-    console.log("📊 Buscando estatísticas para professor:", professorId);
+    console.log("Buscando estatísticas para professor:", professorId);
 
     const agendamentos = await Agendamento.find({ professorId });
     const kits = await Kit.find({ professorId });
@@ -817,7 +817,7 @@ app.get("/professor/:professorId/estatisticas", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Erro detalhado ao buscar estatísticas:", error);
+    console.error("Erro detalhado ao buscar estatísticas:", error);
     res.status(500).json({
       error: "Erro interno ao buscar estatísticas",
       detalhes: error.message
@@ -832,7 +832,45 @@ app.get("/health", (req, res) => {
     timestamp: new Date().toISOString()
   })
 })
+// ======= ESTATÍSTICAS DASHBOARD =======
 
+// Estatísticas para o dashboard adm 
+app.get("/api/stats", async (req, res) => {
+  try {
+    console.log("Buscando estatísticas do dashboard");
+
+    const seteDiasAtras = new Date();
+    seteDiasAtras.setDate(seteDiasAtras.getDate() - 7);
+
+    const novosUsuarios = await Usuario.countDocuments({
+      createdAt: { $gte: seteDiasAtras }
+    });
+
+    const materiaisAtualizados = await Material.countDocuments({
+      $or: [
+        { createdAt: { $gte: seteDiasAtras } },
+        { updatedAt: { $gte: seteDiasAtras } }
+      ]
+    });
+
+    console.log(`Estatísticas: ${novosUsuarios} novos usuários, ${materiaisAtualizados} materiais atualizados`);
+
+    res.json({
+      success: true,
+      stats: {
+        newUsers: novosUsuarios,
+        updatedMaterials: materiaisAtualizados
+      }
+    });
+
+  } catch (error) {
+    console.error("Erro ao buscar estatísticas:", error);
+    res.status(500).json({ 
+      success: false,
+      error: "Erro interno ao buscar estatísticas" 
+    });
+  }
+});
 // iniciar servidor
 conectarAoMongoDB().then(() => {
   app.listen(PORTA, () => console.log(`servidor rodando na porta ${PORTA}`))
