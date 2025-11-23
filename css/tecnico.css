@@ -1,11 +1,3 @@
-/* ---------------------------
-   tecnico.css (integrado)
-   Conteúdo: seu CSS original + complementos para Agendamentos
-   --------------------------- */
-
-/* === (Seu CSS original que você me enviou) === */
-/* (Colei exatamente o CSS que você enviou) */
-
 #cps-header {
     display: flex;
     -webkit-box-align: center;
@@ -158,6 +150,16 @@ body {
     display: block;
 }
 
+#section-title-acoes {
+    color: #BA1A1A;
+    font-weight: 400;
+}
+
+#section-title-atividades {
+    color: #BA1A1A;
+    font-weight: 400;
+}
+
 /* placeholders */
 .placeholder-content {
     background: var(--card-bg);
@@ -185,6 +187,10 @@ body {
     margin: 0 0 24px;
 }
 
+#legenda-dashboard {
+    color: #4A5565;
+}
+
 /* cards/metrics */
 .stats-grid {
     display: grid;
@@ -202,11 +208,29 @@ body {
     text-align: center;
 }
 
-.stat-number {
+#stat-number-agendamentos {
     font-size: 36px;
-    font-weight: 600;
+    font-weight: 400;
+    margin-bottom: 6px;
+    color: rgb(214, 206, 27);
+}
+
+#stat-total-materiais {
+    font-size: 36px;
+    font-weight: 400;
+    margin-bottom: 6px;
+    color: #00A63E;
+}
+
+#stat-total-agendamentos {
+    font-size: 36px;
+    font-weight: 400;
     margin-bottom: 6px;
     color: rgb(42, 73, 212);
+}
+
+#stat-name-cards-dashboard {
+    color: #4A5565;
 }
 
 .stat-label {
@@ -220,7 +244,7 @@ body {
     border: 1px solid var(--border);
     background: transparent;
     cursor: pointer;
-    transition: background-color .2s, box-shadow .2s;
+    transition: background-color 0.2s, box-shadow 0.2s;
 }
 
 .btn-primary {
@@ -372,18 +396,6 @@ th {
 }
 
 /* modal styles */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    z-index: 1000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
 
 .modal-content {
     background: #fff;
@@ -396,25 +408,6 @@ th {
     position: relative;
 }
 
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-}
-
-.modal-title-red {
-    color: #e31f24;
-    font-size: 1.5em;
-    font-weight: bold;
-    margin: 0;
-}
-
-.modal-subtitle-text {
-    color: #555;
-    margin-bottom: 20px;
-    font-size: 0.9em;
-}
 
 .close-modal {
     background: none;
@@ -449,6 +442,9 @@ th {
 /* form */
 .input-group {
     margin-bottom: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 .input-group label {
@@ -456,6 +452,7 @@ th {
     font-weight: 600;
     margin-bottom: 6px;
     color: #333;
+    text-align: left;
 }
 
 .input-group input[type="text"],
@@ -482,15 +479,7 @@ th {
     margin-top: 5px;
     font-size: 0.75em;
     color: #777;
-}
-
-.modal-footer-cadastro {
-    display: flex;
-    justify-content: flex-end;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
-    margin-top: 10px;
-    gap: 10px;
+    font-style: italic;
 }
 
 .btn-primary.btn-red {
@@ -521,6 +510,8 @@ th {
     display: flex;
     gap: 20px;
     margin-bottom: 18px;
+    justify-content: flex-start;
+    align-items: flex-start;
 }
 
 .input-group-row .input-group {
@@ -617,6 +608,12 @@ th {
     align-items: center;
     justify-content: center;
     gap: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: 1px solid var(--border);
 }
 
 .actions-cell .btn-edit-user {
@@ -700,14 +697,6 @@ th {
     border: 1px solid #f8d2d2;
 }
 
-/* ações na tabela */
-.table-actions .btn {
-    padding: 6px 10px;
-    font-size: 13px;
-    min-width: 86px;
-    border-radius: 8px;
-}
-
 .btn-approve {
     background: #1b9b46;
     color: #fff;
@@ -757,29 +746,6 @@ th {
     td {
         padding: 12px;
     }
-}
-
-/* --- ADIÇÕES PARA O MODAL DE MATERIAL --- */
-
-/* Ajuste para alinhar campos lado a lado */
-.input-group-row {
-    display: flex;
-    gap: 20px;
-    /* Espaço entre as colunas */
-    margin-bottom: 18px;
-}
-
-.input-group-row .input-group {
-    flex: 1;
-    /* Faz com que cada campo ocupe metade do espaço disponível */
-    margin-bottom: 0;
-    /* Remove a margem vertical interna, pois a .input-group-row já tem */
-}
-
-/* Garante que o modal de material possa ser um pouco maior se necessário */
-.modal-content.large-modal {
-    max-width: 600px;
-    /* Um pouco mais largo que o de usuário (500px) */
 }
 
 /* === ESTILOS PARA A TELA DE HISTÓRICO === */
@@ -1053,11 +1019,6 @@ th {
     margin-top: 1.2rem;
 }
 
-.card-actions .btn {
-    font-size: 0.85rem;
-    padding: 6px 12px;
-}
-
 .btn-view {
     background-color: #007bff;
     color: #fff;
@@ -1314,18 +1275,6 @@ th {
 }
 
 /* ======= MODAL DE CONFIRMAÇÃO ======= */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
-}
 
 .modal-content {
     background: #fff;
@@ -1336,12 +1285,6 @@ th {
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
 }
 
-/* .modal-actions {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 20px;
-} */
 
 .modal-actions {
     display: flex;
@@ -1757,4 +1700,323 @@ th {
 .agendamento-card.selected {
     background: #c8f7c5;
     border-color: #4CAF50;
+}
+
+
+/* TESTE */
+
+.actions-cell .btn-edit-material {
+    background: #fff;
+    border: 1px solid var(--border);
+    color: #333;
+}
+
+.actions-cell .btn-edit-material:hover {
+    background: #f8f9fa;
+    border-color: #ccc;
+    transform: translateY(-1px);
+}
+
+/* Botão Remover/Desativar - Estilo consistente */
+.actions-cell .btn-remove-user,
+.actions-cell .btn-remove-material {
+    background: transparent;
+    border: 1px solid rgba(185, 8, 15, 0.12);
+    color: var(--red);
+}
+
+.actions-cell .btn-remove-user:hover,
+.actions-cell .btn-remove-material:hover {
+    background: rgba(185, 8, 15, 0.08);
+    border-color: var(--red);
+    transform: translateY(-1px);
+}
+
+/* Botão Reativar - Estilo específico */
+.actions-cell .btn-success {
+    background: transparent;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    color: #16a34a;
+}
+
+.actions-cell .btn-success:hover {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: #16a34a;
+}
+
+/* Botão Perigo - Estilo específico */
+.actions-cell .btn-danger {
+    background: transparent;
+    border: 1px solid rgba(185, 8, 15, 0.2);
+    color: var(--red);
+}
+
+.actions-cell .btn-danger:hover {
+    background: rgba(185, 8, 15, 0.1);
+    border-color: var(--red);
+}
+
+/* Remove estilos antigos dos botões de material */
+.btn-action {
+    all: unset;
+}
+
+.edit-icon,
+.remove-icon {
+    all: unset;
+}
+
+/* Garantir que os botões nas duas abas tenham a mesma aparência */
+#users-table-body .btn,
+#material-table-body .btn {
+    margin-right: 8px;
+    min-width: 98px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+/* Estilo específico para os botões de material para garantir compatibilidade */
+#material-table-body .btn-edit-material {
+    background: #fff;
+    border: 1px solid var(--border);
+    color: #333;
+}
+
+#material-table-body .btn-remove-material {
+    background: transparent;
+    border: 1px solid rgba(185, 8, 15, 0.12);
+    color: var(--red);
+}
+
+#material-table-body .btn-edit-material:hover {
+    background: #f8f9fa;
+    border-color: #ccc;
+}
+
+#material-table-body .btn-remove-material:hover {
+    background: rgba(185, 8, 15, 0.08);
+    border-color: var(--red);
+}
+
+/* NOVO TESTE */
+
+/* --- ESTILOS DO MODAL DE CADASTRO --- */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 500px;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.modal-title-red {
+    color: #e31f24;
+    font-size: 1.5em;
+    font-weight: bold;
+    margin: 0;
+}
+
+.modal-subtitle-text {
+    color: #555;
+    margin-bottom: 20px;
+    font-size: 0.9em;
+    text-align: left;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s;
+    font-weight: normal;
+    font-family: Arial, sans-serif;
+}
+
+.close-modal:hover {
+    color: #333;
+    background-color: #f0f0f0;
+}
+
+.close-modal span {
+    font-size: 18px;
+    color: #666;
+}
+
+.close-modal:hover span {
+    color: #333;
+}
+
+.input-helper {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.75em;
+    color: #777;
+}
+
+.modal-footer-cadastro {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    margin-top: 10px;
+    gap: 10px;
+}
+
+.modal-footer-aprovar {
+    display: flex;
+    justify-content: flex-start;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    margin-top: 10px;
+    gap: 10px;
+}
+
+.btn-primary.btn-red {
+    background-color: #e31f24;
+    border-color: #e31f24;
+    color: white;
+}
+
+.btn-primary.btn-red:hover {
+    background-color: #c91b1f;
+    border-color: #c91b1f;
+}
+
+.btn-cancelar {
+    background: none;
+    color: #777;
+    border: none;
+    padding: 10px 15px;
+    font-size: 1em;
+}
+
+.btn-cancelar:hover {
+    color: #000;
+    background-color: #f0f0f0;
+}
+
+.configs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.lab-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.lab-item:last-child {
+    border-bottom: none;
+}
+
+.lab-info h4 {
+    margin: 0 0 2px 0;
+    font-size: 1em;
+    font-weight: 600;
+}
+
+.lab-info p {
+    margin: 0;
+    font-size: 0.85em;
+    color: var(--muted);
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: var(--red);
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.btn-link:hover {
+    color: #a3070d;
+}
+
+.time-inputs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.time-inputs input[type="time"] {
+    width: 100px;
+    text-align: center;
+}
+
+.time-separator {
+    font-weight: 500;
+    color: #555;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    margin-right: 10px;
+    width: 16px;
+    height: 16px;
+}
+
+/* Campo de entrada Quantidade Inicial (Modal Cadastrar Material) */
+#material-quantity {
+    align-self: flex-start;
+    text-align: left;
+}
+
+/* Botão Cancelar do modal Aprovar Agendamento */
+.btn btn-light btn-cancelar #btn-cancelar-aprovar-agendamento {
+    align-self: left;
+    align-items: left;
+    justify-content: left;
 }
