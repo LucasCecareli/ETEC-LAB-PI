@@ -268,10 +268,17 @@ body {
     background: #fef4f4;
 }
 
+.kits-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+
 /* tables */
 .kit-table-container {
     padding: 0;
     overflow-x: auto;
+    margin-top: 10px;
 }
 
 table {
@@ -1133,6 +1140,11 @@ th {
     justify-content: space-between;
     align-items: flex-start;
     flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.appointment-lab {
+    margin-bottom: 15px;
 }
 
 .appointment-info {
@@ -1185,7 +1197,7 @@ th {
     display: flex;
     flex-wrap: wrap;
     gap: 30px;
-    margin-top: 14px;
+    margin-bottom: 15px;
     font-size: 0.95em;
 }
 
@@ -1196,7 +1208,7 @@ th {
 }
 
 .materials {
-    margin-top: 18px;
+    margin-bottom: 15px;
 }
 
 .materials strong {
@@ -2019,4 +2031,8 @@ th {
     align-self: left;
     align-items: left;
     justify-content: left;
+}
+
+.agendamentos-historico-stats {
+    margin-bottom: 15px;
 }
