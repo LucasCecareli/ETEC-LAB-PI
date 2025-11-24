@@ -16,9 +16,9 @@ document.addEventListener('DOMContentLoaded', function () {
             return originalMudaTamanho.call(this, elemento, incremento);
         };
 
-        console.log('✅ Função mudaTamanho corrigida com sucesso!');
+        console.log('Função mudaTamanho corrigida com sucesso!');
     } else {
-        console.warn('⚠️ Função mudaTamanho não encontrada');
+        console.warn('Função mudaTamanho não encontrada');
     }
 });
 
@@ -1135,8 +1135,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (!agendamento) {
-                console.error('❌ Agendamento não encontrado para:', { dataHora, lab, kit });
-                console.log('📋 Agendamentos disponíveis:', agendamentosData.map(a => ({
+                console.error('Agendamento não encontrado para:', { dataHora, lab, kit });
+                console.log('Agendamentos disponíveis:', agendamentosData.map(a => ({
                     data: a.data,
                     laboratorio: a.laboratorio,
                     kitNome: a.kitNome,
@@ -1146,7 +1146,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            console.log('✅ Agendamento encontrado:', agendamento._id);
+            console.log('Agendamento encontrado:', agendamento._id);
 
             // 👁️ VER
             if (acao.includes('👁️')) {
@@ -1608,18 +1608,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 atualizarTabelaAgendamentos();
             } else {
-                console.error('❌ Erro na resposta da API:', response);
+                console.error('Erro na resposta da API:', response);
                 showNotification('Erro ao carregar agendamentos.', 'error');
             }
         } catch (error) {
-            console.error('❌ Erro ao carregar agendamentos:', error);
+            console.error('Erro ao carregar agendamentos:', error);
             showNotification('Erro ao carregar agendamentos.', 'error');
         }
     }
 
     // Função para debug - mostrar todos os agendamentos
     function debugAgendamentos() {
-        console.log('🐛 DEBUG - Agendamentos atuais:', agendamentosData.length);
+        console.log('🐛DEBUG - Agendamentos atuais:', agendamentosData.length);
         agendamentosData.forEach((agendamento, index) => {
             console.log(`  ${index + 1}. ID: ${agendamento._id}, Data: ${agendamento.data}, Lab: ${agendamento.laboratorio}, Status: ${agendamento.status}`);
         });
