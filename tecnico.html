@@ -6,10 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Painel do Técnico — ETEC-LAB</title>
 
-    
+
     <link rel="stylesheet" href="css/tecnico.css">
 
-    
+
     <script src="js/tecnico.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
@@ -93,7 +93,7 @@
                 </nav>
             </div>
             <div class="govsp-kebab">
-                
+
             </div>
         </div>
 
@@ -131,7 +131,7 @@
 
         <section class="tab-content active" id="visao-geral">
 
-            <h2 class="page-title">Dashboard do Técnico</h2>
+            <h2 class="page-title">Painel do Técnico</h2>
             <p id="legenda-aba" class="subtitle">Bem-vindo ao painel administrativo do técnico. Acompanhe os
                 agendamentos, materiais e histórico.</p>
 
@@ -177,13 +177,13 @@
                     </div>
 
                     <div class="modal-body">
-                        <p class="modal-subtitle-text">Adicione um novo material ao banco de dados do laboratório</p>
+                        <p class="modal-subtitle-text">Aprove os agendamentos pendentes</p>
 
                     </div>
 
                     <div class="modal-footer modal-footer-aprovar">
-                        <button type="button" class="btn btn-light btn-cancelar"
-                            id="btn-cancelar-aprovar-agendamento" data-close="modal-aprovar-agendamento">Cancelar</button>
+                        <button type="button" class="btn btn-light btn-cancelar" id="btn-cancelar-aprovar-agendamento"
+                            data-close="modal-aprovar-agendamento">Cancelar</button>
                     </div>
 
 
@@ -275,38 +275,33 @@
 
 
 
-            <!-- exemplos rápidos (cards) -->
+            <!-- Atividades Recentes -->
 
             <section class="cards-section">
-                <h3 id="section-title-atividades" class="section-title">Atividades Recentes</h3>
+                <h3 id="section-title-acoes" class="section-title">Atividades Recentes</h3>
                 <div class="mini-stats-grid">
-                    <div class="mini-stat card">
-                        <div class="mini-number">5</div>
-                        <div class="mini-label">Novos cadastros (7d)</div>
+                    <div class="mini-stat card" id="users-stat">
+                        <div class="mini-number" id="stats-agendamentos">-</div>
+                        <div class="mini-label">Agendamentos (últimos 7 dias)</div>
                     </div>
-                    <div class="mini-stat card">
-                        <div class="mini-number">12</div>
-                        <div class="mini-label">Kits alterados (7d)</div>
+                    <div class="mini-stat card" id="materials-stat">
+                        <div class="mini-number" id="stats-updated-materials">-</div>
+                        <div class="mini-label">Materiais atualizados (últimos 7 dias)</div>
                     </div>
-                    <div class="mini-stat card">
-                        <div class="mini-number">3</div>
-                        <div class="mini-label">Agendamentos pendentes</div>
-                    </div>
-                    <div class="mini-stat card">
-                        <div class="mini-number">8</div>
-                        <div class="mini-label">Relatórios gerados</div>
-                    </div>
-                </div>
             </section>
         </section>
 
 
-        <!--  agendamentos  -->
+        <!--  Agendamentos  -->
         <section id="agendamentos" class="tab-content">
 
             <div class="content-header">
                 <h2 class="page-title">Agendamentos</h2>
                 <p id="legenda-aba" class="subtitle">Consulte os agendamentos.</p>
+                <div class="row">
+                    <div class="col-2">Total de agendamentos: <strong id="total-agendamentos">0</strong></div>
+                </div>
+
                 <div class="content-actions">
                     <div class="filters-row">
                         <input type="text" id="filter-search" class="filter-input" placeholder="Buscar professor..." />
@@ -317,13 +312,6 @@
                             <option value="week">Esta semana</option>
                             <option value="month">Este mês</option>
                         </select>
-
-                        <select id="filter-class" class="filter-select">
-                            <option value="all">Todas as turmas</option>
-                            <option value="1ano">1º Ano</option>
-                            <option value="2ano">2º Ano</option>
-                            <option value="3ano">3º Ano</option>
-                        </select>
                     </div>
                 </div>
 
@@ -331,10 +319,7 @@
 
             <div class="row cards-container" id="appointments-cards"></div>
 
-            <div class="summary">
-                <p>Total de agendamentos: <span id="total-agendamentos">0</span></p>
-                <p>Agendamentos para hoje: <span id="agendamentos-hoje">0</span></p>
-            </div>
+
 
         </section>
 
@@ -375,7 +360,7 @@
 
                     <!-- container dos cards de agendamentos -->
                     <div id="agendamentos-pendentes-container" class="agendamentos-pendentes-container">
-                        </div>
+                    </div>
                 </div>
 
                 <div class="modal-footer modal-footer-cadastro">
@@ -410,11 +395,10 @@
 
         <div id="toast-approval" class="toast" style="display:none;"></div>
 
-
         <!-- --- MATERIAIS --- -->
         <section class="tab-content" id="materiais">
             <h2 class="page-title">Materiais</h2>
-            <p class="subtitle">Cadastro e inventário de materiais e kits.</p>
+            <p class="subtitle">Inventário de materiais e kits.</p>
 
             <div class="kits-header">
                 <div class="kits-stats">
@@ -516,7 +500,32 @@
         <!-- --- HISTÓRICO --- -->
         <section class="tab-content" id="historico">
             <h2 class="page-title">Histórico</h2>
-            <p id="legenda-aba" class="subtitle">Veja o histórico de aulas concluídas.</p>
+            <p id="legenda-aba" class="subtitle">Veja o histórico de aulas aprovadas e canceladas.</p>
+
+            <div class="agendamentos-historico-header">
+                <div class="agendamentos-historico-stats">
+                    <span>Total de Aulas: <strong id="total-materiais">0</strong></span>
+                </div>
+            </div>
+
+            <div class="agendamento-historico-table-container card">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nome do Professor</th>
+                            <th>Data do Agendamento</th>
+                            <th>Data da Aula</th>
+                            <th>Laboratório</th>
+                            <th>Materiais</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <!-- TABELA VAZIA - JavaScript vai preencher -->
+                    <tbody id="agendamentos-historico-table-body">
+                        <!-- Os materiais serão carregados dinamicamente via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
 
         </section>
 
