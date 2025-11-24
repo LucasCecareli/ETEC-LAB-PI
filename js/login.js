@@ -77,7 +77,7 @@ function redirecionarUsuario(perfil) {
             window.location.href = 'adm.html';
             break;
         case 'técnico':
-            window.location.href = 'técnico.html';
+            window.location.href = 'tecnico.html';
             break;
         default:
             console.warn(`Perfil de usuário desconhecido: ${perfil}. Redirecionando para página padrão.`);
