@@ -123,7 +123,6 @@
         <button class="tab active" data-tab="visao-geral">📊 Painel</button>
         <button class="tab" data-tab="usuarios">👥 Usuários</button>
         <button class="tab" data-tab="materiais">🧪 Materiais</button>
-        <button class="tab" data-tab="relatorios">📈 Relatórios</button>
         <button class="tab" data-tab="configuracoes">⚙️ Configurações</button>
     </nav>
 
@@ -133,7 +132,7 @@
 
         <section class="tab-content active" id="visao-geral">
             <h1 class="page-title">Painel do Administrador</h1>
-            <p class="subtitle">Bem-vindo ao painel administrativo. Acompanhe usuários, materiais e agendamentos.</p>
+            <p class="subtitle">Bem-vindo ao painel administrativo. Acompanhe usuários, materiais e laboratórios.</p>
 
             <div class="stats-grid">
                 <div class="stat card">
@@ -147,8 +146,8 @@
                 </div>
 
                 <div class="stat card">
-                    <div class="stat-number text-blue" id="stat-total-agendamentos">0</div>
-                    <div class="stat-label">Agendamentos este Mês</div>
+                    <div class="stat-number text-blue" id="stat-total-lab">0</div>
+                    <div class="stat-label">Laboratórios disponíveis</div>
                 </div>
             </div>
 
@@ -158,7 +157,6 @@
                     Usuário</button>
                 <button onclick="abrirModal('modal-new-material')" id="btn-add-material" class="btn btn-outline">🧪
                     Adicionar Material</button>
-                <button id="btn-view-reports" class="btn btn-outline">📄 Ver Relatórios</button>
             </div>
 
 
@@ -211,14 +209,22 @@
         <!-- aba materiais -->
         <section class="tab-content" id="materiais">
             <h1 class="page-title">Materiais</h1>
-            <p class="subtitle">Cadastro e inventário de materiais e kits.</p>
+            <p class="subtitle">Cadastro e inventário de materiais e reagentes.</p>
 
             <div class="kits-header">
                 <div class="kits-stats">
                     <span>Total de Itens: <strong id="total-materiais">0</strong></span>
-                    <span>Itens críticos: <strong class="text-amber" id="itens-criticos">0</strong></span>
                 </div>
             </div>
+
+            <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="pesquisa-materiais" placeholder="Pesquisar por nome do item..." class="search-input">
+                <span class="search-icon">🔍</span>
+                <button type="button" id="limpar-pesquisa" class="clear-search" style="display: none;">×</button>
+            </div>
+        </div>
+    </div>
 
             <div class="kit-table-container card">
                 <table class="data-table">
@@ -235,22 +241,6 @@
 
                     </tbody>
                 </table>
-            </div>
-        </section>
-
-
-
-        <!-- aba relatórios -->
-        <section class="tab-content" id="relatorios">
-            <h1 class="page-title">Relatórios</h1>
-            <p class="subtitle">Gere relatórios de uso, consumo e agendamentos.</p>
-
-            <div class="placeholder-content">
-                <p>Selecione um relatório para gerar (consumo mensal, uso por kit, agendamentos por laboratório).</p>
-                <div style="margin-top:16px;">
-                    <button class="btn btn-outline">Relatório: Consumo Mensal</button>
-                    <button class="btn btn-outline">Relatório: Agendamentos</button>
-                </div>
             </div>
         </section>
 
