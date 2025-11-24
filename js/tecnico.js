@@ -312,7 +312,7 @@ async function carregarDashboard() {
     }
 }
 
-// ======================= FUNÇÕES GERAIS =======================
+// FUNÇÕES GERAIS 
 
 // Abrir modal genérico
 const abrirModal = (modalId) => {
@@ -355,6 +355,172 @@ tabs.forEach((tab) => {
         }
     });
 });
+
+
+// Histórico
+// Histórico de Agendamentos - seguindo o mesmo padrão dos materiais
+
+// Histórico de Agendamentos - com classes CSS de status
+
+async function carregarHistorico() {
+    try {
+        const resposta = await axios.get("http://localhost:3000/agendamentos");
+        
+        // Atualizar o array global
+        agendamentos = resposta.data.agendamentos || [];
+
+        // Atualizar a tabela
+        atualizarTabelaHistorico();
+        atualizarTotalAgendamentosDashboard();
+
+    } catch (erro) {
+        console.error("Erro ao carregar histórico:", erro);
+        alert("Erro ao carregar histórico de agendamentos.");
+    }
+}
+
+// function atualizarTabelaHistorico() {
+//     const tbody = document.getElementById('agendamentos-historico-table-body');
+//     if (!tbody) return;
+
+//     tbody.innerHTML = '';
+
+//     const agendamentosFiltrados = agendamentos.filter(agendamento => 
+//         agendamento.status === 'confirmado' || agendamento.status === 'cancelado' || agendamento.status === 'negado'
+//     );
+
+//     if (agendamentosFiltrados.length === 0) {
+//         tbody.innerHTML = `
+//             <tr>
+//                 <td colspan="6" style="text-align: center;">Nenhum agendamento concluído encontrado</td>
+//             </tr>
+//         `;
+//         return;
+//     }
+
+//     agendamentosFiltrados.forEach(agendamento => {
+//         const tr = document.createElement('tr');
+        
+//         const statusInfo = getStatusInfo(agendamento.status);
+//         const laboratorioFormatado = formatarLaboratorio(agendamento.laboratorio);
+//         const materiaisInfo = getMateriaisInfo(agendamento);
+        
+//         tr.innerHTML = `
+//             <td>${agendamento.professorNome || 'N/A'}</td>
+//             <td>${formatarData(agendamento.dataCriacao)}</td>
+//             <td>${formatarData(agendamento.data)}</td>
+//             <td>${laboratorioFormatado}</td>
+//             <td>
+//                 <button class="materiais-btn" onclick="abrirModalMateriais('${agendamento._id}')">
+//                     ${materiaisInfo.text}
+//                 </button>
+//             </td>
+//             <td>
+//                 <span class="status-badge ${statusInfo.class}">
+//                     ${statusInfo.text}
+//                 </span>
+//             </td>
+//         `;
+        
+//         tbody.appendChild(tr);
+//     });
+// }
+
+// function getMateriaisInfo(agendamento) {
+//     if (agendamento.kitNome) {
+//         return { text: 'Ver Kit', tipo: 'kit', nome: agendamento.kitNome };
+//     } else if (agendamento.materiaisManuais && agendamento.materiaisManuais.length > 0) {
+//         return { text: 'Ver Materiais', tipo: 'manuais', quantidade: agendamento.materiaisManuais.length };
+//     }
+//     return { text: 'Sem Materiais', tipo: 'vazio' };
+// }
+
+function atualizarTabelaHistorico() {
+    const tbody = document.getElementById('agendamentos-historico-table-body');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+
+    const agendamentosFiltrados = agendamentos.filter(agendamento => 
+        agendamento.status === 'confirmado' || agendamento.status === 'cancelado' || agendamento.status === 'negado'
+    );
+
+    if (agendamentosFiltrados.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" style="text-align: center;">Nenhum agendamento concluído encontrado</td>
+            </tr>
+        `;
+        return;
+    }
+
+    agendamentosFiltrados.forEach(agendamento => {
+        const tr = document.createElement('tr');
+        
+        const statusInfo = getStatusInfo(agendamento.status);
+        const laboratorioFormatado = formatarLaboratorio(agendamento.laboratorio);
+        
+        tr.innerHTML = `
+            <td>${agendamento.professorNome || 'N/A'}</td>
+            <td>${formatarData(agendamento.dataCriacao)}</td>
+            <td>${formatarData(agendamento.data)}</td>
+            <td>${laboratorioFormatado}</td>
+            <td>
+                <span class="status-badge ${statusInfo.class}">
+                    ${statusInfo.text}
+                </span>
+            </td>
+        `;
+        
+        tbody.appendChild(tr);
+    });
+}
+
+function formatarLaboratorio(lab) {
+    if (!lab) return 'N/A';
+    
+    const labMap = {
+        'quimica-1': 'Laboratório 1',
+        'quimica-2': 'Laboratório 2',
+        'laboratorio-3': 'Laboratório 3',
+        'lab3': 'Laboratório 3'
+        // Laboratórios de informática não são mapeados, aparecerão como estão
+    };
+    
+    // Se estiver no mapa, retorna o nome formatado, senão retorna o original
+    return labMap[lab] || lab;
+}
+
+function getStatusInfo(status) {
+    const statusMap = {
+        'confirmado': { class: 'status-aprovado', text: 'Aprovado' },
+        'cancelado': { class: 'status-negado', text: 'Cancelado' },
+        'negado': { class: 'status-negado', text: 'Cancelado' }
+    };
+    
+    return statusMap[status] || { class: '', text: status };
+}
+
+function atualizarTotalAgendamentosDashboard() {
+    const totalElement = document.getElementById('stat-total-agendamentos');
+    if (totalElement) {
+        const total = agendamentos.filter(ag => 
+            ag.status === 'confirmado' || ag.status === 'cancelado' || ag.status === 'negado'
+        ).length;
+        totalElement.textContent = total;
+    }
+}
+
+
+function formatarData(data) {
+    if (!data) return 'N/A';
+    try {
+        return new Date(data).toLocaleDateString('pt-BR');
+    } catch {
+        return data;
+    }
+}
+// Fim Histórico
 
 // AGENDAMENTOS 
 // AGENDAMENTOS - CONEXÃO COM BACKEND
@@ -728,6 +894,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ======================= MODAIS =======================
 
     await carregarMateriais()
+    await carregarHistorico();
 
     // ===== Modais simples =====
     const modais = document.querySelectorAll('.modal-overlay');
@@ -736,7 +903,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         modal.querySelectorAll('[data-close]').forEach(btn => {
             btn.addEventListener('click', () => fecharModal(btn.dataset.close));
         });
-        setupFormEditUsuario();
     });
 
 
@@ -772,7 +938,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
         // Configurar formulários de edição
-        setupFormEditUsuario();
         setupFormEditMaterial();
     };
     setupUnitSelect('material-unit', 'custom-unit-group', 'custom-unit-text');
