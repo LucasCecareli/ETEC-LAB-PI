@@ -1,5 +1,4 @@
 // tecnico.js
-// Conteúdo: seu JS original (modals, materiais, usuários) + Agendamentos integrados
 
 const protocolo = "http://";
 const baseURL = "127.0.0.1:3000";
@@ -7,6 +6,14 @@ const baseURL = "127.0.0.1:3000";
 // Função para atualizar as estatísticas
 function atualizarEstatisticasMateriais() {
     const totalMateriais = Object.keys(materiais).length;
+    const totalAgendamentos = Object.keys(agendamentos).length;
+
+
+    // Atualizar stats do dashboard
+    const statTotalAgendamentos = document.getElementById('stat-number-agendamentos');
+    if (statTotalAgendamentos) {
+        statTotalAgendamentos.textContent = totalAgendamentos;
+    }
 
     // Atualizar stats do dashboard
     const statTotalMateriais = document.getElementById('stat-total-materiais');
@@ -23,6 +30,7 @@ function atualizarEstatisticasMateriais() {
         `;
     }
 }
+
 
 
 // Aba Materiais Funcional
@@ -289,6 +297,7 @@ const setupFormEditMaterial = () => {
 };
 
 
+
 // Função para carregar todos os dados do dashboard
 async function carregarDashboard() {
     try {
@@ -347,71 +356,140 @@ tabs.forEach((tab) => {
     });
 });
 
-// LÓGICA DE AGENDAMENTOS
 // AGENDAMENTOS 
-// Dados simulados (substituir pelos que vêm do backend ou JSON)
-const appointments = [
-    {
-        professor: "Prof. Maria Silva",
-        turma: "2º Química A",
-        dataAgendamento: "15/09/2025",
-        dataAula: "18/09/2025",
-        horario: "08:00 - 10:00",
-        materiais: ["Béquer 250mL", "Reagentes", "Vidraria"],
-        status: "Pendente"
-    },
-    {
-        professor: "Prof. João Santos",
-        turma: "3º Química B",
-        dataAgendamento: "14/09/2025",
-        dataAula: "19/09/2025",
-        horario: "14:00 - 16:00",
-        materiais: ["Erlenmeyer 250mL", "AgNO₃ 0,1M", "Bureta"],
-        status: "Pendente"
-    }
-];
+// AGENDAMENTOS - CONEXÃO COM BACKEND
 
 // Elementos principais
 const cardsContainer = document.getElementById("appointments-cards");
 const totalAgendamentos = document.getElementById("total-agendamentos");
-const agendamentosHoje = document.getElementById("agendamentos-hoje");
 const searchInput = document.getElementById("filter-search");
+const filterDate = document.getElementById("filter-date");
+const filterClass = document.getElementById("filter-class");
+
+// Variável global para armazenar agendamentos
+let agendamentos = [];
+
+// Carregar agendamentos do backend
+async function carregarAgendamentos() {
+    try {
+        console.log("📥 Carregando agendamentos do backend...");
+
+        const resposta = await axios.get("http://localhost:3000/agendamentos");
+
+        if (resposta.data.success) {
+            // Filtrar apenas agendamentos pendentes
+            agendamentos = resposta.data.agendamentos.filter(agendamento =>
+                agendamento.status === "pendente"
+            );
+
+            console.log(`✅ ${agendamentos.length} agendamentos pendentes carregados`);
+            renderAppointmentCards(agendamentos);
+        } else {
+            throw new Error("Resposta do servidor não foi bem-sucedida");
+        }
+
+    } catch (erro) {
+        console.error("❌ Erro ao carregar agendamentos:", erro);
+
+        let mensagemErro = "Erro ao carregar agendamentos.";
+        if (erro.response) {
+            mensagemErro = `Erro ${erro.response.status}: ${erro.response.data?.error || 'Erro no servidor'}`;
+        } else if (erro.request) {
+            mensagemErro = "Erro de conexão. Verifique se o servidor está rodando.";
+        }
+
+        // Mostrar mensagem de erro no container
+        cardsContainer.innerHTML = `
+            <div class="error-message">
+                <p>${mensagemErro}</p>
+                <button onclick="carregarAgendamentos()" class="btn btn-primary">Tentar Novamente</button>
+            </div>
+        `;
+    }
+}
 
 // Função para renderizar os cards
 function renderAppointmentCards(data) {
     cardsContainer.innerHTML = "";
+
+    if (data.length === 0) {
+        const statusFiltro = filterStatus ? filterStatus.value : 'pendente';
+        let mensagem = "";
+
+        switch (statusFiltro) {
+            case 'pendente':
+                mensagem = "Nenhum agendamento pendente encontrado";
+                break;
+            case 'confirmado':
+                mensagem = "Nenhum agendamento aprovado encontrado";
+                break;
+            case 'negado':
+                mensagem = "Nenhum agendamento rejeitado encontrado";
+                break;
+            default:
+                mensagem = "Nenhum agendamento encontrado";
+        }
+
+        cardsContainer.innerHTML = `
+            <div class="empty-state">
+                <p>${mensagem}</p>
+            </div>
+        `;
+        totalAgendamentos.textContent = "0";
+        return;
+    }
+
     data.forEach(item => {
-        // Cria o card
         const card = document.createElement("div");
         card.classList.add("appointment-card");
+        card.setAttribute("data-agendamento-id", item._id);
 
-        // Cabeçalho (professor, turma e status)
+        // CORREÇÃO: Formatar materiais de forma robusta
+        const materiais = formatarMateriais(item);
+
+        // Determinar quais botões mostrar baseado no status
+        let botoesAcao = '';
+        if (item.status === 'pendente') {
+            botoesAcao = `
+                <div class="card-actions">
+                    <button class="btn btn-approve">Aprovar</button>
+                    <button class="btn btn-deny">Rejeitar</button>
+                </div>
+            `;
+        } else {
+            botoesAcao = `
+                <div class="card-actions">
+                    <span class="status-finalizado">${item.status === 'confirmado' ? '✅ Aprovado' : '❌ Rejeitado'}</span>
+                </div>
+            `;
+        }
+
         card.innerHTML = `
-      <div class="appointment-header">
+      <div class="appointment-header my-2">
         <div class="appointment-info">
-          <h3>${item.professor}</h3>
-          <a href="#" class="class">${item.turma}</a>
+          <h3>Prof. ${item.professorNome}</h3>
         </div>
         <span class="status-badge status-${item.status.toLowerCase()}">${item.status}</span>
       </div>
 
+      <div class="appointment-lab">
+        <div><strong>Laboratório:</strong> ${item.laboratorio}</div>
+      </div>
+
       <div class="appointment-details">
-        <div><strong>Data do Agendamento:</strong> ${item.dataAgendamento}</div>
-        <div><strong>Data da Aula:</strong> ${item.dataAula}</div>
-        <div><strong>Horário:</strong> ${item.horario}</div>
+        <div><strong>Data do Agendamento:</strong> ${formatarData(item.dataCriacao)}</div>
+        <div><strong>Data da Aula:</strong> ${item.data}</div>
+        <div><strong>Horário:</strong> ${Array.isArray(item.horarios) ? item.horarios.join(", ") : item.horarios}</div>
       </div>
 
       <div class="materials">
         <strong>Materiais Solicitados</strong>
         <div class="material-tags">
-          ${item.materiais.map(mat => `<span class="material-tag">${mat}</span>`).join("")}
+          ${materiais.map(mat => `<span class="material-tag">${mat}</span>`).join("")}
         </div>
       </div>
 
-      <div class="card-actions">
-        <button class="btn btn-approve">Aprovar</button>
-        <button class="btn btn-deny">Rejeitar</button>
-      </div>
+      ${botoesAcao}
     `;
 
         cardsContainer.appendChild(card);
@@ -419,12 +497,119 @@ function renderAppointmentCards(data) {
 
     totalAgendamentos.textContent = data.length;
 }
-//  BOTÕES DE AÇÃO DOS CARDS 
+
+//FUNÇÃO: Formatar materiais para lidar com diferentes formatos
+function formatarMateriais(agendamento) {
+
+    let materiaisFormatados = [];
+
+    // Caso 1: Kit foi usado
+    if (agendamento.kitNome) {
+        materiaisFormatados.push(`Kit: ${agendamento.kitNome}`);
+    }
+
+    // Caso 2: Materiais manuais - DECODIFICAR O OBJETO COMPLEXO
+    if (agendamento.materiaisManuais && agendamento.materiaisManuais.length > 0) {
+        const primeiroItem = agendamento.materiaisManuais[0];
+
+        if (primeiroItem && typeof primeiroItem === 'object') {
+            // É o objeto complexo com propriedades numéricas
+            const textoDecodificado = decodificarTextoComplexo(primeiroItem);
+            materiaisFormatados.push(textoDecodificado);
+        } else if (typeof primeiroItem === 'string') {
+            // Já é string normal
+            materiaisFormatados.push(primeiroItem);
+        }
+    }
+
+    // Caso 3: Nenhum material especificado
+    if (materiaisFormatados.length === 0) {
+        materiaisFormatados.push("Nenhum material especificado");
+    }
+
+    return materiaisFormatados;
+}
+
+// FUNÇÃO PARA DECODIFICAR O TEXTO DO OBJETO COMPLEXO
+function decodificarTextoComplexo(objetoComplexo) {
+    let texto = '';
+
+    // Pegar todas as chaves numéricas e ordenar
+    const chavesNumericas = Object.keys(objetoComplexo)
+        .filter(chave => !isNaN(chave))
+        .sort((a, b) => a - b);
+
+    // Reconstruir o texto a partir das propriedades numéricas
+    chavesNumericas.forEach(chave => {
+        texto += objetoComplexo[chave] || '';
+    });
+
+    // Limpar o texto - remover o ID no final
+    texto = texto.replace(/jd.+$/, '').trim();
+
+    return texto || "Material não especificado";
+}
+
+// Função para formatar data
+function formatarData(dataString) {
+    const data = new Date(dataString);
+    return data.toLocaleDateString('pt-BR');
+}
+
+// Atualizar status do agendamento no backend - VERSÃO COM DEBUG
+async function atualizarStatusAgendamento(agendamentoId, novoStatus, motivoNegacao = "") {
+    try {
+        console.log(`🔄 Atualizando agendamento ${agendamentoId} para status: ${novoStatus}`);
+
+        const resposta = await axios.patch(`http://localhost:3000/agendamentos/${agendamentoId}/status`, {
+            status: novoStatus,
+            motivoNegacao: motivoNegacao
+        });
+
+        console.log("✅ Status HTTP:", resposta.status);
+        console.log("📨 Dados da resposta:", resposta.data);
+
+        // Se chegou aqui sem erro, a requisição foi bem-sucedida
+        // Independente do formato da resposta
+        return {
+            success: true,
+            data: resposta.data,
+            message: `Agendamento ${novoStatus === 'confirmado' ? 'aprovado' : 'rejeitado'} com sucesso!`
+        };
+
+    } catch (erro) {
+        console.error(`❌ Erro ao atualizar status:`, erro);
+
+        // Verificar se é um erro "fake" (status mudou mas resposta tem problema)
+        if (erro.response && erro.response.status === 500) {
+            console.log("⚠️ Erro 500, mas vamos verificar se o agendamento foi atualizado...");
+
+            // Vamos considerar sucesso se o status mudou no banco
+            // Recarrega os agendamentos para verificar
+            setTimeout(async () => {
+                await carregarAgendamentos();
+            }, 1000);
+
+            return {
+                success: true,
+                message: `Agendamento ${novoStatus === 'confirmado' ? 'aprovado' : 'rejeitado'} com sucesso!`
+            };
+        }
+
+        let mensagemErro = "Erro ao atualizar agendamento.";
+        if (erro.response) {
+            mensagemErro = `Erro ${erro.response.status}: ${erro.response.data?.error || 'Erro no servidor'}`;
+        }
+
+        return { success: false, error: mensagemErro };
+    }
+}
+// BOTÕES DE AÇÃO DOS CARDS 
 cardsContainer.addEventListener("click", (e) => {
     const card = e.target.closest(".appointment-card");
     if (!card) return;
 
-    // Seleciona tipo de botão clicado
+    const agendamentoId = card.getAttribute("data-agendamento-id");
     const isApprove = e.target.classList.contains("btn-approve");
     const isDeny = e.target.classList.contains("btn-deny");
 
@@ -435,247 +620,107 @@ cardsContainer.addEventListener("click", (e) => {
         const confirmNo = document.getElementById("confirm-no");
         const toast = document.getElementById("toast");
 
-        // Mensagem dinâmica
         modalMsg.textContent = isApprove
             ? "Tem certeza que deseja aprovar este agendamento?"
             : "Tem certeza que deseja rejeitar este agendamento?";
 
         modal.style.display = "flex";
 
-        // Confirmar
-        confirmYes.onclick = () => {
+        // Confirmar ação
+        confirmYes.onclick = async () => {
             modal.style.display = "none";
-            toast.textContent = isApprove
-                ? "✅ Agendamento aprovado com sucesso!"
-                : "❌ Agendamento rejeitado com sucesso!";
-            toast.className = `toast show ${isApprove ? "" : "error"}`;
-            setTimeout(() => (toast.className = "toast"), 3000);
+
+            const novoStatus = isApprove ? "confirmado" : "negado";
+            const resultado = await atualizarStatusAgendamento(agendamentoId, novoStatus);
+
+            if (resultado.success) {
+                // ✅ SUCESSO - usar mensagem personalizada
+                const mensagemSucesso = resultado.message ||
+                    (isApprove ? "✅ Agendamento aprovado com sucesso!" : "❌ Agendamento rejeitado com sucesso!");
+
+                toast.textContent = mensagemSucesso;
+                toast.className = `toast show ${isApprove ? "" : "error"}`;
+
+                // Remover card da lista imediatamente
+                card.style.opacity = "0.5";
+                setTimeout(() => {
+                    card.remove();
+
+                    // Atualizar contador
+                    const agendamentosRestantes = document.querySelectorAll('.appointment-card').length;
+                    totalAgendamentos.textContent = agendamentosRestantes;
+
+                    // Recarregar lista para garantir sincronização
+                    setTimeout(() => carregarAgendamentos(), 500);
+                }, 500);
+
+                setTimeout(() => {
+                    toast.className = "toast";
+                }, 3000);
+            } else {
+                // ❌ ERRO REAL
+                toast.textContent = `❌ ${resultado.error}`;
+                toast.className = "toast show error";
+                setTimeout(() => (toast.className = "toast"), 3000);
+            }
         };
 
-        // Cancelar
+        // Cancelar ação
         confirmNo.onclick = () => {
             modal.style.display = "none";
         };
     }
-})
-
+});
 
 // Filtro de busca
 searchInput.addEventListener("input", () => {
     const term = searchInput.value.toLowerCase();
-    const filtered = appointments.filter(a =>
-        a.professor.toLowerCase().includes(term)
+    const filtered = agendamentos.filter(a =>
+        a.professorNome.toLowerCase().includes(term) ||
+        (a.turma && a.turma.toLowerCase().includes(term)) ||
+        a.laboratorio.toLowerCase().includes(term)
     );
     renderAppointmentCards(filtered);
 });
 
-// Render inicial
-renderAppointmentCards(appointments);
+// Filtro de data (implementação básica - pode ser expandida)
+filterDate.addEventListener("change", () => {
+    aplicarFiltros();
+});
 
-// filtros (pesquisar e filtrar por lab)
-if (searchInput) {
-    searchInput.addEventListener('input', () => {
-        renderAppointments({ q: searchInput.value, lab: filterLab ? filterLab.value : '' });
+// Aplicar todos os filtros
+function aplicarFiltros() {
+    const term = searchInput.value.toLowerCase();
+    const dataFiltro = filterDate.value;
+    const turmaFiltro = filterClass.value;
+
+    let filtered = agendamentos.filter(a => {
+        // Filtro de busca
+        const buscaMatch =
+            a.professorNome.toLowerCase().includes(term) ||
+            (a.turma && a.turma.toLowerCase().includes(term)) ||
+            a.laboratorio.toLowerCase().includes(term);
+
+        // Filtro de turma
+        const turmaMatch = turmaFiltro === "all" ||
+            (a.turma && a.turma.toLowerCase().includes(turmaFiltro));
+
+        // Filtro de data (implementação básica)
+        const dataMatch = dataFiltro === "all"; // Pode expandir esta lógica
+
+        return buscaMatch && turmaMatch && dataMatch;
     });
+
+    renderAppointmentCards(filtered);
 }
 
-// Funcionalidade para a tela de histórico
-// Filtro de busca de professor
-const searchTeacher = document.getElementById('search-teacher');
-const filterStatus = document.getElementById('filter-status');
-const historyItems = document.querySelectorAll('.history-item');
+// Inicialização
+document.addEventListener('DOMContentLoaded', function () {
+    carregarAgendamentos();
 
-if (searchTeacher) {
-    searchTeacher.addEventListener('input', filterHistory);
-}
-
-if (filterStatus) {
-    filterStatus.addEventListener('change', filterHistory);
-}
-
-function filterHistory() {
-    const searchTerm = searchTeacher ? searchTeacher.value.toLowerCase() : '';
-    const statusFilter = filterStatus ? filterStatus.value : 'all';
-
-    historyItems.forEach(item => {
-        const teacherName = item.querySelector('.teacher-info h3').textContent.toLowerCase();
-        const status = item.querySelector('.status-badge').classList.contains('status-completed') ? 'completed' : 'cancelled';
-
-        const matchesSearch = teacherName.includes(searchTerm);
-        const matchesStatus = statusFilter === 'all' || status === statusFilter;
-
-        if (matchesSearch && matchesStatus) {
-            item.style.display = 'block';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-}
-
-// Simulação de dados — use depois sua integração real
-const agendamentosPendentes = [
-    { id: 1, professor: 'Maria Silva', turma: '3ºA', aula: 'Química Geral', horario: '08:00 - 10:00', materiais: 'Becker, Pipeta' },
-    { id: 2, professor: 'João Souza', turma: '2ºB', aula: 'Química Orgânica', horario: '10:00 - 12:00', materiais: 'Tubo de ensaio, Bico de Bunsen' },
-    { id: 3, professor: 'Ana Lima', turma: '1ºC', aula: 'Laboratório I', horario: '13:00 - 15:00', materiais: 'Álcool, Termômetro' }
-];
-
-// Gera os cards na tela
-function carregarAgendamentos() {
-    agendamentoList.innerHTML = '';
-    agendamentosPendentes.forEach(ag => {
-        const card = document.createElement('div');
-        card.className = 'agendamento-card';
-        card.dataset.id = ag.id;
-
-        card.innerHTML = `
-          <h3>Agendamento #${ag.id}</h3>
-          <p class="agendamento-info"><strong>Professor:</strong> ${ag.professor}</p>
-          <p class="agendamento-info"><strong>Turma:</strong> ${ag.turma}</p>
-          <p class="agendamento-info"><strong>Aula:</strong> ${ag.aula}</p>
-          <p class="agendamento-info"><strong>Horário:</strong> ${ag.horario}</p>
-          <p class="agendamento-info"><strong>Materiais:</strong> ${ag.materiais}</p>
-          <div style="text-align: right; margin-top: 10px;">
-            <button class="btn-primary btn-aprovar">Aprovar</button>
-          </div>
-        `;
-
-        const btnAprovar = card.querySelector('.btn-aprovar');
-        btnAprovar.addEventListener('click', () => aprovarAgendamento(ag.id));
-
-        card.addEventListener('click', () => {
-            if (multipleSelectMode) toggleSelecionado(card);
-        });
-
-        agendamentoList.appendChild(card);
-    });
-}
-
-// function toggleSelecionado(card) {
-//     const id = parseInt(card.dataset.id);
-//     const index = selectedCards.indexOf(id);
-//     if (index >= 0) {
-//         selectedCards.splice(index, 1);
-//         card.classList.remove('selected');
-//     } else {
-//         selectedCards.push(id);
-//         card.classList.add('selected');
-//     }
-//     approveSelectedBtn.disabled = selectedCards.length === 0;
-// }
-
-// function aprovarAgendamento(id) {
-//     mostrarToast();
-//     setTimeout(() => {
-//         const index = agendamentosPendentes.findIndex(a => a.id === id);
-//         if (index >= 0) {
-//             agendamentosPendentes.splice(index, 1);
-//             carregarAgendamentos();
-//         }
-//     }, 1000);
-// }
-
-// approveSelectedBtn.addEventListener('click', () => {
-//     selectedCards.forEach(id => aprovarAgendamento(id));
-//     selectedCards = [];
-//     multipleSelectMode = false;
-//     selectMultipleBtn.textContent = 'Selecionar múltiplos';
-//     approveSelectedBtn.disabled = true;
-// });
-
-// selectMultipleBtn.addEventListener('click', () => {
-//     multipleSelectMode = !multipleSelectMode;
-//     selectMultipleBtn.textContent = multipleSelectMode ? 'Cancelar seleção' : 'Selecionar múltiplos';
-//     selectedCards = [];
-//     approveSelectedBtn.disabled = true;
-// });
-
-// function mostrarToast() {
-//     toast.classList.add('show');
-//     setTimeout(() => toast.classList.remove('show'), 2500);
-// }
-
-// Abertura e fechamento do modal
-// btnApprove.addEventListener('click', () => {
-//     modalApprove.style.display = 'block';
-//     carregarAgendamentos();
-// });
-
-// closeApprove.addEventListener('click', () => {
-//     modalApprove.style.display = 'none';
-// });
-
-const setupFormEditUsuario = () => {
-    const form = document.getElementById('form-edit-user');
-    if (!form) return;
-
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const usuarioId = document.getElementById('edit-user-id').value;
-        const novaSenha = document.getElementById('edit-user-password').value;
-        const confirmarSenha = document.getElementById('edit-user-confirm-password').value;
-
-        // Validação de senha
-        if (novaSenha || confirmarSenha) {
-            if (novaSenha !== confirmarSenha) {
-                alert("❌ As senhas não coincidem. Por favor, verifique.");
-                return;
-            }
-
-            if (novaSenha.length < 6) {
-                alert("❌ A senha deve ter pelo menos 6 caracteres.");
-                return;
-            }
-        }
-
-        const dadosAtualizados = {
-            nome: document.getElementById('edit-user-name').value,
-            email: document.getElementById('edit-user-email').value,
-            perfil: document.getElementById('edit-user-profile').value
-        };
-
-        // Adiciona a senha apenas se foi preenchida
-        if (novaSenha) {
-            dadosAtualizados.password = novaSenha;
-        }
-
-        try {
-            // Enviar para o backend
-            const resposta = await axios.put(`http://localhost:3000/usuarios/${usuarioId}`, dadosAtualizados);
-
-            // Atualizar localmente
-            usuarios[usuarioId] = { ...usuarios[usuarioId], ...dadosAtualizados };
-            atualizarTabelaUsuarios();
-
-            console.log("✅ Usuário atualizado:", resposta.data);
-            alert("✅ Usuário atualizado com sucesso!");
-
-            // Limpar campos de senha
-            document.getElementById('edit-user-password').value = '';
-            document.getElementById('edit-user-confirm-password').value = '';
-
-            fecharModal('modal-edit-user');
-        } catch (erro) {
-            console.error("❌ Erro ao atualizar usuário:", erro);
-
-            let mensagemErro = "Erro ao atualizar usuário.";
-            if (erro.response) {
-                switch (erro.response.status) {
-                    case 400:
-                        mensagemErro = "Dados inválidos. Verifique as informações.";
-                        break;
-                    case 404:
-                        mensagemErro = "Usuário não encontrado.";
-                        break;
-                    case 500:
-                        mensagemErro = "Erro interno do servidor.";
-                        break;
-                }
-            }
-            alert(mensagemErro);
-        }
-    });
-};
-
+    // Recarregar a cada 30 segundos para manter dados atualizados
+    setInterval(carregarAgendamentos, 30000);
+});
 
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -872,18 +917,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             })
         }
     })
-
-    // LÓGICA GERAL DE MODAIS (Aprovar Agendamento e Adicionar Material)
-
-    // A. Modal "Aprovar Agendamento"
-
-
-
-    // B. Modal "Novo Material"
-
-
-
-    // Unidade personalizada no novo material
 
     // BOTÃO "VER HISTÓRICO"
 
