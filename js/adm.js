@@ -437,7 +437,6 @@ function atualizarEstatisticasMateriais() {
     if (statsMateriais) {
         statsMateriais.innerHTML = `
             <span>Total de Itens: <strong>${totalMateriais}</strong></span>
-            <span>Itens críticos: <strong class="text-amber">0</strong></span>
         `;
     }
 }
@@ -515,6 +514,123 @@ const setupFormEditMaterial = () => {
         })
     }
 }
+
+// Função para filtrar materiais
+function filtrarMateriais(termo) {
+    const tbody = document.getElementById('material-table-body');
+    const linhas = tbody.querySelectorAll('tr[data-material-id]');
+    const resultadosPesquisa = document.getElementById('resultados-pesquisa');
+    const totalMateriais = document.getElementById('total-materiais');
+    const searchBox = document.querySelector('.search-box');
+    
+    let resultadosEncontrados = 0;
+    const termoLower = termo.toLowerCase().trim();
+
+    linhas.forEach(linha => {
+        const nomeItem = linha.querySelector('.material-item-name').textContent.toLowerCase();
+        const descricao = linha.querySelector('td:nth-child(4)').textContent.toLowerCase();
+        
+        const corresponde = nomeItem.includes(termoLower) || descricao.includes(termoLower);
+        
+        if (corresponde || termoLower === '') {
+            linha.style.display = '';
+            linha.classList.remove('material-row-hidden');
+            resultadosEncontrados++;
+        } else {
+            linha.style.display = 'none';
+            linha.classList.add('material-row-hidden');
+        }
+    });
+
+    if (termoLower !== '') {
+        const total = Object.keys(materiais).length;
+        resultadosPesquisa.textContent = `${resultadosEncontrados} de ${total} itens encontrados`;
+        
+        searchBox.classList.add('searching');
+    } else {
+        resultadosPesquisa.textContent = '';
+        searchBox.classList.remove('searching');
+    }
+
+    if (totalMateriais) {
+        totalMateriais.textContent = Object.keys(materiais).length;
+    }
+}
+
+// Função para configurar a barra de pesquisa
+function configurarBarraPesquisa() {
+    const inputPesquisa = document.getElementById('pesquisa-materiais');
+    const btnLimpar = document.getElementById('limpar-pesquisa');
+
+    if (!inputPesquisa) return;
+
+    inputPesquisa.addEventListener('input', function(e) {
+        const termo = e.target.value;
+        filtrarMateriais(termo);
+        
+        btnLimpar.style.display = termo ? 'block' : 'none';
+    });
+
+    btnLimpar.addEventListener('click', function() {
+        inputPesquisa.value = '';
+        filtrarMateriais('');
+        btnLimpar.style.display = 'none';
+        inputPesquisa.focus();
+    });
+
+    inputPesquisa.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            inputPesquisa.value = '';
+            filtrarMateriais('');
+            btnLimpar.style.display = 'none';
+        }
+    });
+}
+
+function atualizarTabelaMateriais() {
+    const tbody = document.getElementById('material-table-body');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+    Object.keys(materiais).forEach(materialId => {
+        const material = materiais[materialId];
+        const linha = criarLinhaMaterial(materialId, material);
+        tbody.appendChild(linha);
+    });
+
+    const totalMateriais = document.getElementById('total-materiais');
+    if (totalMateriais) {
+        totalMateriais.textContent = Object.keys(materiais).length;
+    }
+
+    const inputPesquisa = document.getElementById('pesquisa-materiais');
+    if (inputPesquisa && inputPesquisa.value) {
+        filtrarMateriais(inputPesquisa.value);
+    }
+}
+
+function criarLinhaMaterial(materialId, material) {
+    const tr = document.createElement('tr');
+    tr.setAttribute('data-material-id', materialId);
+    tr.classList.add('material-row'); 
+
+    tr.innerHTML = `
+        <td data-label="Item" class="material-item-name">${material.item}</td>
+        <td data-label="Quantidade" class="material-quantity">${material.quantidade}</td>
+        <td data-label="Unidade" class="material-unit">${material.unidade}</td>
+        <td data-label="Descrição">${material.descricao}</td>
+        <td data-label="Ações" class="kit-actions-compact actions-cell">
+            <button class="btn btn-light btn-edit-material" data-material-id="${materialId}">
+                ✏️ Editar
+            </button>
+            <button class="btn btn-danger btn-remove-material" data-material-id="${materialId}">
+                🗑️ Remover
+            </button>
+        </td>
+    `;
+
+    return tr;
+}
 // laboratórios
 
 let laboratorios = {};
@@ -531,11 +647,18 @@ async function obterLaboratorios() {
         });
 
         atualizarListaLaboratorios()
+        atualizarStatLab() 
         return laboratorios
 
     } catch (erro) {
         console.error("Erro ao carregar laboratórios:", erro)
         exibirAlerta('.alert-modal-novo-material', "Erro ao carregar laboratórios do servidor", ['show', 'alert-danger'], ['d-none'], 2000)
+        
+        const statTotalLab = document.getElementById('stat-total-lab');
+        if (statTotalLab) {
+            statTotalLab.textContent = '0';
+        }
+        
         return {}
     }
 }
@@ -591,6 +714,32 @@ function atualizarListaLaboratorios() {
     });
 
     console.log("Lista de laboratórios atualizada!");
+}
+function atualizarStatLab() {
+    try {
+        const laboratoriosDisponiveis = Object.values(laboratorios).filter(lab => 
+            lab.disponibilidade === 'disponivel' || lab.disponibilidade === 'Disponível'
+        );
+
+        console.log(`Laboratórios disponíveis: ${laboratoriosDisponiveis.length} de ${Object.keys(laboratorios).length}`);
+
+        const statTotalLab = document.getElementById('stat-total-lab');
+        if (statTotalLab) {
+            statTotalLab.textContent = laboratoriosDisponiveis.length;
+        }
+
+        return laboratoriosDisponiveis.length;
+
+    } catch (erro) {
+        console.error("Erro ao contar laboratórios disponíveis:", erro);
+        
+        const statTotalLab = document.getElementById('stat-total-lab');
+        if (statTotalLab) {
+            statTotalLab.textContent = '0';
+        }
+        
+        return 0;
+    }
 }
 // abre o modal de edição
 const abrirModalEdicaoLab = (labId) => {
@@ -681,32 +830,10 @@ function criarItemLaboratorio(labId, lab) {
     return labItem
 }
 
-// Agendamentos 
-// carrega e atualiza estatísticas de agendamentos
-async function carregarEstatisticasAgendamentos() {
-    try {
-        // Supondo que você tenha uma rota para agendamentos
-        // const resposta = await axios.get("http://localhost:3000/agendamentos")
-        // const agendamentosMes = resposta.data.length
-
-        // Por enquanto, vamos manter o valor mockado ou calcular baseado em alguma lógica
-        const agendamentosMes = 47 // Valor temporário
-
-        const statTotalAgendamentos = document.getElementById('stat-total-agendamentos')
-        if (statTotalAgendamentos) {
-            statTotalAgendamentos.textContent = agendamentosMes
-        }
-
-        return agendamentosMes
-    } catch (erro) {
-        console.error("Erro ao carregar agendamentos:", erro)
-        return 0
-    }
-}
 
 // estatisticas painel adm
 
-const STATS_UPDATE_INTERVAL = 60000; // 1 minuto
+const STATS_UPDATE_INTERVAL = 60000;
 let statsUpdateInterval;
 
 async function buscarEstatisticas() {
@@ -725,7 +852,7 @@ async function buscarEstatisticas() {
     } catch (erro) {
         console.error("Erro ao buscar estatísticas:", erro);
 
-        // Tentar fallback para cálculo local se a rota não existir
+      
         if (erro.response && erro.response.status === 404) {
             console.log("Rota de estatísticas não encontrada, usando cálculo local...");
             calcularEstatisticasLocais();
@@ -798,7 +925,7 @@ async function carregarDashboard() {
         await Promise.all([
             obterUsuarios(),
             obterMateriais(),
-            carregarEstatisticasAgendamentos(),
+            obterLaboratorios(),
             buscarEstatisticas()
         ])
         console.log("Dashboard carregado com sucesso!")
@@ -845,6 +972,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     await obterMateriais()
     await obterLaboratorios()
     iniciarAtualizacaoAutomatica();
+
+    configurarBarraPesquisa()
 
     const modais = document.querySelectorAll('.modal-overlay')
     modais.forEach(modal => {
