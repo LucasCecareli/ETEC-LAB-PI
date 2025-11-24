@@ -281,6 +281,12 @@ body {
     margin-top: 10px;
 }
 
+.agendamento-historico-table-container {
+    padding: 0;
+    overflow-x: auto;
+    margin-top: 10px;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -2035,4 +2041,41 @@ th {
 
 .agendamentos-historico-stats {
     margin-bottom: 15px;
+}
+
+
+
+.materiais-btn {
+    background: #f8f9fa;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.materiais-btn:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.modal-sm {
+    max-width: 400px;
+}
+
+.materiais-lista ul {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.materiais-lista li {
+    margin-bottom: 5px;
+}
+
+.text-muted {
+    color: #6c757d;
+    font-style: italic;
 }

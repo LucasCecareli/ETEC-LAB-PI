@@ -148,7 +148,7 @@
 
                 <div class="stat card">
                     <div class="stat-number text-blue" id="stat-total-agendamentos">0</div>
-                    <div class="stat-label">Aulas realizadas este Mês</div>
+                    <div class="stat-label">Agendamentos Realizados Este Mês</div>
                 </div>
             </div>
 
@@ -403,7 +403,6 @@
             <div class="kits-header">
                 <div class="kits-stats">
                     <span>Total de Itens: <strong id="total-materiais">0</strong></span>
-                    <span>Itens críticos: <strong class="text-amber" id="itens-criticos">0</strong></span>
                 </div>
             </div>
 
@@ -500,15 +499,15 @@
         <!-- --- HISTÓRICO --- -->
         <section class="tab-content" id="historico">
             <h2 class="page-title">Histórico</h2>
-            <p id="legenda-aba" class="subtitle">Veja o histórico de aulas aprovadas e canceladas.</p>
+            <p id="legenda-aba" class="subtitle">Veja o histórico de agendamentos aprovados e cancelados.</p>
 
             <div class="agendamentos-historico-header">
                 <div class="agendamentos-historico-stats">
-                    <span>Total de Aulas: <strong id="total-materiais">0</strong></span>
+                    <span>Total de Agendamentos: <strong id="total-agendamentos">0</strong></span>
                 </div>
             </div>
 
-            <div class="agendamento-historico-table-container card">
+            <div class="kit-table-container card">
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -516,13 +515,11 @@
                             <th>Data do Agendamento</th>
                             <th>Data da Aula</th>
                             <th>Laboratório</th>
-                            <th>Materiais</th>
                             <th>Status</th>
                         </tr>
                     </thead>
-                    <!-- TABELA VAZIA - JavaScript vai preencher -->
                     <tbody id="agendamentos-historico-table-body">
-                        <!-- Os materiais serão carregados dinamicamente via JavaScript -->
+                        <!-- Os agendamentos serão carregados dinamicamente via JavaScript -->
                     </tbody>
                 </table>
             </div>
