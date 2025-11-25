@@ -1,5 +1,3 @@
-// tecnico.js
-
 const protocolo = "http://";
 const baseURL = "127.0.0.1:3000";
 
@@ -26,17 +24,55 @@ function atualizarEstatisticasMateriais() {
     if (statsMateriais) {
         statsMateriais.innerHTML = `
             <span>Total de Itens: <strong>${totalMateriais}</strong></span>
-            <span>Itens críticos: <strong class="text-amber">0</strong></span>
         `;
     }
 }
 
 
+// Função para carregar atividades recentes
+async function carregarAtividadesRecentes() {
+    try {
+        console.log("Carregando atividades recentes...");
+        
+        // Buscar todos os agendamentos
+        const respostaAgendamentos = await axios.get("http://localhost:3000/agendamentos");
+        const todosAgendamentos = respostaAgendamentos.data.agendamentos;
+        
+        // Calcular data de 7 dias atrás
+        const seteDiasAtras = new Date();
+        seteDiasAtras.setDate(seteDiasAtras.getDate() - 7);
+        
+        // Contar agendamentos dos últimos 7 dias
+        const agendamentosRecentes = todosAgendamentos.filter(agendamento => {
+            const dataCriacao = new Date(agendamento.dataCriacao);
+            return dataCriacao >= seteDiasAtras;
+        });
+        
+        console.log(`Agendamentos recentes: ${agendamentosRecentes.length}`);
+        
+        // Atualizar os cards
+        document.getElementById("stats-agendamentos").textContent = agendamentosRecentes.length;
+        
+    } catch (erro) {
+        console.error("Erro ao carregar atividades recentes:", erro);
+        // Valores padrão em caso de erro
+        document.getElementById("stats-agendamentos").textContent = "0";
+    }
+}
+
+// Atualiza a função carregarDashboard
+async function carregarDashboard() {
+    try {
+        await carregarAtividadesRecentes();
+        // Suas outras funções...
+    } catch (erro) {
+        console.error("Erro no dashboard:", erro);
+    }
+}
+
 
 // Aba Materiais Funcional
-
 // Materiais 
-
 // Verifica se o material já existe
 async function verificarMaterialExistente(nome, descricao) {
     try {
@@ -81,7 +117,7 @@ async function verificarMaterialExistente(nome, descricao) {
     }
 }
 
-// cadastro de materiais
+// Cadastro de materiais
 async function cadastrarMaterial() {
     const nome = document.getElementById("material-name").value.trim();
     const descricao = document.getElementById("material-description").value.trim();
@@ -358,9 +394,6 @@ tabs.forEach((tab) => {
 
 
 // Histórico
-// Histórico de Agendamentos - seguindo o mesmo padrão dos materiais
-
-// Histórico de Agendamentos - com classes CSS de status
 
 async function carregarHistorico() {
     try {
@@ -378,62 +411,6 @@ async function carregarHistorico() {
         alert("Erro ao carregar histórico de agendamentos.");
     }
 }
-
-// function atualizarTabelaHistorico() {
-//     const tbody = document.getElementById('agendamentos-historico-table-body');
-//     if (!tbody) return;
-
-//     tbody.innerHTML = '';
-
-//     const agendamentosFiltrados = agendamentos.filter(agendamento => 
-//         agendamento.status === 'confirmado' || agendamento.status === 'cancelado' || agendamento.status === 'negado'
-//     );
-
-//     if (agendamentosFiltrados.length === 0) {
-//         tbody.innerHTML = `
-//             <tr>
-//                 <td colspan="6" style="text-align: center;">Nenhum agendamento concluído encontrado</td>
-//             </tr>
-//         `;
-//         return;
-//     }
-
-//     agendamentosFiltrados.forEach(agendamento => {
-//         const tr = document.createElement('tr');
-        
-//         const statusInfo = getStatusInfo(agendamento.status);
-//         const laboratorioFormatado = formatarLaboratorio(agendamento.laboratorio);
-//         const materiaisInfo = getMateriaisInfo(agendamento);
-        
-//         tr.innerHTML = `
-//             <td>${agendamento.professorNome || 'N/A'}</td>
-//             <td>${formatarData(agendamento.dataCriacao)}</td>
-//             <td>${formatarData(agendamento.data)}</td>
-//             <td>${laboratorioFormatado}</td>
-//             <td>
-//                 <button class="materiais-btn" onclick="abrirModalMateriais('${agendamento._id}')">
-//                     ${materiaisInfo.text}
-//                 </button>
-//             </td>
-//             <td>
-//                 <span class="status-badge ${statusInfo.class}">
-//                     ${statusInfo.text}
-//                 </span>
-//             </td>
-//         `;
-        
-//         tbody.appendChild(tr);
-//     });
-// }
-
-// function getMateriaisInfo(agendamento) {
-//     if (agendamento.kitNome) {
-//         return { text: 'Ver Kit', tipo: 'kit', nome: agendamento.kitNome };
-//     } else if (agendamento.materiaisManuais && agendamento.materiaisManuais.length > 0) {
-//         return { text: 'Ver Materiais', tipo: 'manuais', quantidade: agendamento.materiaisManuais.length };
-//     }
-//     return { text: 'Sem Materiais', tipo: 'vazio' };
-// }
 
 function atualizarTabelaHistorico() {
     const tbody = document.getElementById('agendamentos-historico-table-body');
@@ -483,7 +460,7 @@ function formatarLaboratorio(lab) {
         'quimica-1': 'Laboratório 1',
         'quimica-2': 'Laboratório 2',
         'laboratorio-3': 'Laboratório 3',
-        'lab3': 'Laboratório 3'
+        'quimica-3': 'Laboratório 3'
         // Laboratórios de informática não são mapeados, aparecerão como estão
     };
     
@@ -520,11 +497,11 @@ function formatarData(data) {
         return data;
     }
 }
+
 // Fim Histórico
 
 // AGENDAMENTOS 
 // AGENDAMENTOS - CONEXÃO COM BACKEND
-
 // Elementos principais
 const cardsContainer = document.getElementById("appointments-cards");
 const totalAgendamentos = document.getElementById("total-agendamentos");
@@ -610,10 +587,8 @@ function renderAppointmentCards(data) {
         card.classList.add("appointment-card");
         card.setAttribute("data-agendamento-id", item._id);
 
-        // CORREÇÃO: Formatar materiais de forma robusta
         const materiais = formatarMateriais(item);
 
-        // Determinar quais botões mostrar baseado no status
         let botoesAcao = '';
         if (item.status === 'pendente') {
             botoesAcao = `
@@ -664,7 +639,7 @@ function renderAppointmentCards(data) {
     totalAgendamentos.textContent = data.length;
 }
 
-//FUNÇÃO: Formatar materiais para lidar com diferentes formatos
+// Função formatar materiais para lidar com diferentes formatos
 function formatarMateriais(agendamento) {
 
     let materiaisFormatados = [];
@@ -722,7 +697,7 @@ function formatarData(dataString) {
     return data.toLocaleDateString('pt-BR');
 }
 
-// Atualizar status do agendamento no backend - VERSÃO COM DEBUG
+// Atualizar status do agendamento no backend
 async function atualizarStatusAgendamento(agendamentoId, novoStatus, motivoNegacao = "") {
     try {
         console.log(`🔄 Atualizando agendamento ${agendamentoId} para status: ${novoStatus}`);
@@ -849,11 +824,6 @@ searchInput.addEventListener("input", () => {
     renderAppointmentCards(filtered);
 });
 
-// Filtro de data (implementação básica - pode ser expandida)
-filterDate.addEventListener("change", () => {
-    aplicarFiltros();
-});
-
 // Aplicar todos os filtros
 function aplicarFiltros() {
     const term = searchInput.value.toLowerCase();
@@ -883,20 +853,23 @@ function aplicarFiltros() {
 // Inicialização
 document.addEventListener('DOMContentLoaded', function () {
     carregarAgendamentos();
+    carregarAtividadesRecentes();
 
     // Recarregar a cada 30 segundos para manter dados atualizados
     setInterval(carregarAgendamentos, 30000);
+    setInterval(carregarAtividadesRecentes, 30000)
 });
 
 
 document.addEventListener('DOMContentLoaded', async () => {
 
-    // ======================= MODAIS =======================
+    // MODAIS 
 
     await carregarMateriais()
     await carregarHistorico();
 
-    // ===== Modais simples =====
+
+    // Modais simples 
     const modais = document.querySelectorAll('.modal-overlay');
     modais.forEach(modal => {
         modal.addEventListener('click', (e) => { if (e.target === modal) fecharModal(modal.id); });
@@ -913,7 +886,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // ===== Seleção de unidade "Outro" =====
+    // Seleção de unidade "Outro" 
     const setupUnitSelect = (selectId, customGroupId, customInputId) => {
         const select = document.getElementById(selectId);
         const customGroup = document.getElementById(customGroupId);
@@ -943,9 +916,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupUnitSelect('material-unit', 'custom-unit-group', 'custom-unit-text');
     setupUnitSelect('edit-material-unit', 'custom-edit-unit-group', 'custom-edit-unit-text');
 
-    // ================== FORMULÁRIOS ==================
+    // FORMULÁRIOS 
 
-    // --- Novo Material ---
+    // Novo Material 
     const formNewMaterial = document.getElementById('form-new-material');
     if (formNewMaterial) {
         formNewMaterial.addEventListener('submit', e => {
@@ -956,9 +929,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // ================== MODAIS DE EDIÇÃO DADOS ==================
+    // MODAIS DE EDIÇÃO DADOS 
 
-    // ================== FORMULÁRIOS DE EDIÇÃO ==================
+    // FORMULÁRIOS DE EDIÇÃO
     const setupFormEdit = (formId, dataObj, updateRowCallback) => {
         const form = document.getElementById(formId);
         if (!form) return;
@@ -980,7 +953,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
 
-    // --- Editar Material ---
+    // Editar Material 
     const formEditMaterial = document.getElementById('form-edit-material')
     if (formEditMaterial) {
         formEditMaterial.addEventListener('submit', async (e) => {
@@ -1091,6 +1064,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (btnVerHistorico && tabHistorico) {
         btnVerHistorico.addEventListener("click", () => {
             tabHistorico.click(); // Abre a aba Histórico
+        });
+    }
+
+    // BOTÃO "VER AGENDAMENTOS"
+
+    const btnVerAgendamentos = document.getElementById("btn-ver-agendamentos");
+    const tabAgendamentos = document.querySelector('.tab[data-tab="agendamentos"]');
+
+    if (btnVerAgendamentos && tabAgendamentos) {
+        btnVerAgendamentos.addEventListener("click", () => {
+            tabAgendamentos.click(); // Abre a aba Agendamentos
+        });
+    }
+
+    // BOTÃO "VER MATERIAIS"
+
+    const btnVerMateriais = document.getElementById("btn-ver-materiais");
+    const tabMateriais = document.querySelector('.tab[data-tab="materiais"]');
+
+    if (btnVerMateriais && tabMateriais) {
+        btnVerMateriais.addEventListener("click", () => {
+            tabMateriais.click(); // Abre a aba Materiais
         });
     }
 
