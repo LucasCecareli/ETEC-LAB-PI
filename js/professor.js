@@ -127,7 +127,45 @@ const estatisticasAPI = {
 let kitsData = [];
 let agendamentosData = [];
 
+// Função para carregar laboratórios do backend
+async function carregarLaboratorios() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/laboratorios`);
+        const laboratorios = await response.json();
+        
+        const labSelect = document.getElementById('lab-select');
+        if (labSelect) {
+            // Limpar opções existentes
+            labSelect.innerHTML = '<option value="">Selecione um laboratório</option>';
+            
+            // Adicionar laboratórios do banco
+            laboratorios.forEach(lab => {
+                const option = document.createElement('option');
+                option.value = lab.nome; // Usar o nome REAL do banco
+                option.textContent = lab.nome;
+                labSelect.appendChild(option);
+            });
+            
+            console.log('✅ Laboratórios carregados:', laboratorios.map(l => l.nome));
+        }
+    } catch (error) {
+        console.error('❌ Erro ao carregar laboratórios:', error);
+        // Fallback para laboratórios padrão
+        const labSelect = document.getElementById('lab-select');
+        if (labSelect) {
+            labSelect.innerHTML = `
+                <option value="">Selecione um laboratório</option>
+                <option value="Laboratório 1">Laboratório 1</option>
+                <option value="Laboratório 2">Laboratório 2</option>
+                <option value="Laboratório 3">Laboratório 3</option>
+            `;
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    // Carregar laboratórios dinamicamente
+    carregarLaboratorios();
 
     // =======================================================
     // 1. LÓGICA DE TROCA DE ABAS
@@ -347,13 +385,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 <input type="checkbox" id="${itemId}" value="${time}" data-time="${time}">
             `;
 
-
             const checkbox = checkboxItem.querySelector('input');
             checkbox.addEventListener('change', handleTimeSelection);
 
             timeSelectContainer.appendChild(checkboxItem);
         });
-
 
         handleTimeSelection();
     }
