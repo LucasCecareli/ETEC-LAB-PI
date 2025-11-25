@@ -2,7 +2,7 @@ const PORTA = process.env.PORTA || 3000;
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
-const uniqueValidator = require("mongoose-unique-validator");
+const uniqueVaquiidator = require("mongoose-unique-validator");
 const dotenv = require("dotenv");
 const bcrypt = require("bcrypt");
 
@@ -94,7 +94,7 @@ async function conectarAoMongoDB() {
   }
 }
 
-// Usuarios 
+// ======= USUÁRIOS =======
 
 // Listar usuários
 app.get("/usuarios", async (req, res) => {
@@ -135,7 +135,7 @@ app.post("/usuarios", async (req, res) => {
   }
 });
 
-// edição de usuarios
+// Edição de usuarios
 app.put("/usuarios/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -169,15 +169,14 @@ app.put("/usuarios/:id", async (req, res) => {
       { new: true, runValidators: true }
     );
 
-
-    console.log("Usuário atualizado:", usuarioAtualizado);
+    console.log("✅ Usuário atualizado:", usuarioAtualizado);
     res.json({
       message: "Usuário atualizado com sucesso!",
       usuario: usuarioAtualizado
     });
 
   } catch (error) {
-    console.error("Erro ao atualizar usuário:", error);
+    console.error("❌ Erro ao atualizar usuário:", error);
 
     if (error.name === 'ValidationError') {
       return res.status(400).json({ error: "Dados inválidos para atualização." });
@@ -187,16 +186,16 @@ app.put("/usuarios/:id", async (req, res) => {
   }
 });
 
-// deletar usuario
+// Deletar usuario
 app.delete("/usuarios/:id", async (req, res) => {
   try {
-    const { id } = req.params
-    console.log("Deletando usuário ID:", id)
+    const { id } = req.params;
+    console.log("Deletando usuário ID:", id);
 
-    const usuario = await Usuario.findByIdAndDelete(id)
+    const usuario = await Usuario.findByIdAndDelete(id);
 
     if (!usuario) {
-      return res.status(404).json({ error: "Usuário não encontrado." })
+      return res.status(404).json({ error: "Usuário não encontrado." });
     }
 
     console.log("Usuário deletado:", usuario.nome);
@@ -206,18 +205,17 @@ app.delete("/usuarios/:id", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Erro ao deletar usuário:", error)
+    console.error("Erro ao deletar usuário:", error);
 
     if (error.name === 'CastError') {
-      return res.status(400).json({ error: "ID do usuário inválido." })
+      return res.status(400).json({ error: "ID do usuário inválido." });
     }
 
-    res.status(500).json({ error: "Erro interno ao deletar usuário." })
+    res.status(500).json({ error: "Erro interno ao deletar usuário." });
   }
 });
 
-
-//Materiais 
+// ======= MATERIAIS =======
 
 // Lista todos os materiais
 app.get("/materiais", async (req, res) => {
@@ -305,7 +303,7 @@ app.put("/materiais/:id", async (req, res) => {
   }
 });
 
-// deletar material
+// Deletar material
 app.delete("/materiais/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -327,24 +325,22 @@ app.delete("/materiais/:id", async (req, res) => {
   }
 });
 
-// laboratórios
+// ======= LABORATÓRIOS =======
 
-// buscar laboratórios
+// Buscar laboratórios
 app.get("/laboratorios", async (req, res) => {
   try {
     console.log("Buscando todos os laboratórios");
-
     const laboratorios = await Laboratorio.find();
     console.log("Laboratórios encontrados:", laboratorios.length);
-
     res.json(laboratorios);
-
   } catch (error) {
     console.error("Erro ao buscar laboratórios:", error);
     res.status(500).json({ error: "Erro interno ao buscar laboratórios" });
   }
 });
-// atualizar laboratórios
+
+// Atualizar laboratórios
 app.put("/laboratorios/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -371,25 +367,20 @@ app.put("/laboratorios/:id", async (req, res) => {
   }
 });
 
-// ======= Login =======
+// ======= LOGIN =======
 app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
     console.log("Tentativa de login para:", email);
 
-    // valida a entrada
     if (!email || !password) {
       return res.status(400).json({
         success: false,
         error: "E-mail e senha são obrigatórios."
       });
     }
-
-    // busca o usuário no MongoDB pelo email
     const usuario = await Usuario.findOne({ email });
-
-    // verifica se existe
     if (!usuario) {
       console.log("Usuário não encontrado:", email);
       return res.status(401).json({
@@ -397,8 +388,6 @@ app.post("/login", async (req, res) => {
         error: "Credenciais inválidas."
       });
     }
-
-    // verifica se está ativo
     if (usuario.status !== "Ativo") {
       console.log("Usuário inativo:", email);
       return res.status(401).json({
@@ -407,7 +396,6 @@ app.post("/login", async (req, res) => {
       });
     }
 
-    // verifica a senha usando bcrypt
     const senhaValida = await bcrypt.compare(password, usuario.password);
     if (!senhaValida) {
       console.log("Senha inválida para:", email);
@@ -419,7 +407,6 @@ app.post("/login", async (req, res) => {
 
     console.log("Login bem-sucedido para:", email, "Perfil:", usuario.perfil);
 
-    // retorna sucesso com informações do usuário
     res.json({
       success: true,
       message: "Login realizado com sucesso!",
@@ -449,7 +436,7 @@ app.post("/kits", async (req, res) => {
   try {
     const { nome, descricao, professorId, professorNome, materiais } = req.body;
 
-    console.log("Criando novo kit:", { nome, professorNome });
+    console.log("📦 Criando novo kit:", { nome, professorNome });
 
     if (!nome || !descricao || !professorId || !materiais || materiais.length === 0) {
       return res.status(400).json({
@@ -469,7 +456,7 @@ app.post("/kits", async (req, res) => {
 
     await novoKit.save();
 
-    console.log(" Kit criado com sucesso:", novoKit._id);
+    console.log("✅ Kit criado com sucesso:", novoKit._id);
     res.status(201).json({
       success: true,
       message: "Kit criado com sucesso!",
@@ -477,7 +464,7 @@ app.post("/kits", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Erro ao criar kit:", error);
+    console.error("❌ Erro ao criar kit:", error);
     res.status(500).json({ error: "Erro interno ao criar kit" });
   }
 });
@@ -487,7 +474,7 @@ app.get("/kits/professor/:professorId", async (req, res) => {
   try {
     const { professorId } = req.params;
 
-    console.log("Buscando kits do professor:", professorId);
+    console.log("📦 Buscando kits do professor:", professorId);
 
     const kits = await Kit.find({ professorId }).sort({ dataCriacao: -1 });
 
@@ -497,7 +484,7 @@ app.get("/kits/professor/:professorId", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Erro ao buscar kits:", error);
+    console.error("❌ Erro ao buscar kits:", error);
     res.status(500).json({ error: "Erro interno ao buscar kits" });
   }
 });
@@ -513,7 +500,7 @@ app.get("/kits", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Erro ao buscar kits:", error);
+    console.error("❌ Erro ao buscar kits:", error);
     res.status(500).json({ error: "Erro interno ao buscar kits" });
   }
 });
@@ -524,7 +511,7 @@ app.put("/kits/:id", async (req, res) => {
     const { id } = req.params;
     const { nome, descricao, materiais, status } = req.body;
 
-    console.log("Editando kit ID:", id);
+    console.log("📝 Editando kit ID:", id);
 
     const kit = await Kit.findByIdAndUpdate(
       id,
@@ -541,7 +528,7 @@ app.put("/kits/:id", async (req, res) => {
       return res.status(404).json({ error: "Kit não encontrado." });
     }
 
-    console.log("Kit atualizado:", kit._id);
+    console.log("✅ Kit atualizado:", kit._id);
     res.json({
       success: true,
       message: "Kit atualizado com sucesso!",
@@ -549,7 +536,7 @@ app.put("/kits/:id", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Erro ao atualizar kit:", error);
+    console.error("❌ Erro ao atualizar kit:", error);
     res.status(500).json({ error: "Erro interno ao atualizar kit" });
   }
 });
@@ -559,7 +546,7 @@ app.delete("/kits/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    console.log("Deletando kit ID:", id);
+    console.log("🗑️ Deletando kit ID:", id);
 
     const kit = await Kit.findByIdAndDelete(id);
 
@@ -567,14 +554,14 @@ app.delete("/kits/:id", async (req, res) => {
       return res.status(404).json({ error: "Kit não encontrado." });
     }
 
-    console.log("Kit deletado:", id);
+    console.log("✅ Kit deletado:", id);
     res.json({
       success: true,
       message: "Kit deletado com sucesso!"
     });
 
   } catch (error) {
-    console.error("Erro ao deletar kit:", error);
+    console.error("❌ Erro ao deletar kit:", error);
     res.status(500).json({ error: "Erro interno ao deletar kit" });
   }
 });
@@ -595,7 +582,7 @@ app.post("/agendamentos", async (req, res) => {
       materiaisManuais
     } = req.body;
 
-    console.log("Criando novo agendamento:", { data, laboratorio, professorNome });
+    console.log("📅 Criando novo agendamento:", { data, laboratorio, professorNome });
 
     if (!data || !laboratorio || !horarios || horarios.length === 0 || !professorId) {
       return res.status(400).json({
@@ -638,7 +625,7 @@ app.post("/agendamentos", async (req, res) => {
       await Kit.findByIdAndUpdate(kitId, { $inc: { usos: 1 } });
     }
 
-    console.log("Agendamento criado com sucesso:", novoAgendamento._id);
+    console.log("✅ Agendamento criado com sucesso:", novoAgendamento._id);
     res.status(201).json({
       success: true,
       message: "Agendamento criado com sucesso!",
@@ -646,7 +633,7 @@ app.post("/agendamentos", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Erro ao criar agendamento:", error);
+    console.error("❌ Erro ao criar agendamento:", error);
     res.status(500).json({ error: "Erro interno ao criar agendamento" });
   }
 });
@@ -656,7 +643,7 @@ app.get("/agendamentos/professor/:professorId", async (req, res) => {
   try {
     const { professorId } = req.params;
 
-    console.log("Buscando agendamentos do professor:", professorId);
+    console.log("📅 Buscando agendamentos do professor:", professorId);
 
     const agendamentos = await Agendamento.find({ professorId }).sort({ data: 1, horarios: 1 });
 
@@ -666,7 +653,7 @@ app.get("/agendamentos/professor/:professorId", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Erro ao buscar agendamentos:", error);
+    console.error("❌ Erro ao buscar agendamentos:", error);
     res.status(500).json({ error: "Erro interno ao buscar agendamentos" });
   }
 });
@@ -685,7 +672,7 @@ app.get("/agendamentos", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Erro ao buscar agendamentos:", error);
+    console.error("❌ Erro ao buscar agendamentos:", error);
     res.status(500).json({ error: "Erro interno ao buscar agendamentos" });
   }
 });
@@ -696,7 +683,7 @@ app.put("/agendamentos/:id", async (req, res) => {
     const { id } = req.params;
     const { data, laboratorio, horarios, kitId, kitNome, materiaisManuais } = req.body;
 
-    console.log("Editando agendamento ID:", id);
+    console.log("📝 Editando agendamento ID:", id);
 
     const agendamento = await Agendamento.findByIdAndUpdate(
       id,
@@ -715,7 +702,7 @@ app.put("/agendamentos/:id", async (req, res) => {
       return res.status(404).json({ error: "Agendamento não encontrado." });
     }
 
-    console.log("Agendamento atualizado:", agendamento._id);
+    console.log("✅ Agendamento atualizado:", agendamento._id);
     res.json({
       success: true,
       message: "Agendamento atualizado com sucesso!",
@@ -723,7 +710,7 @@ app.put("/agendamentos/:id", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Erro ao atualizar agendamento:", error);
+    console.error("❌ Erro ao atualizar agendamento:", error);
     res.status(500).json({ error: "Erro interno ao atualizar agendamento" });
   }
 });
@@ -733,7 +720,7 @@ app.patch("/agendamentos/:id/cancelar", async (req, res) => {
   try {
     const { id } = req.params;
 
-    console.log("Cancelando agendamento ID:", id);
+    console.log("❌ Cancelando agendamento ID:", id);
 
     const agendamento = await Agendamento.findByIdAndUpdate(
       id,
@@ -745,7 +732,7 @@ app.patch("/agendamentos/:id/cancelar", async (req, res) => {
       return res.status(404).json({ error: "Agendamento não encontrado." });
     }
 
-    console.log("Agendamento cancelado:", id);
+    console.log("✅ Agendamento cancelado:", id);
     res.json({
       success: true,
       message: "Agendamento cancelado com sucesso!",
@@ -753,7 +740,7 @@ app.patch("/agendamentos/:id/cancelar", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Erro ao cancelar agendamento:", error);
+    console.error("❌ Erro ao cancelar agendamento:", error);
     res.status(500).json({ error: "Erro interno ao cancelar agendamento" });
   }
 });
@@ -764,7 +751,7 @@ app.patch("/agendamentos/:id/status", async (req, res) => {
     const { id } = req.params;
     const { status, motivoNegacao } = req.body;
 
-    console.log("Atualizando status do agendamento ID:", id, "para:", status);
+    console.log("🔄 Atualizando status do agendamento ID:", id, "para:", status);
 
     const agendamento = await Agendamento.findByIdAndUpdate(
       id,
@@ -779,7 +766,7 @@ app.patch("/agendamentos/:id/status", async (req, res) => {
       return res.status(404).json({ error: "Agendamento não encontrado." });
     }
 
-    console.log("Status do agendamento atualizado:", id);
+    console.log("✅ Status do agendamento atualizado:", id);
     res.json({
       success: true,
       message: `Agendamento ${status} com sucesso!`,
@@ -787,7 +774,7 @@ app.patch("/agendamentos/:id/status", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Erro ao atualizar status do agendamento:", error);
+    console.error("❌ Erro ao atualizar status do agendamento:", error);
     res.status(500).json({ error: "Erro interno ao atualizar status do agendamento" });
   }
 });
@@ -796,7 +783,7 @@ app.patch("/agendamentos/:id/status", async (req, res) => {
 app.get("/professor/:professorId/estatisticas", async (req, res) => {
   try {
     const { professorId } = req.params;
-    console.log("Buscando estatísticas para professor:", professorId);
+    console.log("📊 Buscando estatísticas para professor:", professorId);
 
     const agendamentos = await Agendamento.find({ professorId });
     const kits = await Kit.find({ professorId });
@@ -817,7 +804,7 @@ app.get("/professor/:professorId/estatisticas", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Erro detalhado ao buscar estatísticas:", error);
+    console.error("❌ Erro detalhado ao buscar estatísticas:", error);
     res.status(500).json({
       error: "Erro interno ao buscar estatísticas",
       detalhes: error.message
@@ -825,13 +812,6 @@ app.get("/professor/:professorId/estatisticas", async (req, res) => {
   }
 });
 
-app.get("/health", (req, res) => {
-  res.json({
-    status: "OK",
-    message: "Servidor rodando normalmente",
-    timestamp: new Date().toISOString()
-  })
-})
 // ======= ESTATÍSTICAS DASHBOARD =======
 
 // Estatísticas para o dashboard adm 
@@ -873,7 +853,6 @@ app.get("/api/stats", async (req, res) => {
 });
 
 // ATIVIDADES RECENTES - Técnico
-
 app.get("/dashboard/atividades-recentes", async (req, res) => {
   try {
     // Data de 7 dias atrás
@@ -897,7 +876,16 @@ app.get("/dashboard/atividades-recentes", async (req, res) => {
   }
 });
 
-// iniciar servidor
+// Health check
+app.get("/health", (req, res) => {
+  res.json({
+    status: "OK",
+    message: "Servidor rodando normalmente",
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Iniciar servidor
 conectarAoMongoDB().then(() => {
-  app.listen(PORTA, () => console.log(`servidor rodando na porta ${PORTA}`))
-})
+  app.listen(PORTA, () => console.log(`servidor rodando na porta ${PORTA}`));
+});
