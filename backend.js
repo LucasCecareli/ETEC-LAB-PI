@@ -871,6 +871,32 @@ app.get("/api/stats", async (req, res) => {
     });
   }
 });
+
+// ATIVIDADES RECENTES - Técnico
+
+app.get("/dashboard/atividades-recentes", async (req, res) => {
+  try {
+    // Data de 7 dias atrás
+    const seteDiasAtras = new Date();
+    seteDiasAtras.setDate(seteDiasAtras.getDate() - 7);
+
+    // Buscar todos e filtrar manualmente
+    const todosAgendamentos = await Agendamento.find({});
+
+    const agendamentosRecentes = todosAgendamentos.filter(ag => {
+      return new Date(ag.dataCriacao) >= seteDiasAtras;
+    });
+
+    res.json({
+      agendamentos: agendamentosRecentes.length,
+    });
+
+  } catch (error) {
+    console.error("Erro:", error);
+    res.json({ agendamentos: 0});
+  }
+});
+
 // iniciar servidor
 conectarAoMongoDB().then(() => {
   app.listen(PORTA, () => console.log(`servidor rodando na porta ${PORTA}`))
