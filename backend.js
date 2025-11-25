@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const uniqueVaquiidator = require("mongoose-unique-validator");
 const dotenv = require("dotenv");
 const bcrypt = require("bcrypt");
+const uniqueValidator = require('mongoose-unique-validator');
 
 dotenv.config();
 
